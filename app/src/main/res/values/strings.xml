@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">routineTimer</string>
+
+    <string name="str_btn_mainActivity_start">Start</string>
+
+    <string name="str_btn_mainActivity_stop">Stop</string>
+
+    <string name="str_btn_mainActivity_reset">Reset timer</string>
+
+    <string name="str_tv_mainActivity_display">the time will be displayed here!</string>
+</resources>
