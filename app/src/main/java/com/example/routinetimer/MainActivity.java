@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState != null) {
 
             // Get the previous state of the stopwatch
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                     = savedInstanceState
                     .getBoolean("wasRunning");
         }
-        runTimer();
+        // runTimer();
     }
 
     // Save the state of the stopwatch
