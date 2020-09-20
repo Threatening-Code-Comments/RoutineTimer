@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SetRoutine">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_SetRoutine_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="50sp"
+        android:clickable="true"
+        android:elevation="10sp"
+        app:cardCornerRadius="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_SetRoutine_icon"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
+                app:srcCompat="@drawable/ic_sitting" />
+
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_SetRoutine_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/str_tv_MainActivity_nextButton" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="40sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.7">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/str_tv_SetRoutine_name"
+            app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+            app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_SetRoutine_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_SetRoutine_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/str_btn_SetRoutine_image"
+            app:cornerRadius="@dimen/dimen_btnCorners" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_SetRoutine_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/str_btn_SetRoutine_color"
+            app:cornerRadius="@dimen/dimen_btnCorners" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

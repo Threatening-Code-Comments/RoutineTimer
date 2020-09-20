@@ -9,4 +9,10 @@
 
     <string name="str_tv_mainActivity_display">the time will be displayed here!</string>
     <string name="str_tv_MainActivity_nextButton">test!</string>
+    <string name="btn_MainActivity_setup">Set up Routine!</string>
+    <string name="str_tv_SetRoutine_name">Name of the checkpoint</string>
+    <string name="str_test">test-String!</string>
+    <string name="str_btn_SetRoutine_image">set image</string>
+    <string name="str_btn_SetRoutine_color">Set Color</string>
+    <string name="str_tv_colordialog_display">0x000000</string>
 </resources>
