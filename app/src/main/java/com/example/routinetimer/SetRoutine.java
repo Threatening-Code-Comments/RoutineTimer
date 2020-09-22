@@ -21,7 +21,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
-import com.google.android.material.textview.MaterialTextView;
 import com.maltaisn.icondialog.IconDialog;
 import com.maltaisn.icondialog.IconDialogSettings;
 import com.maltaisn.icondialog.data.Icon;
@@ -95,23 +94,17 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
             public void onClick(View v) {
                 final View customLayout = getLayoutInflater().inflate(R.layout.layout_colordialog, null);
 
-                final MaterialTextView colorTextView = customLayout.findViewById(R.id.tv_colordialog_display);
-
                 final View colorView = customLayout.findViewById(R.id.v_colordialog);
 
                 Slider slider = customLayout.findViewById(R.id.sl_colordialog_color);
                 slider.addOnChangeListener(new Slider.OnChangeListener() {
                     @Override
                     public void onValueChange(@NonNull Slider slider, float hue, boolean fromUser) {
-                        String hexValue = Integer.toHexString((int) hue).toUpperCase();
-                        colorTextView.setText(hexValue);
-
                         float[] hsv = {hue, 1.0F, 1.0F};
-                        Color tmpColor = Color.valueOf(Color.HSVToColor(hsv));
+                        int color = Color.HSVToColor(hsv);
 
-                        ResourceClass.setTmpTileColor((int) hue);
-                        colorView.setBackgroundColor(tmpColor.toArgb());
-                        ResourceClass.setTmpTileColor(tmpColor.toArgb());
+                        ResourceClass.getTmpTile().setColor(color);
+                        colorView.setBackgroundColor(color);
                     }
                 });
 
@@ -121,11 +114,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Slider sl = customLayout.findViewById(R.id.sl_colordialog_color);
-                                float value = sl.getValue();
-
-                                cardView.setCardBackgroundColor(ResourceClass.getTmpTileColor());
-                                ResourceClass.getTmpTile().setDayNightMode(isNightMode());
+                                updateCV();
                             }
                         });
                 colordialog.show();
@@ -134,6 +123,15 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
         });
 
         initBufferedVals();
+
+        ResourceClass.getTmpTile().setAccessibility(isNightMode());
+    }
+
+    private void updateCV() {
+        ResourceClass.getTmpTile().setAccessibility(isNightMode());
+        cardView.setCardBackgroundColor(ResourceClass.getTmpTile().getColor());
+        nameView.setTextColor(ResourceClass.getTmpTile().getContrastColor());
+        imageView.setColorFilter(ResourceClass.getTmpTile().getContrastColor());
     }
 
     @Override
@@ -142,17 +140,17 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
     }
 
     private void initBufferedVals() {
-        String tempText = ResourceClass.getTmpTileName();
+        String tempText = ResourceClass.getTmpTile().getName();
         if (!tempText.equals(Tile.DEFAULT_NAME)) {
             nameView.setText(tempText);
         }
 
-        Drawable tempDraw = ResourceClass.getTmpTileDrawable();
+        Drawable tempDraw = ResourceClass.getTmpTile().getIcon();
         if (!tempDraw.equals(Tile.DEFAULT_DRAWABLE)) {
             imageView.setImageDrawable(tempDraw);
         }
 
-        int tempColor = ResourceClass.getTmpTileColor();
+        int tempColor = ResourceClass.getTmpTile().getColor();
         if (tempColor != Tile.DEFAULT_COLOR) {
             cardView.setCardBackgroundColor(tempColor);
         }
@@ -160,7 +158,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
     private void setTileText(String text) {
         nameView.setText(text);
-        ResourceClass.setTmpTileName(text);
+        ResourceClass.getTmpTile().setName(text);
     }
 
     @Nullable
@@ -173,15 +171,11 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
     public void onIconDialogIconsSelected(@NonNull IconDialog dialog, @NonNull List<Icon> icons) {
         Icon imageViewIcon = icons.get(0);
 
-        Drawable drawable = imageViewIcon.getDrawable();
-        ResourceClass.convertDrawableDayNight(isNightMode(), drawable);
+        Drawable unwrappedDrawable = imageViewIcon.getDrawable();
 
-        setIcon(imageViewIcon);
-    }
-
-    private void setIcon(Icon imageViewIcon) {
         imageView.setImageDrawable(imageViewIcon.getDrawable());
-        ResourceClass.setTmpTileDrawable(imageViewIcon.getDrawable());
+
+        ResourceClass.getTmpTile().setIcon(unwrappedDrawable);
     }
 
     @Override

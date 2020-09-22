@@ -1,6 +1,8 @@
 package com.example.routinetimer;
 
+import android.annotation.SuppressLint;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 
@@ -25,6 +27,7 @@ class Tile {
 
         }
 
+        @SuppressLint("WrongConstant")
         @Override
         public int getOpacity() {
             return 0;
@@ -32,10 +35,15 @@ class Tile {
     };
     public final static int DEFAULT_COLOR = 0xFFFFFF;
 
+    public final static int LIGHT_THEME_TEXT_COLOR = Color.BLACK;
+    public final static int DARK_THEME_TEXT_COLOR = Color.WHITE;
+
     private String name;
+
+    private int contrastColor;
+
     private Drawable icon;
     private int bgColor;
-
     private boolean isNightMode;
 
 
@@ -54,6 +62,7 @@ class Tile {
     }
 
     public void setName(String name) {
+        setDayNightMode();
         this.name = name;
     }
 
@@ -62,6 +71,7 @@ class Tile {
     }
 
     public void setIcon(Drawable icon) {
+        setDayNightMode();
         this.icon = icon;
     }
 
@@ -70,17 +80,50 @@ class Tile {
     }
 
     public void setColor(int bgColor) {
+        setDayNightMode();
         this.bgColor = bgColor;
     }
 
-    public void setDayNightMode(boolean isNightMode) {
+    public int getContrastColor() {
+        return contrastColor;
+    }
+
+    public void setContrastColor(int contrastColor) {
+        this.contrastColor = contrastColor;
+    }
+
+    public void setAccessibility(boolean isNightMode) {
+        setDayNightMode(isNightMode);
+        calculateContrast();
+    }
+
+    private void setAccessibility() {
+        setDayNightMode(this.isNightMode);
+        calculateContrast();
+    }
+
+    private void calculateContrast() {
+        float[] hsvBackground = new float[3];
+        Color.colorToHSV(bgColor, hsvBackground);
+
+        MyLog.d(hsvBackground[0]);
+        MyLog.d(hsvBackground[0] <= 80 || hsvBackground[0] >= 40);
+
+        if (hsvBackground[0] <= 90 && hsvBackground[0] >= 40) {
+            contrastColor = Color.BLACK;
+        } else {
+            contrastColor = Color.WHITE;
+        }
+    }
+
+    private void setDayNightMode(boolean isNightMode) {
         this.isNightMode = isNightMode;
 
         ResourceClass.convertDrawableDayNight(isNightMode, icon);
         bgColor = ResourceClass.convertColorDayNight(isNightMode, bgColor);
     }
 
-    public void setDayNightMode() {
+    private void setDayNightMode() {
         setDayNightMode(isNightMode);
     }
 }

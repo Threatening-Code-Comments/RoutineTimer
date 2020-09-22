@@ -33,9 +33,9 @@ class ResourceClass {
     public static void convertDrawableDayNight(boolean isNightMode, Drawable oldDrawable) {
 
         if (isNightMode) {
-            DrawableCompat.setTint(oldDrawable, Color.WHITE);
+            DrawableCompat.setTint(oldDrawable, Tile.DARK_THEME_TEXT_COLOR);
         } else {
-            DrawableCompat.setTint(oldDrawable, Color.BLACK);
+            DrawableCompat.setTint(oldDrawable, Tile.LIGHT_THEME_TEXT_COLOR);
         }
     }
 
@@ -68,30 +68,6 @@ class ResourceClass {
         iconPack.loadDrawables(loader.getDrawableLoader());
 
         return iconPack;
-    }
-
-    public static String getTmpTileName() {
-        return tmpTile.getName();
-    }
-
-    public static void setTmpTileName(String name) {
-        tmpTile.setName(name);
-    }
-
-    public static Drawable getTmpTileDrawable() {
-        return tmpTile.getIcon();
-    }
-
-    public static void setTmpTileDrawable(Drawable d) {
-        tmpTile.setIcon(d);
-    }
-
-    public static int getTmpTileColor() {
-        return tmpTile.getColor();
-    }
-
-    public static void setTmpTileColor(int color) {
-        tmpTile.setColor(color);
     }
 
     public static void resetTmpTile() {
