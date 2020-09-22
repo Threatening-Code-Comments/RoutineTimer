@@ -16,7 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -124,8 +123,9 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
                             public void onClick(DialogInterface dialog, int which) {
                                 Slider sl = customLayout.findViewById(R.id.sl_colordialog_color);
                                 float value = sl.getValue();
-                                MyLog.d(value);
+
                                 cardView.setCardBackgroundColor(ResourceClass.getTmpTileColor());
+                                ResourceClass.getTmpTile().setDayNightMode(isNightMode());
                             }
                         });
                 colordialog.show();
@@ -173,13 +173,8 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
     public void onIconDialogIconsSelected(@NonNull IconDialog dialog, @NonNull List<Icon> icons) {
         Icon imageViewIcon = icons.get(0);
 
-        Drawable unwrappedDrawable = imageViewIcon.getDrawable();
-
-        if (isNightMode()) {
-            assert unwrappedDrawable != null;
-            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-            DrawableCompat.setTint(wrappedDrawable, Color.WHITE);
-        }
+        Drawable drawable = imageViewIcon.getDrawable();
+        ResourceClass.convertDrawableDayNight(isNightMode(), drawable);
 
         setIcon(imageViewIcon);
     }

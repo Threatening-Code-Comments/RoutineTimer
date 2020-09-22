@@ -14,6 +14,14 @@ class MyLog {
         d(message);
     }
 
+    public static void d(float[] array) {
+        MyLog.d("length of the Array is: " + array.length);
+        for (float v : array) {
+            if (v == 0) MyLog.d("value is null!");
+            MyLog.d("value: " + v);
+        }
+    }
+
     public static void out(String message) {
         System.out.println(message);
     }

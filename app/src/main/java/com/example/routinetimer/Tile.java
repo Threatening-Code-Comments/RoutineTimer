@@ -36,6 +36,8 @@ class Tile {
     private Drawable icon;
     private int bgColor;
 
+    private boolean isNightMode;
+
 
     public Tile(String name, Drawable icon, int bgColor) {
         this.name = name;
@@ -69,5 +71,16 @@ class Tile {
 
     public void setColor(int bgColor) {
         this.bgColor = bgColor;
+    }
+
+    public void setDayNightMode(boolean isNightMode) {
+        this.isNightMode = isNightMode;
+
+        ResourceClass.convertDrawableDayNight(isNightMode, icon);
+        bgColor = ResourceClass.convertColorDayNight(isNightMode, bgColor);
+    }
+
+    public void setDayNightMode() {
+        setDayNightMode(isNightMode);
     }
 }
