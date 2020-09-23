@@ -30,13 +30,19 @@ class ResourceClass {
         return Color.HSVToColor(hsvValues);
     }
 
-    public static void convertDrawableDayNight(boolean isNightMode, Drawable oldDrawable) {
+    public static int calculateContrast(int bgColor){
+        Color bgColor_cl = Color.valueOf(bgColor);
+        double average = (bgColor_cl.red() + bgColor_cl.blue() + bgColor_cl.green()) / 3;
 
-        if (isNightMode) {
-            DrawableCompat.setTint(oldDrawable, Tile.DARK_THEME_TEXT_COLOR);
+        int contrastColor;
+
+        if (average > 0.5) {
+            contrastColor = Color.BLACK;
         } else {
-            DrawableCompat.setTint(oldDrawable, Tile.LIGHT_THEME_TEXT_COLOR);
+            contrastColor = Color.WHITE;
         }
+
+        return contrastColor;
     }
 
     //--------------------------------------icon handling-----------------------------------------//
@@ -57,8 +63,6 @@ class ResourceClass {
         return iconPack != null ? iconPack : loadIconPack();
     }
 
-    //------------------------------temp tile handling--------------------------------------------//
-
     private static IconPack loadIconPack() {
         // Create an icon pack loader with application context.
         IconPackLoader loader = new IconPackLoader(context);
@@ -69,6 +73,8 @@ class ResourceClass {
 
         return iconPack;
     }
+
+    //------------------------------temp tile handling--------------------------------------------//
 
     public static void resetTmpTile() {
         tmpTile = new Tile();

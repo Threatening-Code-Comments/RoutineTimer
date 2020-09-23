@@ -3,7 +3,9 @@ package com.example.routinetimer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -39,19 +42,16 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
     private MaterialCardView cardView;
     private MaterialButton colorButton;
 
+    private Tile tmpTile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_routine);
 
-        cardView = findViewById(R.id.cv_SetRoutine_main);
+        initViewBuffers();
 
-        imageView = findViewById(R.id.iv_SetRoutine_icon);
-
-        nameView = findViewById(R.id.tv_SetRoutine_name);
-
-        nameField = findViewById(R.id.et_SetRoutine_name);
         nameField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -80,7 +80,6 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
                 : IconDialog.newInstance(new IconDialogSettings.Builder().build());
         Context context = this;
         ResourceClass.init(context);
-        iconButton = findViewById(R.id.btn_SetRoutine_icon);
         iconButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,7 +87,6 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
             }
         });
 
-        colorButton = findViewById(R.id.btn_SetRoutine_color);
         colorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,15 +99,18 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
                     @Override
                     public void onValueChange(@NonNull Slider slider, float hue, boolean fromUser) {
                         float[] hsv = {hue, 1.0F, 1.0F};
-                        int color = Color.HSVToColor(hsv);
 
-                        ResourceClass.getTmpTile().setColor(color);
+                        int color = ResourceClass.convertColorDayNight(isNightMode(), Color.HSVToColor(hsv));
+
+                        tmpTile.setColor(color);
                         colorView.setBackgroundColor(color);
+
+
                     }
                 });
 
                 final MaterialAlertDialogBuilder colordialog = new MaterialAlertDialogBuilder(SetRoutine.this)
-                        .setTitle("Pick Color")
+                        .setTitle("Pick Color (Hue):")
                         .setView(customLayout)
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
@@ -122,16 +123,25 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
             }
         });
 
-        initBufferedVals();
+        updateCV();
+    }
 
-        ResourceClass.getTmpTile().setAccessibility(isNightMode());
+    private void initViewBuffers() {
+        tmpTile = ResourceClass.getTmpTile();
+        cardView = findViewById(R.id.cv_SetRoutine_main);
+        imageView = findViewById(R.id.iv_SetRoutine_icon);
+        nameView = findViewById(R.id.tv_SetRoutine_name);
+        nameField = findViewById(R.id.et_SetRoutine_name);
+        iconButton = findViewById(R.id.btn_SetRoutine_icon);
+        colorButton = findViewById(R.id.btn_SetRoutine_color);
     }
 
     private void updateCV() {
-        ResourceClass.getTmpTile().setAccessibility(isNightMode());
-        cardView.setCardBackgroundColor(ResourceClass.getTmpTile().getColor());
-        nameView.setTextColor(ResourceClass.getTmpTile().getContrastColor());
-        imageView.setColorFilter(ResourceClass.getTmpTile().getContrastColor());
+        tmpTile.setAccessibility();
+        cardView.setCardBackgroundColor(tmpTile.getColor());
+        nameView.setTextColor(tmpTile.getContrastColor());
+        imageView.setImageDrawable(tmpTile.getIcon());
+        imageView.setColorFilter(tmpTile.getContrastColor());
     }
 
     @Override
@@ -139,26 +149,9 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
         super.onDestroy();
     }
 
-    private void initBufferedVals() {
-        String tempText = ResourceClass.getTmpTile().getName();
-        if (!tempText.equals(Tile.DEFAULT_NAME)) {
-            nameView.setText(tempText);
-        }
-
-        Drawable tempDraw = ResourceClass.getTmpTile().getIcon();
-        if (!tempDraw.equals(Tile.DEFAULT_DRAWABLE)) {
-            imageView.setImageDrawable(tempDraw);
-        }
-
-        int tempColor = ResourceClass.getTmpTile().getColor();
-        if (tempColor != Tile.DEFAULT_COLOR) {
-            cardView.setCardBackgroundColor(tempColor);
-        }
-    }
-
     private void setTileText(String text) {
         nameView.setText(text);
-        ResourceClass.getTmpTile().setName(text);
+        tmpTile.setName(text);
     }
 
     @Nullable
@@ -175,7 +168,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
         imageView.setImageDrawable(imageViewIcon.getDrawable());
 
-        ResourceClass.getTmpTile().setIcon(unwrappedDrawable);
+        tmpTile.setIcon(unwrappedDrawable);
     }
 
     @Override

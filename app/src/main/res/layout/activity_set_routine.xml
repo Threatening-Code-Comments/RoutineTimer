@@ -29,7 +29,7 @@
                 android:id="@+id/iv_SetRoutine_icon"
                 android:layout_width="100sp"
                 android:layout_height="100sp"
-                app:srcCompat="@drawable/ic_sitting" />
+                app:srcCompat="@drawable/ic_defaultdrawable" />
 
 
             <Space
