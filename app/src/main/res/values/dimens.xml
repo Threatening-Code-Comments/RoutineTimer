@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="dimen_btnCorners">10sp</dimen>
-    <dimen name="dimen_cardCorners">5sp</dimen>
     <dimen name="dimen_textFieldCorners">10sp</dimen>
+    <dimen name="dimen_cardViewCornerRadius">20sp</dimen>
 </resources>

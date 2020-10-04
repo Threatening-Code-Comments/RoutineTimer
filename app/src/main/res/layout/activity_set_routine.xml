@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SetRoutine">
+    tools:context="de.threateningcodecomments.routinetimer.SetRoutine">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_SetRoutine_main"
@@ -13,7 +13,7 @@
         android:layout_margin="50sp"
         android:clickable="true"
         android:elevation="10sp"
-        app:cardCornerRadius="20sp"
+        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -40,18 +40,39 @@
                 android:id="@+id/tv_SetRoutine_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/str_tv_MainActivity_nextButton" />
+                android:text="@string/str_tv_SetRoutine_name" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.7">
+        app:layout_constraintTop_toBottomOf="@+id/cv_SetRoutine_main"
+        app:layout_constraintVertical_bias="0.2">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="hint"
+            app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+            app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
+
+            <AutoCompleteTextView
+                android:id="@+id/filled_exposed_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textField"
@@ -62,7 +83,7 @@
             app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_SetRoutine_name"
+                android:id="@+id/et_SetRoutine_tileName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true" />
@@ -95,5 +116,14 @@
             app:cornerRadius="@dimen/dimen_btnCorners" />
 
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add tile!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

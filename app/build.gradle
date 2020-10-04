@@ -1,11 +1,11 @@
-
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
 
     defaultConfig {
-        applicationId "com.example.routinetimer"
+        applicationId "de.threateningcodecomments.routinetimer"
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
@@ -31,14 +31,27 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'com.google.firebase:firebase-storage:19.2.0'
+    implementation 'com.google.firebase:firebase-database:19.5.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+
+    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-core:17.5.0'
+
+    implementation 'com.google.firebase:firebase-auth:19.4.0'
+    implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
+    implementation 'com.google.android.gms:play-services-auth:18.1.0'
+
     implementation 'com.google.android.material:material:1.2.1'
+
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
 
     implementation "com.maltaisn:icondialog:3.3.0"
     implementation "com.maltaisn:iconpack-default:1.0.0"
+    implementation "com.maltaisn:iconpack-community-material:5.3.45"
 
     implementation "com.github.duanhong169:colorpicker:1.1.6"
 }

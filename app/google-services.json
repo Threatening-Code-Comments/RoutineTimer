@@ -1,0 +1,64 @@
+{
+  "project_info": {
+    "project_number": "462881992703",
+    "firebase_url": "https://routine-tracker-4db49.firebaseio.com",
+    "project_id": "routine-tracker-4db49",
+    "storage_bucket": "routine-tracker-4db49.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462881992703:android:4513fe8aa074b3975741ca",
+        "android_client_info": {
+          "package_name": "de.threateningcodecomments.routinetimer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "462881992703-kel3bud3bbfrcsqcik7etsalplipkc3r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.threateningcodecomments.routinetimer",
+            "certificate_hash": "4d9bf9e5fc5361006f184d076f8a02fcca8348f6"
+          }
+        },
+        {
+          "client_id": "462881992703-ouqp3hqdfvhoe1h5ot6e7o0rkujn86rj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.threateningcodecomments.routinetimer",
+            "certificate_hash": "7ff96dd119534a1722ad937b1a77d71b8eabeee1"
+          }
+        },
+        {
+          "client_id": "462881992703-trrjprqqgg8t5ishev29h6265pbe293k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.threateningcodecomments.routinetimer",
+            "certificate_hash": "1bbd82e52fde43487a84524e202d4f4e39ee5883"
+          }
+        },
+        {
+          "client_id": "462881992703-4f1oslrhhp0ioq9818m7mpipoc54005d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-Zmv9bqGfrwY5op0HOisuqizSGTVzh-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "462881992703-4f1oslrhhp0ioq9818m7mpipoc54005d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
