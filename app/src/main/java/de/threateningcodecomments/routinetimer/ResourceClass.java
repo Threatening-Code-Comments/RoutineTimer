@@ -1,25 +1,34 @@
 package de.threateningcodecomments.routinetimer;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.maltaisn.icondialog.pack.IconPack;
 import com.maltaisn.icondialog.pack.IconPackLoader;
 import com.maltaisn.iconpack.defaultpack.IconPackDefault;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 class ResourceClass {
+    static boolean listenerAdded = false;
+    private static FirebaseDatabase database;
 
-    public static final String DEFAULT_TMPROUTINENAME = "";
-    private static String tmpRoutineName = DEFAULT_TMPROUTINENAME;
-    //----------------------------------routine storage-------------------------------------------//
-    private HashMap<String, ArrayList<Tile>> routineList = new HashMap<>();
+    //region random
+    //region Routines
+    private static ArrayList<Routine> routines = new ArrayList<>();
 
-    //----------------------------------------random----------------------------------------------//
     public static int convertColorDayNight(boolean isNightMode, int oldColor) {
         float[] hsvValues = new float[3];
         int red = Color.red(oldColor);
@@ -44,8 +53,6 @@ class ResourceClass {
         return Color.HSVToColor(hsvValues);
     }
 
-    //--------------------------------------tmp routine-------------------------------------------//
-
     public static int calculateContrast(int bgColor) {
         Color bgColor_cl = Color.valueOf(bgColor);
         double average = (bgColor_cl.red() + bgColor_cl.blue() + bgColor_cl.green()) / 3;
@@ -61,29 +68,85 @@ class ResourceClass {
         return contrastColor;
     }
 
-    public static String getTmpRoutineName() {
-        return tmpRoutineName;
-    }
-
-    public static void setTmpRoutineName(String tmpRoutineName) {
-        ResourceClass.tmpRoutineName = tmpRoutineName;
-    }
-
-    public HashMap<String, ArrayList<Tile>> getRoutineList() {
-        return routineList;
-    }
-
-    //--------------------------------------icon handling-----------------------------------------//
+    //endregion
+    //region TmpTile
+    private static Tile tmpTile = new Tile();
+    //region Icon pack handling
     @Nullable
     private static IconPack iconPack;
     private static Context context;
-    private static Tile tmpTile = new Tile();
 
-    public static void init(Context c) {
-        context = c;
+    public static boolean isNightMode(Application application) {
+        int nightModeFlags = application.getResources().getConfiguration().uiMode &
+                Configuration.UI_MODE_NIGHT_MASK;
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                return true;
 
-        // Load the icon pack on application start.
-        loadIconPack();
+            case Configuration.UI_MODE_NIGHT_NO:
+
+            case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                return false;
+        }
+
+        return false;
+    }
+
+    public static void loadRoutines() {
+        database = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        assert user != null;
+        DatabaseReference ref = database.getReference("/users/" + user.getUid() + "/routines/");
+
+        if (!listenerAdded) {
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    listenerAdded = true;
+
+                    MyLog.d(snapshot.getValue() + " is the new value for ref");
+                    handleRoutineUpdate(snapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+
+    //endregion
+
+    private static void handleRoutineUpdate(DataSnapshot snapshot) {
+        Iterable<DataSnapshot> routinesIterable = snapshot.getChildren();
+
+        routines.clear();
+        //iterates through all routines
+        for (DataSnapshot routineDataSnapshot : routinesIterable) {
+
+            Routine routine = routineDataSnapshot.getValue(Routine.class);
+            routines.add(routine);
+        }
+    }
+
+    public static ArrayList<Routine> getRoutines() {
+        return routines;
+    }
+
+    public static void setRoutines(ArrayList<Routine> routines) {
+        ResourceClass.routines = routines;
+    }
+
+    //endregion
+
+    public static void resetTmpTile() {
+        tmpTile = new Tile();
+    }
+
+    public static Tile getTmpTile() {
+        return tmpTile;
     }
 
     @Nullable
@@ -102,13 +165,13 @@ class ResourceClass {
         return iconPack;
     }
 
-    //------------------------------temp tile handling--------------------------------------------//
+    public static void initIconPack(Context c) {
+        context = c;
 
-    public static void resetTmpTile() {
-        tmpTile = new Tile();
+        // Load the icon pack on application start.
+        loadIconPack();
     }
 
-    public static Tile getTmpTile() {
-        return tmpTile;
-    }
+    //endregion
+
 }

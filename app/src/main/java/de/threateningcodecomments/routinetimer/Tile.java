@@ -2,15 +2,19 @@ package de.threateningcodecomments.routinetimer;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.maltaisn.icondialog.data.Icon;
+
+import java.util.Objects;
+
 class Tile {
     public final static String DEFAULT_NAME = "";
+
     public final static Drawable DEFAULT_DRAWABLE = new Drawable() {
         @Override
         public void draw(@NonNull Canvas canvas) {
@@ -33,11 +37,12 @@ class Tile {
             return 0;
         }
     };
+
     public final static int DEFAULT_COLOR = 0xFFFFFFFF;
     public final static int DEFAULT_COLOR_DARK = 0xFF242424;
 
-    public final static int LIGHT_THEME_TEXT_COLOR = Color.BLACK;
-    public final static int DARK_THEME_TEXT_COLOR = Color.WHITE;
+    public final static int MODE_COUNT_UP = 1;
+    public final static int MODE_COUNT_DOWN = -1;
 
     private String name;
 
@@ -45,16 +50,23 @@ class Tile {
     private int iconID;
 
     private int contrastColor;
-    private int bgColor;
+    private int backgroundColor;
 
     private boolean isNightMode;
 
+    private int mode;
 
-    public void setAccessibility(boolean isNightMode) {
-        setDayNightMode(isNightMode);
-        contrastColor = ResourceClass.calculateContrast(bgColor);
-        icon.setTint(contrastColor);
+    //region Constructors
+    public Tile(String name, Drawable icon, int backgroundColor) {
+        this.name = name;
+        this.icon = icon;
+        this.backgroundColor = backgroundColor;
     }
+
+    public Tile() {
+        this(DEFAULT_NAME, DEFAULT_DRAWABLE, DEFAULT_COLOR);
+    }
+    //endregion
 
     private void setAccessibility() {
         setAccessibility(this.isNightMode);
@@ -63,27 +75,20 @@ class Tile {
     private void setDayNightMode(boolean isNightMode) {
         this.isNightMode = isNightMode;
 
-        bgColor = ResourceClass.convertColorDayNight(isNightMode, bgColor);
+        backgroundColor = ResourceClass.convertColorDayNight(isNightMode, backgroundColor);
     }
 
     private void setDayNightMode() {
         setDayNightMode(isNightMode);
     }
 
-    //--------------------------------------constructor-------------------------------------------//
-
-    public Tile(String name, Drawable icon, int bgColor) {
-        this.name = name;
-        this.icon = icon;
-        this.bgColor = bgColor;
+    public void setAccessibility(boolean isNightMode) {
+        setDayNightMode(isNightMode);
+        contrastColor = ResourceClass.calculateContrast(backgroundColor);
+        icon.setTint(contrastColor);
     }
 
-    public Tile() {
-        this(DEFAULT_NAME, DEFAULT_DRAWABLE, DEFAULT_COLOR);
-    }
-
-    //--------------------------------------getter and setter-------------------------------------//
-
+    //region getters and setters
     public String getName() {
         return name;
     }
@@ -91,6 +96,14 @@ class Tile {
     public void setName(String name) {
         setDayNightMode();
         this.name = name;
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 
     public Drawable getIcon() {
@@ -102,13 +115,22 @@ class Tile {
         this.icon = icon;
     }
 
+    public void setIconWithID(int ID) {
+        setAccessibility();
+
+        Icon icon = Objects.requireNonNull(ResourceClass.getIconPack()).getIcon(ID);
+
+        this.iconID = ID;
+        this.icon = Objects.requireNonNull(icon).getDrawable();
+    }
+
     public int getColor() {
-        return bgColor;
+        return backgroundColor;
     }
 
     public void setColor(int bgColor) {
         setAccessibility();
-        this.bgColor = bgColor;
+        this.backgroundColor = bgColor;
     }
 
     public int getContrastColor() {
@@ -126,4 +148,5 @@ class Tile {
     public void setIconID(int iconID) {
         this.iconID = iconID;
     }
+    //endregion
 }

@@ -2,7 +2,6 @@ package de.threateningcodecomments.routinetimer;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -57,7 +56,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
         initBufferedVals();
 
-        tmpTile.setAccessibility(isNightMode());
+        tmpTile.setAccessibility(ResourceClass.isNightMode(getApplication()));
 
         String[] COUNTRIES = new String[]{"Item 1", "Item 2", "Item 3", "Item 4", "edit"};
 
@@ -164,7 +163,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
             color = Tile.DEFAULT_COLOR_DARK;
         }
 
-        color = ResourceClass.convertColorDayNight(isNightMode(), color);
+        color = ResourceClass.convertColorDayNight(ResourceClass.isNightMode(getApplication()), color);
         return color;
     }
 
@@ -175,13 +174,13 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
         final IconDialog iconDialog = dialog != null ? dialog
                 : IconDialog.newInstance(new IconDialogSettings.Builder().build());
         Context context = this;
-        ResourceClass.init(context);
+        ResourceClass.initIconPack(context);
 
         return iconDialog;
     }
 
     private void initBufferViews() {
-        ResourceClass.getTmpTile().setAccessibility(isNightMode());
+        ResourceClass.getTmpTile().setAccessibility(ResourceClass.isNightMode(getApplication()));
 
         cardView = findViewById(R.id.cv_SetRoutine_main);
         imageView = findViewById(R.id.iv_SetRoutine_icon);
@@ -193,7 +192,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
     private void updateCV() {
         Tile tmpTile = ResourceClass.getTmpTile();
-        tmpTile.setAccessibility(isNightMode());
+        tmpTile.setAccessibility(ResourceClass.isNightMode(getApplication()));
         cardView.setCardBackgroundColor(tmpTile.getColor());
         nameView.setTextColor(tmpTile.getContrastColor());
         imageView.setColorFilter(tmpTile.getContrastColor());
@@ -201,7 +200,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
     private void initBufferedVals() {
         Tile tmpTile = ResourceClass.getTmpTile();
-        tmpTile.setAccessibility(isNightMode());
+        tmpTile.setAccessibility(ResourceClass.isNightMode(getApplication()));
         int contrastColor = tmpTile.getContrastColor();
         MyLog.d(contrastColor);
 
@@ -249,22 +248,6 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
     @Override
     public void onIconDialogCancelled() {
-    }
-
-    private boolean isNightMode() {
-        int nightModeFlags = getApplication().getResources().getConfiguration().uiMode &
-                Configuration.UI_MODE_NIGHT_MASK;
-        switch (nightModeFlags) {
-            case Configuration.UI_MODE_NIGHT_YES:
-                return true;
-
-            case Configuration.UI_MODE_NIGHT_NO:
-
-            case Configuration.UI_MODE_NIGHT_UNDEFINED:
-                return false;
-        }
-
-        return false;
     }
 
     @Override

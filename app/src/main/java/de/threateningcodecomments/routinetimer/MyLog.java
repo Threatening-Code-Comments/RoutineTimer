@@ -4,6 +4,8 @@ import android.util.Log;
 
 class MyLog {
     public static final String DEFAULT_TAG = "myLog";
+    public static final String DEFAULT_FIREBASE_TAG = "myFirebase";
+
 
     public static void d(String message) {
         if (message == null) {
@@ -26,7 +28,15 @@ class MyLog {
         }
     }
 
-    /*public static void out(String message) {
-        System.out.println(message);
-    }*/
+    public static void f(String str) {
+        Log.d(DEFAULT_FIREBASE_TAG, str);
+    }
+
+    public static void w(String message, Throwable tr) {
+        Log.w(DEFAULT_TAG, message, tr);
+    }
+
+    public static void fw(String message, Throwable tr) {
+        Log.w(DEFAULT_FIREBASE_TAG, message, tr);
+    }
 }
