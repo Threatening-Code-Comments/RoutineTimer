@@ -29,7 +29,7 @@ import com.maltaisn.icondialog.pack.IconPack;
 
 import java.util.List;
 
-public class SetRoutine extends AppCompatActivity implements IconDialog.Callback {
+public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDialog.Callback {
 
     private static final String ICON_DIALOG_TAG = "icon-dialog";
 
@@ -120,7 +120,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
                 handleColor(hue, colorView);
                 slider.setValue(hue);
 
-                final MaterialAlertDialogBuilder colordialog = new MaterialAlertDialogBuilder(SetRoutine.this)
+                final MaterialAlertDialogBuilder colordialog = new MaterialAlertDialogBuilder(DEPRECATED_SetRoutine.this)
                         .setTitle("Pick Color")
                         .setView(customLayout)
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -137,7 +137,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
 
     private float calculateSliderHue() {
         Tile tmpTile = ResourceClass.getTmpTile();
-        int bgColor = tmpTile.getColor();
+        int bgColor = tmpTile.getBackgroundColor();
 
         float[] hsv = new float[3];
         Color.colorToHSV(bgColor, hsv);
@@ -151,7 +151,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
     private void handleColor(float hue, View colorView) {
         int color = calculateColor(hue);
 
-        ResourceClass.getTmpTile().setColor(color);
+        ResourceClass.getTmpTile().setBackgroundColor(color);
         colorView.setBackgroundColor(color);
     }
 
@@ -193,7 +193,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
     private void updateCV() {
         Tile tmpTile = ResourceClass.getTmpTile();
         tmpTile.setAccessibility(ResourceClass.isNightMode(getApplication()));
-        cardView.setCardBackgroundColor(tmpTile.getColor());
+        cardView.setCardBackgroundColor(tmpTile.getBackgroundColor());
         nameView.setTextColor(tmpTile.getContrastColor());
         imageView.setColorFilter(tmpTile.getContrastColor());
     }
@@ -216,7 +216,7 @@ public class SetRoutine extends AppCompatActivity implements IconDialog.Callback
         }
         imageView.setColorFilter(tmpTile.getContrastColor());
 
-        int tempColor = tmpTile.getColor();
+        int tempColor = tmpTile.getBackgroundColor();
         if (tempColor != Tile.DEFAULT_COLOR) {
             cardView.setCardBackgroundColor(tempColor);
         }

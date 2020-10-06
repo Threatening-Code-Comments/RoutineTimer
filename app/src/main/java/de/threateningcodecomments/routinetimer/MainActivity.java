@@ -2,10 +2,10 @@ package de.threateningcodecomments.routinetimer;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
@@ -32,6 +32,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MaterialTextView usernameView;
     private MaterialCardView nameCardView;
 
+    private boolean isLoggedIn = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +64,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initOnClicks();
 
+        account = FirebaseAuth.getInstance().getCurrentUser();
         if (account == null) {
-            signIn();
+            isLoggedIn = false;
+            updateUI();
+
+            toggleSignIn();
+        } else {
+            isLoggedIn = true;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.cv_MainActivity_name:
+                toggleSignIn();
+                break;
+
+            case R.id.btn_mainActivity_setup:
+                Intent intent = new Intent(MainActivity.this, SelectRoutine.class);
+                startActivity(intent);
+
+                /*ArrayList<Tile> tiles = new ArrayList<>();
+                //String name, int iconID, int color, boolean isNightMode, int mode
+                tiles.add(new Tile("new Tile name", 52, Color.WHITE, false, Tile.MODE_COUNT_DOWN));
+                tiles.add(new Tile("second tile name", 55, Color.BLACK, true, Tile.MODE_COUNT_DOWN));
+
+                Routine tmpRoutine = new Routine(Routine.MODE_SEQUENTIAL, "added routine", tiles);
+                ResourceClass.saveRoutine(tmpRoutine);*/
+
+                break;
+
+            case R.id.btn_mainActivity_test:
+                ResourceClass.loadRoutines();
+
+                /*ArrayList<Routine> routines = ResourceClass.getRoutines();
+
+                StringBuilder sb = new StringBuilder();
+
+                if (routines.size() == 0) {
+                    sb.append("Routines are being loaded!");
+                    Toast.makeText(this, sb, Toast.LENGTH_SHORT).show();
+                } else {
+                    sb.append("Routines loaded: ");
+
+                    for (Routine routine : routines) {
+                        sb.append(routine.getName()).append("; ");
+                    }
+
+                    Toast.makeText(this, sb, Toast.LENGTH_LONG).show();
+                }*/
+                //int mode, String name, ArrayList<Tile> tiles
+                ArrayList<Tile> tiles = new ArrayList<>();
+                tiles.add(new Tile("tile name yeet", 52, Color.WHITE, true, Tile.MODE_COUNT_UP));
+                tiles.add(new Tile("2nd tile haha", 52, Color.WHITE, true, Tile.MODE_COUNT_UP));
+
+                Routine routine = new Routine(Routine.MODE_SEQUENTIAL, "routine name!", tiles);
+
+                ResourceClass.saveRoutine(routine);
+
+                break;
+
+            default:
+                Toast.makeText(this, "Unknown Error, please see developer or priest", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -90,46 +156,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         testButton.setOnClickListener(this);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_mainActivity_setup:
-                Intent intent = new Intent(MainActivity.this, SetRoutine.class);
-                startActivity(intent);
-                break;
-
-            case R.id.cv_MainActivity_name:
-                toggleSignIn();
-                break;
-
-            case R.id.btn_mainActivity_test:
-                ResourceClass.loadRoutines();
-
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-
-                        ArrayList<Routine> routines = ResourceClass.getRoutines();
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Loaded Routines: ");
-
-                        for (Routine tmpRoutine : routines) {
-                            sb.append(tmpRoutine.getName()).append("; ");
-                        }
-
-                        Toast.makeText(MainActivity.this, sb, Toast.LENGTH_LONG).show();
-
-                    }
-                }, 5000);
-                break;
-
-            default:
-                Toast.makeText(this, "Unknown Error, please see developer or priest", Toast.LENGTH_LONG).show();
-        }
-    }
-
     private void initGSignIn() {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -143,18 +169,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mAuth = FirebaseAuth.getInstance();
     }
+
+    private void updateButtonClickable() {
+        if (!isLoggedIn) {
+            testButton.setEnabled(false);
+            setupButton.setEnabled(false);
+        } else {
+            testButton.setEnabled(true);
+            setupButton.setEnabled(true);
+        }
+    }
     //endregion
 
     //region Greeting
+
     private void updateUI() {
         account = FirebaseAuth.getInstance().getCurrentUser();
 
         if (account == null) {
+            MyLog.d("handleGreetNoAccount");
             handleGreetNoAccount();
         } else {
+            MyLog.d("handleGreetAccount");
             handleGreetAccount();
         }
 
+        updateButtonClickable();
+    }
+
+    private void setGreetTextColor(int bgColor) {
+        int textColor = ResourceClass.calculateContrast(bgColor);
+        usernameView.setTextColor(textColor);
+
+        if (!isLoggedIn) {
+            MyLog.d("Color filter enabled! Color is: " + textColor);
+            profilepicview.setColorFilter(textColor);
+        } else {
+            MyLog.d("Color filter is disabled!");
+            profilepicview.clearColorFilter();
+        }
     }
 
     private void handleGreetAccount() {
@@ -166,8 +219,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Glide.with(this).asBitmap().load(pathToPhoto).into(new CustomTarget<Bitmap>() {
             @Override
-            public void onResourceReady(Bitmap bitmap, Transition<? super Bitmap> transition) {
+            public void onResourceReady(@NotNull Bitmap bitmap, Transition<? super Bitmap> transition) {
                 int pixelColor = bitmap.getPixel(0, 0);
+
+                setGreetTextColor(pixelColor);
 
                 nameCardView.setCardBackgroundColor(pixelColor);
             }
@@ -195,10 +250,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         nameCardView.setCardBackgroundColor(bgColor);
+
+        setGreetTextColor(bgColor);
     }
     //endregion
 
     //region handle sign in
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -211,6 +269,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 MyLog.f("firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
+                isLoggedIn = false;
+
                 // Google Sign In failed, update UI appropriately
                 MyLog.fw("Google sign in failed", e);
                 // ...
@@ -228,14 +288,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             // Sign in success, update UI with the signed-in user's information
                             MyLog.f("signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI();
+
+                            isLoggedIn = true;
                         } else {
                             // If sign in fails, display a message to the user.
+                            isLoggedIn = false;
                             MyLog.fw("signInWithCredential:failure", task.getException());
-                            updateUI();
                         }
 
-                        // ...
+
+                        updateUI();
                     }
                 });
     }
@@ -250,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         updateUI();
+        updateButtonClickable();
     }
 
     private void signIn() {
@@ -268,7 +331,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
 
-        Toast.makeText(this, "Signed out!", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Signed out!", Toast.LENGTH_SHORT).show();
+
+        isLoggedIn = false;
     }
     //endregion
 }

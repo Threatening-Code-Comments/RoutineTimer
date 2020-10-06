@@ -57,6 +57,18 @@ class Tile {
     private int mode;
 
     //region Constructors
+    //debug constructor
+
+
+    public Tile(String name, int iconID, int color, boolean isNightMode, int mode) {
+        this.name = name;
+        this.iconID = iconID;
+        this.contrastColor = color;
+        this.backgroundColor = color;
+        this.isNightMode = isNightMode;
+        this.mode = mode;
+    }
+
     public Tile(String name, Drawable icon, int backgroundColor) {
         this.name = name;
         this.icon = icon;
@@ -124,11 +136,11 @@ class Tile {
         this.icon = Objects.requireNonNull(icon).getDrawable();
     }
 
-    public int getColor() {
+    public int getBackgroundColor() {
         return backgroundColor;
     }
 
-    public void setColor(int bgColor) {
+    public void setBackgroundColor(int bgColor) {
         setAccessibility();
         this.backgroundColor = bgColor;
     }
@@ -148,5 +160,15 @@ class Tile {
     public void setIconID(int iconID) {
         this.iconID = iconID;
     }
+
+    public boolean isNightMode() {
+        return isNightMode;
+    }
+
+    public void setNightMode(boolean nightMode) {
+        isNightMode = nightMode;
+        setAccessibility();
+    }
+
     //endregion
 }

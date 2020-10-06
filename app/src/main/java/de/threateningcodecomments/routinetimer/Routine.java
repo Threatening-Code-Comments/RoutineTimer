@@ -1,11 +1,12 @@
 package de.threateningcodecomments.routinetimer;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 class Routine {
 
-    private static final int MODE_CONTINUOUS = 1;
-    private static final int MODE_SEQUENTIAL = 0;
+    public static final int MODE_CONTINUOUS = 1;
+    public static final int MODE_SEQUENTIAL = 0;
 
     private int mode;
 
@@ -13,6 +14,20 @@ class Routine {
     private ArrayList<Tile> tiles;
 
     private String UID;
+
+    //debug constructor
+    public Routine(int mode, String name, ArrayList<Tile> tiles) {
+        this.mode = mode;
+        this.name = name;
+        this.tiles = tiles;
+
+        if (this.UID == null) {
+            this.UID = UUID.randomUUID().toString();
+        }
+    }
+
+    public Routine() {
+    }
 
     //region Getters and Setters
     public int getMode() {

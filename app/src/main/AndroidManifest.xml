@@ -9,9 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
-        <activity android:name="de.threateningcodecomments.routinetimer.TestForRoutines" />
-        <activity android:name="de.threateningcodecomments.routinetimer.SetRoutine" />
-        <activity android:name="de.threateningcodecomments.routinetimer.MainActivity">
+        <activity android:name=".SelectRoutine"></activity>
+        <activity android:name=".TestForRoutines" />
+        <activity android:name=".DEPRECATED_SetRoutine" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
