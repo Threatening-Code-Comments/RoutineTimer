@@ -18,6 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAlignment="center"
+            android:theme="@style/routineToolbarLayout"
             app:collapsedTitleTextAppearance="?attr/textAppearanceHeadline5"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleGravity="bottom|center"
@@ -31,6 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:textAlignment="center"
+                android:theme="@style/routineToolbar"
                 app:layout_collapseMode="pin"
                 app:title="Routines" />
 

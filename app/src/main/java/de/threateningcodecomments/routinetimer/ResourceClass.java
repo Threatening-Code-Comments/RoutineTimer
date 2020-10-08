@@ -26,9 +26,6 @@ import com.maltaisn.iconpack.defaultpack.IconPackDefault;
 import java.util.ArrayList;
 
 class ResourceClass {
-    static boolean listenerAdded = false;
-    private static FirebaseDatabase database;
-
 
     //region random
     private static Drawable errorDrawable;
@@ -94,15 +91,31 @@ class ResourceClass {
                 Configuration.UI_MODE_NIGHT_MASK;
         switch (nightModeFlags) {
             case Configuration.UI_MODE_NIGHT_YES:
+                updateNightMode(true);
                 return true;
 
             case Configuration.UI_MODE_NIGHT_NO:
 
             case Configuration.UI_MODE_NIGHT_UNDEFINED:
+
+            default:
+                updateNightMode(false);
                 return false;
         }
+    }
 
-        return false;
+    private static boolean isNightMode;
+
+    public static boolean wasNightMode() {
+        return isNightMode;
+    }
+
+    public static void updateNightMode(boolean nightMode) {
+        isNightMode = nightMode;
+    }
+
+    public static void updateNightMode(Application application) {
+        updateNightMode(isNightMode(application));
     }
 
     public static int calculateContrast(int bgColor) {
@@ -127,20 +140,12 @@ class ResourceClass {
         return (int) ((randomVal + start) * end);
     }
 
-    public static Routine generateRandomRoutine() {
-        ArrayList<Tile> tiles = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            tiles.add(new Tile("random tile name " + ResourceClass.random(0, 5) + "!",
-                    ResourceClass.random(0, 80),
-                    Color.rgb((float) Math.random() - 0.2F, (float) Math.random(), (float) Math.random())
-            ));
-        }
-
-        return new Routine(Routine.MODE_SEQUENTIAL, "random routine nr. " + ResourceClass.random(0, 100), tiles);
-    }
     //endregion
 
     //region Routines
+    static boolean listenerAdded = false;
+    private static FirebaseDatabase database;
+
     private static FirebaseUser lastUser;
     private static ValueEventListener valueEventListener;
 
@@ -161,6 +166,7 @@ class ResourceClass {
 
             DatabaseReference routineRef = database.getReference("/users/" + user.getUid() + "/routines/");
 
+            MyLog.d(routineRef + " is the raw value of routineRef");
 
             if (valueEventListener != null) {
                 routineRef.removeEventListener(valueEventListener);
@@ -171,7 +177,6 @@ class ResourceClass {
             valueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    MyLog.d("new value for routines in db: " + snapshot.getValue());
                     handleRoutineUpdate(snapshot);
                 }
 
@@ -189,8 +194,10 @@ class ResourceClass {
 
     private static void handleRoutineUpdate(DataSnapshot snapshot) {
         Iterable<DataSnapshot> routinesIterable = snapshot.getChildren();
+        MyLog.d("new value for routines in db: " + snapshot.getValue());
 
         if (snapshot.getValue() == null) {
+            routines.clear();
             routines.add(Routine.ERROR_ROUTINE);
             return;
         }
@@ -225,6 +232,18 @@ class ResourceClass {
         Object value = routine;
 
         saveToDb(path, key, value);
+    }
+
+    public static Routine generateRandomRoutine() {
+        ArrayList<Tile> tiles = new ArrayList<>();
+        for (int i = 0; i < (int) ((Math.random() + 1) * 3); i++) {
+            tiles.add(new Tile("random tile name " + ResourceClass.random(0, 5) + "!",
+                    ResourceClass.random(0, 80),
+                    Color.rgb((float) Math.random() - 0.2F, (float) Math.random(), (float) Math.random())
+            ));
+        }
+
+        return new Routine(Routine.MODE_SEQUENTIAL, "Random routine " + ResourceClass.random(0, 100), tiles);
     }
 
     //endregion
@@ -280,6 +299,18 @@ class ResourceClass {
 
         // Load the icon pack on application start.
         loadIconPack();
+    }
+
+    public static Drawable getIconDrawable(Tile tile) {
+        int iconID = tile.getIconID();
+        Drawable icon;
+        if (iconID != Tile.ERROR_ICONID) {
+            icon = ResourceClass.getIconPack().getIcon(iconID).getDrawable();
+        } else {
+            icon = ResourceClass.getErrorDrawable();
+        }
+
+        return icon;
     }
     //endregion
 

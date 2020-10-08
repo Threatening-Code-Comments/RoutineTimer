@@ -12,17 +12,18 @@ class Routine {
     );
     public static final String ERROR_NAME = Tile.ERROR_NAME;
 
-    public static final int MODE_CONTINUOUS = 1;
-    public static final int MODE_SEQUENTIAL = 0;
-
-    private int mode;
-
     private String name;
-    private ArrayList<Tile> tiles;
 
     private String UID;
 
-    //debug constructor
+    private int mode;
+    public static final int MODE_CONTINUOUS = 1;
+    public static final int MODE_SEQUENTIAL = 0;
+
+    private ArrayList<Tile> tiles;
+
+
+    //region Constructors
     public Routine(int mode, String name, ArrayList<Tile> tiles) {
         this.mode = mode;
         this.name = name;
@@ -39,6 +40,14 @@ class Routine {
     }
 
     public Routine() {
+    }
+
+    //endregion
+
+    public void setAccessibility(boolean isNightMode) {
+        for (Tile tmpTile : tiles) {
+            tmpTile.setAccessibility(isNightMode);
+        }
     }
 
     //region Getters and Setters

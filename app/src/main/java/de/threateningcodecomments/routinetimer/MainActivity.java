@@ -97,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.btn_mainActivity_test:
-                ResourceClass.loadRoutines();
-
                 Routine routine = ResourceClass.generateRandomRoutine();
 
                 ResourceClass.saveRoutine(routine);
@@ -114,10 +112,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null
 
         updateUI();
+
+        ResourceClass.updateNightMode(getApplication());
     }
 
     private void initBufferViews() {

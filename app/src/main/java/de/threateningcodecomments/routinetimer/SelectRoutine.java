@@ -52,7 +52,7 @@ public class SelectRoutine extends AppCompatActivity implements View.OnClickList
             case R.id.fab_SelectRoutine_add:
                 bufferRoutine = ResourceClass.generateRandomRoutine();
 
-                ResourceClass.saveRoutine(bufferRoutine);
+                addRoutine();
 
                 updateUI();
                 break;
@@ -61,12 +61,32 @@ public class SelectRoutine extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void updateUI() {
-        if (routines.get(0) == Routine.ERROR_ROUTINE) {
-            routines.clear();
-        }
-
+    private void addRoutine() {
+        ResourceClass.saveRoutine(bufferRoutine);
         routines.add(bufferRoutine);
+
+        routines.remove(Routine.ERROR_ROUTINE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        ResourceClass.loadRoutines();
+        updateRoutines();
+        ResourceClass.updateNightMode(getApplication());
+        updateUI();
+    }
+
+    private void updateRoutines() {
+        routines = ResourceClass.getRoutines();
+    }
+
+    private void updateUI() {
+        if (routines.contains(Routine.ERROR_ROUTINE)) {
+            routines.clear();
+            routines.add(Routine.ERROR_ROUTINE);
+        }
 
         mAdapter.notifyDataSetChanged();
     }
@@ -83,7 +103,6 @@ public class SelectRoutine extends AppCompatActivity implements View.OnClickList
     }
 
     private void initRoutines() {
-        ResourceClass.loadRoutines();
         routines = ResourceClass.getRoutines();
     }
 

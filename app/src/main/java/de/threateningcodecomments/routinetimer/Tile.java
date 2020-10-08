@@ -92,6 +92,7 @@ class Tile {
     }
 
     public int getBackgroundColor() {
+        backgroundColor = ResourceClass.convertColorDayNight(ResourceClass.wasNightMode(), backgroundColor);
         return backgroundColor;
     }
 
@@ -101,6 +102,7 @@ class Tile {
     }
 
     public int getContrastColor() {
+        contrastColor = ResourceClass.calculateContrast(backgroundColor);
         return contrastColor;
     }
 
