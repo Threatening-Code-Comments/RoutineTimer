@@ -1,9 +1,16 @@
 package de.threateningcodecomments.routinetimer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 class Routine {
+    public static final Routine ERROR_ROUTINE = new Routine(Routine.ERROR_NAME,
+            new ArrayList<>(
+                    Arrays.asList(Tile.ERROR_TILE, Tile.ERROR_TILE)
+            )
+    );
+    public static final String ERROR_NAME = Tile.ERROR_NAME;
 
     public static final int MODE_CONTINUOUS = 1;
     public static final int MODE_SEQUENTIAL = 0;
@@ -24,6 +31,11 @@ class Routine {
         if (this.UID == null) {
             this.UID = UUID.randomUUID().toString();
         }
+    }
+
+    public Routine(String name, ArrayList<Tile> tiles) {
+        this.name = name;
+        this.tiles = tiles;
     }
 
     public Routine() {

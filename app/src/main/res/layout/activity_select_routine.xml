@@ -1,124 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20sp"
-    tools:context=".SelectRoutine">
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
 
-    <RadioGroup
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/ab_SelectRoutine_appBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/cv_SelectRoutine_selectRoutine_cardView"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="20dp">
+        android:layout_height="350sp"
+        android:fitsSystemWindows="true">
 
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/rb_SelectRoutine_createRoutine_create"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/str_rb_SelectRoutine_createRoutine_create"
-            android:textSize="20sp" />
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/rb_SelectRoutine_selectRoutine_select"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/str_rb_SelectRoutine_selectRoutine_select"
-            android:textSize="20sp" />
-
-    </RadioGroup>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_SelectRoutine_selectRoutine_cardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4">
-
-        <LinearLayout
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/ctbl_SelectRoutine_collapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="20sp">
+            android:textAlignment="center"
+            app:collapsedTitleTextAppearance="?attr/textAppearanceHeadline5"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleGravity="bottom|center"
+            app:expandedTitleMarginBottom="70dp"
+            app:expandedTitleMarginStart="16dp"
+            app:expandedTitleTextAppearance="?attr/textAppearanceHeadline2"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-            <TextView
-                android:id="@+id/tv_SelectRoutine_createRoutine_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/str_tv_SelectRoutine_createRoutine_info"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/tb_SelectRoutine_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
                 android:textAlignment="center"
-                android:textSize="20sp" />
+                app:layout_collapseMode="pin"
+                app:title="Routines" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="12sp" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-            <AutoCompleteTextView
-                android:id="@+id/actv_SelectRoutine_createRoutine_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:hint="@string/str_actv_SelectRoutine_createRoutine_name"
-                android:maxLines="1" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.8">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_SelectRoutine_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="20sp">
+            android:layout_marginTop="10sp"
+            android:scrollbars="vertical" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_SelectRoutine_selectRoutine_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/str_tv_SelectRoutine_selectRoutine_info"
-                android:textAlignment="center"
-                android:textSize="20sp" />
+    </LinearLayout>
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="12sp" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_SelectRoutine_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/str_fab_SelectRoutine_add"
+        android:tint="@android:color/white"
+        app:icon="@drawable/ic_add"
+        app:layout_anchor="@id/ab_SelectRoutine_appBar"
+        app:layout_anchorGravity="bottom|end" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/str_dd_SelectRoutine_selectRoutine_dropdown"
-                app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-                app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
-
-                <AutoCompleteTextView
-                    android:id="@+id/dd_SelectRoutine_selectRoutine_dropdown"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

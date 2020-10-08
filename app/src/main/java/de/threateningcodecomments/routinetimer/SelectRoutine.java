@@ -2,85 +2,96 @@ package de.threateningcodecomments.routinetimer;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.textview.MaterialTextView;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
 
+import static de.threateningcodecomments.routinetimer.R.id.ctbl_SelectRoutine_collapsingToolbarLayout;
+
 public class SelectRoutine extends AppCompatActivity implements View.OnClickListener {
+    private Toolbar toolbar;
+    private ExtendedFloatingActionButton fab;
+    private CollapsingToolbarLayout toolBarLayout;
+
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
     private ArrayList<Routine> routines;
 
-    private MaterialTextView routineDisplay;
-    private AutoCompleteTextView dropdown;
+    private Routine bufferRoutine;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_routine);
 
-        ResourceClass.loadRoutines();
-
         initBufferViews();
 
         initListeners();
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+        initRoutines();
 
-        routines = ResourceClass.getRoutines();
+        setSupportActionBar(toolbar);
 
-        updateUI();
+        initRecyclerView();
     }
 
     @Override
     public void onClick(View v) {
-        int id = v.getId();
+        switch (v.getId()) {
+            case R.id.fab_SelectRoutine_add:
+                bufferRoutine = ResourceClass.generateRandomRoutine();
 
-        switch (id) {
-            case R.id.dd_SelectRoutine_selectRoutine_dropdown:
+                ResourceClass.saveRoutine(bufferRoutine);
+
                 updateUI();
                 break;
-
             default:
-                Toast.makeText(this, "unknown Error. Please see developer or priest.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Wrong onClickListener ID. It seems you fucked up monumentally.", Toast.LENGTH_LONG).show();
         }
     }
 
-    private void initBufferViews() {
-        routineDisplay = findViewById(R.id.tv_SelectRoutine_selectRoutine_info);
-        dropdown = findViewById(R.id.dd_SelectRoutine_selectRoutine_dropdown);
+    private void updateUI() {
+        if (routines.get(0) == Routine.ERROR_ROUTINE) {
+            routines.clear();
+        }
+
+        routines.add(bufferRoutine);
+
+        mAdapter.notifyDataSetChanged();
     }
 
     private void initListeners() {
-        dropdown.setOnClickListener(this);
+        fab.setOnClickListener(this);
     }
 
+    private void initBufferViews() {
+        recyclerView = findViewById(R.id.rv_SelectRoutine_recyclerView);
+        toolbar = (Toolbar) findViewById(R.id.tb_SelectRoutine_toolbar);
+        toolBarLayout = findViewById(ctbl_SelectRoutine_collapsingToolbarLayout);
+        fab = findViewById(R.id.fab_SelectRoutine_add);
+    }
 
-    private void updateUI() {
-        String[] routineNames = new String[routines.size()];
+    private void initRoutines() {
+        ResourceClass.loadRoutines();
+        routines = ResourceClass.getRoutines();
+    }
 
-        for (int i = 0; i < routines.size(); i++) {
-            routineNames[i] = routines.get(i).getName();
-        }
+    private void initRecyclerView() {
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
-        if (routineNames.length == 0) {
-            routineNames = new String[1];
-            routineNames[0] = "nothing here yet!";
-        }
-
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        this,
-                        R.layout.routine_popup_item,
-                        routineNames);
-
-        dropdown.setAdapter(adapter);
+        mAdapter = new MyAdapter(routines);
+        recyclerView.setAdapter(mAdapter);
     }
 }

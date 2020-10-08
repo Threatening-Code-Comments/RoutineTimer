@@ -1,42 +1,15 @@
 package de.threateningcodecomments.routinetimer;
 
-import android.annotation.SuppressLint;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.maltaisn.icondialog.data.Icon;
-
-import java.util.Objects;
+import android.graphics.Color;
 
 class Tile {
+    public static final Tile ERROR_TILE = new Tile(Tile.ERROR_NAME, Tile.ERROR_ICONID, Color.RED);
+
     public final static String DEFAULT_NAME = "";
+    public final static String ERROR_NAME = "HELP THIS IS ERROR AAAH";
 
-    public final static Drawable DEFAULT_DRAWABLE = new Drawable() {
-        @Override
-        public void draw(@NonNull Canvas canvas) {
-
-        }
-
-        @Override
-        public void setAlpha(int alpha) {
-
-        }
-
-        @Override
-        public void setColorFilter(@Nullable ColorFilter colorFilter) {
-
-        }
-
-        @SuppressLint("WrongConstant")
-        @Override
-        public int getOpacity() {
-            return 0;
-        }
-    };
+    public final static int DEFAULT_ICONID = 0;
+    public final static int ERROR_ICONID = 69420;
 
     public final static int DEFAULT_COLOR = 0xFFFFFFFF;
     public final static int DEFAULT_COLOR_DARK = 0xFF242424;
@@ -44,39 +17,34 @@ class Tile {
     public final static int MODE_COUNT_UP = 1;
     public final static int MODE_COUNT_DOWN = -1;
 
+
     private String name;
 
-    private Drawable icon;
     private int iconID;
 
-    private int contrastColor;
     private int backgroundColor;
+    private int contrastColor;
 
     private boolean isNightMode;
 
     private int mode;
 
     //region Constructors
-    //debug constructor
+    public Tile() {
+        this(DEFAULT_NAME, DEFAULT_ICONID, DEFAULT_COLOR, DEFAULT_COLOR_DARK, false, MODE_COUNT_UP);
+    }
 
+    public Tile(String name, int iconID, int color) {
+        this(name, iconID, color, ResourceClass.calculateContrast(color), false, MODE_COUNT_UP);
+    }
 
-    public Tile(String name, int iconID, int color, boolean isNightMode, int mode) {
+    public Tile(String name, int iconID, int backgroundColor, int contrastColor, boolean isNightMode, int mode) {
         this.name = name;
         this.iconID = iconID;
-        this.contrastColor = color;
-        this.backgroundColor = color;
+        this.backgroundColor = backgroundColor;
+        this.contrastColor = contrastColor;
         this.isNightMode = isNightMode;
         this.mode = mode;
-    }
-
-    public Tile(String name, Drawable icon, int backgroundColor) {
-        this.name = name;
-        this.icon = icon;
-        this.backgroundColor = backgroundColor;
-    }
-
-    public Tile() {
-        this(DEFAULT_NAME, DEFAULT_DRAWABLE, DEFAULT_COLOR);
     }
     //endregion
 
@@ -97,7 +65,6 @@ class Tile {
     public void setAccessibility(boolean isNightMode) {
         setDayNightMode(isNightMode);
         contrastColor = ResourceClass.calculateContrast(backgroundColor);
-        icon.setTint(contrastColor);
     }
 
     //region getters and setters
@@ -118,22 +85,10 @@ class Tile {
         this.mode = mode;
     }
 
-    public Drawable getIcon() {
-        return icon;
-    }
-
-    public void setIcon(Drawable icon) {
-        setAccessibility();
-        this.icon = icon;
-    }
-
     public void setIconWithID(int ID) {
         setAccessibility();
 
-        Icon icon = Objects.requireNonNull(ResourceClass.getIconPack()).getIcon(ID);
-
         this.iconID = ID;
-        this.icon = Objects.requireNonNull(icon).getDrawable();
     }
 
     public int getBackgroundColor() {

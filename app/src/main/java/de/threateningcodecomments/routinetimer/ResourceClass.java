@@ -3,7 +3,11 @@ package de.threateningcodecomments.routinetimer;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +31,39 @@ class ResourceClass {
 
 
     //region random
+    private static Drawable errorDrawable;
+
+    public static Drawable getErrorDrawable() {
+        if (errorDrawable == null) {
+            MyLog.d("LMAO THE ERROR DRAWABLE IS NULL");
+            return new Drawable() {
+                @Override
+                public void draw(@NonNull Canvas canvas) {
+
+                }
+
+                @Override
+                public void setAlpha(int alpha) {
+
+                }
+
+                @Override
+                public void setColorFilter(@Nullable ColorFilter colorFilter) {
+
+                }
+
+                @Override
+                public int getOpacity() {
+                    return PixelFormat.OPAQUE;
+                }
+            };
+        }
+        return errorDrawable;
+    }
+
+    public static void setErrorDrawable(Drawable errorDrawable) {
+        ResourceClass.errorDrawable = errorDrawable;
+    }
 
     public static int convertColorDayNight(boolean isNightMode, int oldColor) {
         float[] hsvValues = new float[3];
@@ -52,9 +89,6 @@ class ResourceClass {
         return Color.HSVToColor(hsvValues);
     }
 
-    //region Routines
-    private static ArrayList<Routine> routines = new ArrayList<>();
-
     public static boolean isNightMode(Application application) {
         int nightModeFlags = application.getResources().getConfiguration().uiMode &
                 Configuration.UI_MODE_NIGHT_MASK;
@@ -71,35 +105,6 @@ class ResourceClass {
         return false;
     }
 
-    //endregion
-    private static Tile tmpTile = new Tile();
-    //region Icon Pack
-    @Nullable
-    private static IconPack iconPack;
-    private static Context context;
-
-    private static void handleRoutineUpdate(DataSnapshot snapshot) {
-        Iterable<DataSnapshot> routinesIterable = snapshot.getChildren();
-
-        routines.clear();
-        //iterates through all routines
-        for (DataSnapshot routineDataSnapshot : routinesIterable) {
-            Routine routine = routineDataSnapshot.getValue(Routine.class);
-            routines.add(routine);
-        }
-    }
-
-    public static ArrayList<Routine> getRoutines() {
-        return routines;
-    }
-
-    public static void setRoutines(ArrayList<Routine> routines) {
-        ResourceClass.routines = routines;
-    }
-    //endregion
-
-    //region tmpTile
-
     public static int calculateContrast(int bgColor) {
         Color bgColor_cl = Color.valueOf(bgColor);
         double average = (bgColor_cl.red() + bgColor_cl.blue() + bgColor_cl.green()) / 3;
@@ -115,6 +120,131 @@ class ResourceClass {
         return contrastColor;
     }
 
+    public static int random(int start, int end) {
+
+        double randomVal = Math.random();
+
+        return (int) ((randomVal + start) * end);
+    }
+
+    public static Routine generateRandomRoutine() {
+        ArrayList<Tile> tiles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            tiles.add(new Tile("random tile name " + ResourceClass.random(0, 5) + "!",
+                    ResourceClass.random(0, 80),
+                    Color.rgb((float) Math.random() - 0.2F, (float) Math.random(), (float) Math.random())
+            ));
+        }
+
+        return new Routine(Routine.MODE_SEQUENTIAL, "random routine nr. " + ResourceClass.random(0, 100), tiles);
+    }
+    //endregion
+
+    //region Routines
+    private static FirebaseUser lastUser;
+    private static ValueEventListener valueEventListener;
+
+    private static ArrayList<Routine> routines = new ArrayList<>();
+
+    public static void loadRoutines() {
+        database = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            routines = new ArrayList<>();
+            MyLog.d("FUCK FUCK FUCK ROUTINES IS NULL BECUASE OF NO USER HELP");
+            return;
+        }
+
+        if (user != lastUser) {
+            lastUser = user;
+
+            DatabaseReference routineRef = database.getReference("/users/" + user.getUid() + "/routines/");
+
+
+            if (valueEventListener != null) {
+                routineRef.removeEventListener(valueEventListener);
+                MyLog.d("old listener is being removed!");
+            }
+
+            MyLog.d("new listener is being added!");
+            valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    MyLog.d("new value for routines in db: " + snapshot.getValue());
+                    handleRoutineUpdate(snapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            };
+
+            routineRef.addValueEventListener(valueEventListener);
+
+        }
+
+    }
+
+    private static void handleRoutineUpdate(DataSnapshot snapshot) {
+        Iterable<DataSnapshot> routinesIterable = snapshot.getChildren();
+
+        if (snapshot.getValue() == null) {
+            routines.add(Routine.ERROR_ROUTINE);
+            return;
+        }
+
+        routines.clear();
+        //iterates through all routines
+        for (DataSnapshot routineDataSnapshot : routinesIterable) {
+            Routine routine = routineDataSnapshot.getValue(Routine.class);
+            routines.add(routine);
+        }
+    }
+
+    public static ArrayList<Routine> getRoutines() {
+        return routines == null ? new ArrayList<Routine>() : routines;
+    }
+
+    public static void setRoutines(ArrayList<Routine> routines) {
+        if (routines == null) {
+            ResourceClass.routines = new ArrayList<>();
+            return;
+        }
+
+        ResourceClass.routines = routines;
+    }
+
+    public static void saveRoutine(Routine routine) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        database = FirebaseDatabase.getInstance();
+
+        String path = "/users/" + user.getUid() + "/routines/";
+        String key = routine.getUID();
+        Object value = routine;
+
+        saveToDb(path, key, value);
+    }
+
+    //endregion
+
+    //region Database handling
+
+    public static void saveToDb(String path, String key, Object value) {
+
+        DatabaseReference pathRef = database.getReference(path);
+
+        DatabaseReference child = pathRef.child(key);
+
+        child.setValue(value);
+    }
+
+    //endregion
+
+    //region tmpTile
+    private static Tile tmpTile = new Tile();
+
     public static void resetTmpTile() {
         tmpTile = new Tile();
     }
@@ -124,61 +254,10 @@ class ResourceClass {
     }
     //endregion
 
-    public static void loadRoutines() {
-        database = FirebaseDatabase.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        assert user != null;
-        DatabaseReference routineRef = database.getReference("/users/" + user.getUid() + "/routines/");
-
-        routineRef.getParent().child("isListenedTo").getRef().addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.getValue() == null) {
-                    snapshot.getRef().setValue(false);
-                    listenerAdded = false;
-                } else {
-                    String bool = snapshot.getValue().toString();
-                    listenerAdded = Boolean.getBoolean(bool);
-                }
-            }
-
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        if (!listenerAdded) {
-            routineRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    DatabaseReference isListenedToRef = database.getReference("/users/" + user.getUid() + "/isListenedTo");
-                    isListenedToRef.setValue(true);
-
-                    MyLog.d(snapshot.getValue() + " is the new value for routineRef");
-                    handleRoutineUpdate(snapshot);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-    }
-
-    public static void saveRoutine(Routine routine) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-
-        DatabaseReference routinesRef = database.getReference("/users/" + user.getUid() + "/routines/");
-
-        DatabaseReference child = routinesRef.child(routine.getUID());
-
-        child.setValue(routine);
-    }
+    //region Icon Pack
+    @Nullable
+    private static IconPack iconPack;
+    private static Context context;
 
     @Nullable
     public static IconPack getIconPack() {
@@ -202,7 +281,6 @@ class ResourceClass {
         // Load the icon pack on application start.
         loadIconPack();
     }
-
     //endregion
 
 }

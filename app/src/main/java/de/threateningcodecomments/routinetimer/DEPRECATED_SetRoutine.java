@@ -210,8 +210,9 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
         }
         nameView.setTextColor(contrastColor);
 
-        Drawable tempDraw = tmpTile.getIcon();
-        if (!tempDraw.equals(Tile.DEFAULT_DRAWABLE)) {
+        int iconID = tmpTile.getIconID();
+        Drawable tempDraw = ResourceClass.getIconPack().getIcon(iconID).getDrawable();
+        if (!tempDraw.equals(Tile.DEFAULT_ICONID)) {
             imageView.setImageDrawable(tempDraw);
         }
         imageView.setColorFilter(tmpTile.getContrastColor());
@@ -236,12 +237,6 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
     @Override
     public void onIconDialogIconsSelected(@NonNull IconDialog dialog, @NonNull List<Icon> icons) {
         Icon imageViewIcon = icons.get(0);
-
-        Drawable unwrappedDrawable = imageViewIcon.getDrawable();
-
-        imageView.setImageDrawable(imageViewIcon.getDrawable());
-
-        tmpTile.setIcon(unwrappedDrawable);
 
         tmpTile.setIconID(imageViewIcon.getId());
     }

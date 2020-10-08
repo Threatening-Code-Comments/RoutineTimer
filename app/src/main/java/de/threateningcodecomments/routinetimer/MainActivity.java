@@ -2,7 +2,6 @@ package de.threateningcodecomments.routinetimer;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,8 +32,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -72,7 +69,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toggleSignIn();
         } else {
             isLoggedIn = true;
+            ResourceClass.loadRoutines();
         }
+
+        ResourceClass.initIconPack(this);
+        ResourceClass.setErrorDrawable(getResources().getDrawable(R.drawable.ic_defaultdrawable, getTheme()));
     }
 
     @Override
@@ -93,34 +94,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 Routine tmpRoutine = new Routine(Routine.MODE_SEQUENTIAL, "added routine", tiles);
                 ResourceClass.saveRoutine(tmpRoutine);*/
-
                 break;
 
             case R.id.btn_mainActivity_test:
                 ResourceClass.loadRoutines();
 
-                /*ArrayList<Routine> routines = ResourceClass.getRoutines();
-
-                StringBuilder sb = new StringBuilder();
-
-                if (routines.size() == 0) {
-                    sb.append("Routines are being loaded!");
-                    Toast.makeText(this, sb, Toast.LENGTH_SHORT).show();
-                } else {
-                    sb.append("Routines loaded: ");
-
-                    for (Routine routine : routines) {
-                        sb.append(routine.getName()).append("; ");
-                    }
-
-                    Toast.makeText(this, sb, Toast.LENGTH_LONG).show();
-                }*/
-                //int mode, String name, ArrayList<Tile> tiles
-                ArrayList<Tile> tiles = new ArrayList<>();
-                tiles.add(new Tile("tile name yeet", 52, Color.WHITE, true, Tile.MODE_COUNT_UP));
-                tiles.add(new Tile("2nd tile haha", 52, Color.WHITE, true, Tile.MODE_COUNT_UP));
-
-                Routine routine = new Routine(Routine.MODE_SEQUENTIAL, "routine name!", tiles);
+                Routine routine = ResourceClass.generateRandomRoutine();
 
                 ResourceClass.saveRoutine(routine);
 
@@ -187,10 +166,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         account = FirebaseAuth.getInstance().getCurrentUser();
 
         if (account == null) {
-            MyLog.d("handleGreetNoAccount");
             handleGreetNoAccount();
         } else {
-            MyLog.d("handleGreetAccount");
             handleGreetAccount();
         }
 
@@ -202,10 +179,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         usernameView.setTextColor(textColor);
 
         if (!isLoggedIn) {
-            MyLog.d("Color filter enabled! Color is: " + textColor);
             profilepicview.setColorFilter(textColor);
         } else {
-            MyLog.d("Color filter is disabled!");
             profilepicview.clearColorFilter();
         }
     }
@@ -236,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleGreetNoAccount() {
-        Drawable errorDrawable = getResources().getDrawable(R.drawable.ic_defaultdrawable);
+        Drawable errorDrawable = getApplicationContext().getDrawable(R.drawable.ic_defaultdrawable);
         profilepicview.setImageDrawable(errorDrawable);
 
         usernameView.setText("Please log in!");
@@ -289,6 +264,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             MyLog.f("signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
+                            MyLog.f("User UID is: " + user.getUid());
+
+                            String path = "/users/" + user.getUid();
+                            String key = "displayname";
+                            Object value = user.getDisplayName();
+
+                            ResourceClass.saveToDb(path, key, value);
+
+                            ResourceClass.loadRoutines();
                             isLoggedIn = true;
                         } else {
                             // If sign in fails, display a message to the user.
@@ -313,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         updateUI();
         updateButtonClickable();
+        ResourceClass.loadRoutines();
     }
 
     private void signIn() {
@@ -327,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        MyLog.d("Logged out of google account!");
+                        MyLog.f("Logged out of google account!");
                     }
                 });
 

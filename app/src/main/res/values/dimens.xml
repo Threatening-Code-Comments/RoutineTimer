@@ -3,4 +3,8 @@
     <dimen name="dimen_btnCorners">10sp</dimen>
     <dimen name="dimen_textFieldCorners">10sp</dimen>
     <dimen name="dimen_cardViewCornerRadius">20sp</dimen>
+    <dimen name="app_bar_height">200sp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="recyclerview_viewholder_iv_size">60sp</dimen>
 </resources>

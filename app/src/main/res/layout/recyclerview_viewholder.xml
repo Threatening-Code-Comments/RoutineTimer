@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="10sp"
+    android:paddingTop="5sp"
+    android:paddingEnd="10sp"
+    app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5sp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_SelectRoutine_rv_imageView"
+            app:shapeAppearanceOverlay="@style/rectImageView"
+            android:layout_width="@dimen/recyclerview_viewholder_iv_size"
+            android:layout_height="@dimen/recyclerview_viewholder_iv_size"
+            android:src="@drawable/ic_add" />
+
+        <Space
+            android:layout_width="20sp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_SelectRoutine_rv_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:text="Routine name"
+            android:textSize="25sp" />
+
+
+    </LinearLayout>
+
+</FrameLayout>
