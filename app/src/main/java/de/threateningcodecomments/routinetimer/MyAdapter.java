@@ -72,7 +72,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         boolean isNightMode = ResourceClass.wasNightMode();
 
         Routine tmpRoutine = routines.get(position);
-        MyLog.d(tmpRoutine);
+        tmpRoutine.setAccessibility(isNightMode);
         Tile firstTile = tmpRoutine.getTiles().get(0);
 
 
@@ -92,10 +92,8 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             Drawable icon = ResourceClass.getIconDrawable(firstTile);
             holder.singleImageView.setImageDrawable(icon);
 
-            int color = firstTile.getBackgroundColor();
-            color = ResourceClass.convertColorDayNight(isNightMode, color);
-            holder.singleImageView.setBackgroundColor(color);
-            holder.singleImageView.setColorFilter(ResourceClass.calculateContrast(color));
+            holder.singleImageView.setBackgroundColor(firstTile.getBackgroundColor());
+            holder.singleImageView.setColorFilter(firstTile.getContrastColor());
 
             for (ShapeableImageView imageView : holder.fourImages) {
                 imageView.setVisibility(View.GONE);
@@ -111,10 +109,8 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 Drawable icon = ResourceClass.getIconDrawable(currentTile);
                 currentImageView.setImageDrawable(icon);
 
-                int color = currentTile.getBackgroundColor();
-                color = ResourceClass.convertColorDayNight(isNightMode, color);
-                currentImageView.setBackgroundColor(color);
-                currentImageView.setColorFilter(ResourceClass.calculateContrast(color));
+                currentImageView.setBackgroundColor(currentTile.getBackgroundColor());
+                currentImageView.setColorFilter(currentTile.getContrastColor());
             }
         }
     }

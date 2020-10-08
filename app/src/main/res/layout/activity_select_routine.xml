@@ -61,6 +61,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:text="@string/str_fab_SelectRoutine_add"
         android:tint="@android:color/white"
+        android:transitionName="fab"
         app:icon="@drawable/ic_add"
         app:layout_anchor="@id/ab_SelectRoutine_appBar"
         app:layout_anchorGravity="bottom|end" />

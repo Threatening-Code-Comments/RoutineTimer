@@ -113,4 +113,5 @@
     </string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_select_routine">SelectRoutine</string>
+    <string name="str_tv_MainActivity_login">Please log in!</string>
 </resources>
