@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.threateningcodecomments.routinetimer.MainActivity">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_MainActivity_name"
+        android:layout_width="300sp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
+        app:layout_constraintBottom_toTopOf="@+id/btn_mainActivity_setup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20sp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_MainActivity_profilepic"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
+                android:layout_gravity="center"
+                app:layout_constraintVertical_bias="0.2"
+                app:srcCompat="@drawable/ic_defaultdrawable" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_MainActivity_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/str_tv_MainActivity_username"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_mainActivity_setup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/str_btn_MainActivity_setup"
+        android:transitionName="setupButton"
+        app:cornerRadius="@dimen/dimen_btnCorners"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_mainActivity_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/str_button_MainActivity_test"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mainActivity_setup" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -40,7 +40,7 @@
                 android:id="@+id/tv_SetRoutine_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/str_tv_SetRoutine_name" />
+                android:text="@string/str_tv_SelectRoutine_createRoutine_name" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -63,7 +63,7 @@
             app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
 
             <AutoCompleteTextView
-                android:id="@+id/filled_exposed_dropdown"
+                android:id="@+id/legacy_dd_SelectRoutine_createRoutine_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none" />
@@ -78,12 +78,12 @@
             android:id="@+id/textField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/str_tv_SetRoutine_name"
+            android:hint="@string/str_tv_SelectRoutine_createRoutine_name"
             app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
             app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_SetRoutine_tileName"
+                android:id="@+id/et_SelectRoutine_createRoutine_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true" />

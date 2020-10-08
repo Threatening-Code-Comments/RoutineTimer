@@ -9,18 +9,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
-        <activity
-            android:name=".SelectRoutine"
-            android:label="@string/title_activity_select_routine"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".TestForRoutines" />
-        <activity android:name=".DEPRECATED_SetRoutine" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".TestForRoutines" />
+        <activity android:name=".DEPRECATED_SetRoutine" />
     </application>
 
 </manifest>

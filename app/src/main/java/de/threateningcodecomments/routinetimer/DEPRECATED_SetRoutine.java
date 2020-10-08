@@ -67,7 +67,7 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
                         COUNTRIES);
 
         AutoCompleteTextView editTextFilledExposedDropdown =
-                findViewById(R.id.filled_exposed_dropdown);
+                findViewById(R.id.legacy_dd_SelectRoutine_createRoutine_mode);
         editTextFilledExposedDropdown.setAdapter(adapter);
     }
 
@@ -185,7 +185,7 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
         cardView = findViewById(R.id.cv_SetRoutine_main);
         imageView = findViewById(R.id.iv_SetRoutine_icon);
         nameView = findViewById(R.id.tv_SetRoutine_name);
-        nameField = findViewById(R.id.et_SetRoutine_tileName);
+        nameField = findViewById(R.id.et_SelectRoutine_createRoutine_name);
         iconButton = findViewById(R.id.btn_SetRoutine_icon);
         colorButton = findViewById(R.id.btn_SetRoutine_color);
     }

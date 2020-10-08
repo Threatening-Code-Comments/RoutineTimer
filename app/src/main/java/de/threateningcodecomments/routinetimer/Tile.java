@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 class Tile {
     public static final Tile ERROR_TILE = new Tile(Tile.ERROR_NAME, Tile.ERROR_ICONID, Color.RED);
+    public static final Tile DEFAULT_TILE = new Tile("Nothing here yet!", 12, Tile.DEFAULT_COLOR);
 
     public final static String DEFAULT_NAME = "";
     public final static String ERROR_NAME = "HELP THIS IS ERROR AAAH";

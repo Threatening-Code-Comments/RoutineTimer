@@ -165,9 +165,6 @@ class ResourceClass {
             lastUser = user;
 
             DatabaseReference routineRef = database.getReference("/users/" + user.getUid() + "/routines/");
-
-            MyLog.d(routineRef + " is the raw value of routineRef");
-
             if (valueEventListener != null) {
                 routineRef.removeEventListener(valueEventListener);
                 MyLog.d("old listener is being removed!");

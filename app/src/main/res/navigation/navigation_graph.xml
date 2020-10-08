@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/startFragment">
+
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="de.threateningcodecomments.routinetimer.StartFragment"
+        android:label="StartFragment">
+        <action
+            android:id="@+id/action_startFragment_to_selectRoutineFragment"
+            app:destination="@id/selectRoutineFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/selectRoutineFragment"
+        android:name="de.threateningcodecomments.routinetimer.SelectRoutineFragment"
+        android:label="SelectRoutineFragment">
+        <action
+            android:id="@+id/action_selectRoutineFragment_to_startFragment"
+            app:destination="@id/startFragment" />
+    </fragment>
+</navigation>

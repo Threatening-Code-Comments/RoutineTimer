@@ -7,21 +7,23 @@
     <string name="str_button_MainActivity_test">test!</string>
     <string name="str_tv_MainActivity_username">Please log in!</string>
 
-    <string name="str_tv_SetRoutine_name">Name of the checkpoint</string>
+    <string name="str_tv_SelectRoutine_createRoutine_name">Routine name</string>
+    <string name="str_dd_SelectRoutine_createRoutine_mode">Routine mode</string>
+
     <string name="str_btn_SetRoutine_image">set image</string>
     <string name="str_btn_SetRoutine_color">Set Color</string>
     <string name="str_tv_SetRoutine_routineName">Routine name displayed here</string>
 
     <string name="str_actv_SelectRoutine_createRoutine_name">Name</string>
-    <string name="str_tv_SelectRoutine_createRoutine_info">Enter routine name:</string>
+    <string name="legacy_str_tv_SelectRoutine_createRoutine_info">Enter routine name:</string>
     <string name="str_rb_SelectRoutine_createRoutine_create">Create new routine</string>
-
-
     <string name="str_tv_SelectRoutine_selectRoutine_info">Select existing routine:</string>
     <string name="str_dd_SelectRoutine_selectRoutine_dropdown">Select Routine</string>
     <string name="str_rb_SelectRoutine_selectRoutine_select">Select existing routine</string>
     <string name="str_fab_SelectRoutine_add">add routine</string>
     <string name="title_activity_select">ScrollingActivity</string>
+
+
     <string name="large_text">
         "Material is the metaphor.\n\n"
 
@@ -114,4 +116,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_select_routine">SelectRoutine</string>
     <string name="str_tv_MainActivity_login">Please log in!</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="str_btn_SelectRoutine_createRoutine_save">save!</string>
+    <string name="str_tv_SelectRoutine_createRoutine_info">Create Routine</string>
 </resources>
