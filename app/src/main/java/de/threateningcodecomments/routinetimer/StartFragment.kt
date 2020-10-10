@@ -3,6 +3,7 @@ package de.threateningcodecomments.routinetimer
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -50,6 +51,12 @@ class StartFragment : Fragment(), View.OnClickListener {
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nhf_MainActivity_navHostFragment
+            duration = 300.toLong()
+            scrimColor = Color.TRANSPARENT
+        }
+
         super.onViewCreated(view, savedInstanceState)
 
         activity = getActivity() as Activity
@@ -73,7 +80,7 @@ class StartFragment : Fragment(), View.OnClickListener {
         ResourceClass.loadRoutines()
 
         ResourceClass.initIconPack(activity)
-        ResourceClass.setErrorDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme))
+        ResourceClass.errorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -92,8 +99,8 @@ class StartFragment : Fragment(), View.OnClickListener {
                 val extras = FragmentNavigatorExtras(v to "container")
                 val directions = StartFragmentDirections.actionStartFragmentToSelectRoutineFragment()
 
+                Hold()
                 findNavController().navigate(directions, extras)
-
                 Hold()
             }
             R.id.btn_mainActivity_test -> {

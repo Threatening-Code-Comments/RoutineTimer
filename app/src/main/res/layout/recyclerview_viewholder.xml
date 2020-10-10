@@ -10,6 +10,7 @@
     app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
 
     <LinearLayout
+        android:id="@+id/fl_SelectRoutine_createRoutine_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
@@ -91,10 +92,10 @@
                 android:textSize="17sp" />
 
             <TextView
-                android:id="@+id/tv_Select"
+                android:id="@+id/tv_SelectRoutine_rv_routineMode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="last used"
+                android:text="mode"
                 android:textSize="12sp" />
 
         </LinearLayout>

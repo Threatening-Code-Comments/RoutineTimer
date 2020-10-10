@@ -119,4 +119,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="str_btn_SelectRoutine_createRoutine_save">save!</string>
     <string name="str_tv_SelectRoutine_createRoutine_info">Create Routine</string>
+    <string name="str_menu_SelectRoutine_contextMenu_delete">Delete</string>
+    <string name="str_menu_SelectRoutine_contextMenu_duplicate">Duplicate</string>
 </resources>

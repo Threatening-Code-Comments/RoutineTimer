@@ -13,7 +13,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/ab_SelectRoutine_appBar"
         android:layout_width="match_parent"
-        android:layout_height="350sp"
+        android:layout_height="400sp"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -37,6 +37,7 @@
                 android:textAlignment="center"
                 android:theme="@style/routineToolbar"
                 app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_close"
                 app:title="Routines" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -61,6 +62,7 @@
         android:id="@+id/fab_SelectRoutine_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center|end"
         android:layout_margin="@dimen/fab_margin"
         android:text="@string/str_fab_SelectRoutine_add"
         android:tint="@android:color/white"

@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.transition.TransitionManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -16,7 +14,10 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -26,7 +27,6 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
-import java.util.*
 
 
 /**
@@ -36,6 +36,8 @@ import java.util.*
  */
 class SelectRoutineFragment : Fragment(), View.OnClickListener {
     private lateinit var activity: AppCompatActivity
+    private lateinit var rootLayout: CoordinatorLayout
+
     private lateinit var toolbar: Toolbar
     private lateinit var createFab: ExtendedFloatingActionButton
     private lateinit var toolBarLayout: CollapsingToolbarLayout
@@ -69,11 +71,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
         initBufferViews()
 
+        activity.setSupportActionBar(toolbar)
+
         initListenersAndAdapters()
 
         initRoutines()
-
-        activity.setSupportActionBar(toolbar)
 
         initRecyclerView()
     }
@@ -93,30 +95,47 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     }
 
     private fun updateUI() {
+        if (routines == null) {
+            routines = ArrayList()
+        }
+
+        routines = ResourceClass.sortRoutines(routines!!)
+
         if (routines!!.contains(Routine.ERROR_ROUTINE)) {
             routines!!.clear()
             routines!!.add(Routine.ERROR_ROUTINE)
         }
 
+
         mAdapter.notifyDataSetChanged()
     }
 
     private fun initListenersAndAdapters() {
+        toolbar.setNavigationOnClickListener {
+            val startFragment = StartFragment()
+            startFragment.sharedElementEnterTransition = MaterialContainerTransform()
+
+            val extras = FragmentNavigatorExtras(rootLayout to "setupButton")
+            val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
+
+            findNavController().navigate(directions, extras)
+        }
+
         createFab.setOnClickListener(this)
 
         createSaveButton.setOnClickListener(this)
         createFormDismissView.setOnClickListener(this)
 
-        val options = arrayOf(SelectRoutineFragment.CONTINUOUS_MODE, SelectRoutineFragment.SEQUENTIAL_MODE)
+        val options = arrayOf(Routine.CONTINUOUS_MESSAGE, Routine.SEQUENTIAL_MESSAGE)
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
                 requireContext(),
                 R.layout.routine_popup_item,
                 options)
-
         createModeDropdown.setAdapter(adapter)
+
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                updateForm();
+                updateForm()
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -129,6 +148,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         createModeDropdown.addTextChangedListener(textWatcher)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.select_routine_contextmenu, menu)
+    }
+
     private fun updateForm() {
         val name: String? = createNameField.text.toString()
         val mode: String? = createModeDropdown.text.toString()
@@ -139,6 +163,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     }
 
     private fun initBufferViews() {
+        rootLayout = requireView().findViewById(R.id.cl_SelectRoutine_root)
+
         recyclerView = requireView().findViewById(R.id.rv_SelectRoutine_recyclerView)
         toolbar = requireView().findViewById(R.id.tb_SelectRoutine_toolbar)
         toolBarLayout = requireView().findViewById(R.id.ctbl_SelectRoutine_collapsingToolbarLayout)
@@ -161,6 +187,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         recyclerView.adapter = mAdapter
         layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
+
+        registerForContextMenu(recyclerView)
     }
 
     override fun onClick(v: View) {
@@ -182,12 +210,12 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     }
 
     private fun createRoutine() {
-        val tmpRoutine: Routine = Routine()
+        val tmpRoutine = Routine()
 
         tmpRoutine.name = createNameField.text.toString()
 
         val mode: String = createModeDropdown.text.toString()
-        if (mode.equals(SEQUENTIAL_MODE)) {
+        if (mode == Routine.SEQUENTIAL_MESSAGE) {
             tmpRoutine.mode = Routine.MODE_SEQUENTIAL
         } else {
             tmpRoutine.mode = Routine.MODE_CONTINUOUS
@@ -196,9 +224,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         val tiles: ArrayList<Tile> = arrayListOf(Tile.DEFAULT_TILE)
         tmpRoutine.tiles = tiles
 
-        tmpRoutine.uid = UUID.randomUUID().toString()
+        tmpRoutine.getUID()
 
-        addRoutine(tmpRoutine);
+        tmpRoutine.getLastUsed()
+
+        addRoutine(tmpRoutine)
     }
 
     private fun addRoutine(routine: Routine) {
@@ -267,8 +297,4 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         return inflater.inflate(R.layout.fragment_select_routine, container, false)
     }
 
-    companion object {
-        const val CONTINUOUS_MODE: String = "Continuous mode"
-        const val SEQUENTIAL_MODE: String = "Sequential mode"
-    }
 }
