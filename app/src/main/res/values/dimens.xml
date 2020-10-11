@@ -9,4 +9,7 @@
 
     <dimen name="recyclerview_viewholder_iv_size">60sp</dimen>
     <dimen name="recyclerview_viewholder_smallIv_size">30sp</dimen>
+    <dimen name="relatedElementsSpacing">12sp</dimen>
+    <dimen name="unrelatedElementsSpacing">40sp</dimen>
+    <dimen name="looselyRelatedElementsSpacing">25sp</dimen>
 </resources>

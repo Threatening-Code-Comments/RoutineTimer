@@ -115,13 +115,13 @@
                     app:shapeAppearance="@style/textInputShape"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/str_tv_SelectRoutine_createRoutine_name"
+                    android:hint="@string/str_tv_EditRoutine_sequential_tileName"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
                     app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_SelectRoutine_createRoutine_name"
+                        android:id="@+id/et_EditRoutine_sequential_routineName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:singleLine="true" />

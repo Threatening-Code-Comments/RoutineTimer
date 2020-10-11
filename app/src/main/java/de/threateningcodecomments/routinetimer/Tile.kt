@@ -5,7 +5,7 @@ import de.threateningcodecomments.routinetimer.ResourceClass.calculateContrast
 import de.threateningcodecomments.routinetimer.ResourceClass.convertColorDayNight
 import de.threateningcodecomments.routinetimer.ResourceClass.wasNightMode
 
-internal class Tile//region Constructor
+class Tile//region Constructor
 (var name: String? = DEFAULT_NAME, var iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, contrastColor: Int = DEFAULT_COLOR_DARK, private var isNightMode: Boolean = false, var mode: Int = MODE_COUNT_UP) {
 
     var backgroundColor: Int = backgroundColor

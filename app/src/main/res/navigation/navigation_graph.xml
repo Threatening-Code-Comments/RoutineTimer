@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
     app:startDestination="@id/startFragment">
 
@@ -20,5 +21,20 @@
         <action
             android:id="@+id/action_selectRoutineFragment_to_startFragment"
             app:destination="@id/startFragment" />
+        <action
+            android:id="@+id/action_selectRoutineFragment_to_editSequentialRoutineFragment"
+            app:destination="@id/editSequentialRoutineFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editSequentialRoutineFragment"
+        android:name="de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment"
+        android:label="fragment_edit_sequential_routine"
+        tools:layout="@layout/fragment_edit_sequential_routine">
+        <action
+            android:id="@+id/action_editSequentialRoutineFragment_to_selectRoutineFragment"
+            app:destination="@id/selectRoutineFragment" />
+        <argument
+            android:name="routinePosition"
+            app:argType="integer" />
     </fragment>
 </navigation>

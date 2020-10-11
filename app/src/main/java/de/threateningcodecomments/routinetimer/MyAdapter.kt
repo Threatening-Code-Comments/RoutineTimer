@@ -75,6 +75,7 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
         holder.modeView.text = mode
 
         if (tmpRoutine.tiles!!.size < 4) {
+            holder.singleImageView.transitionName = uid + "icon"
             holder.singleImageView.visibility = View.VISIBLE
             val icon = ResourceClass.getIconDrawable(firstTile)
             holder.singleImageView.setImageDrawable(icon)
@@ -84,6 +85,7 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
                 imageView.visibility = View.GONE
             }
         } else {
+            holder.fourImages[0].transitionName = uid + "icon"
             holder.singleImageView.visibility = View.GONE
             for (i in 0..3) {
                 val currentTile = tmpRoutine.tiles!![i]
@@ -108,8 +110,25 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
                     true
                 }
             }
+            holder.layout.transitionName = tmpRoutine.uid
+            holder.nameView.transitionName = tmpRoutine.uid + name
+            holder.layout.setOnClickListener {
+                var iv: ShapeableImageView;
+                if (tmpRoutine.tiles!!.size < 4) {
+                    iv = holder.singleImageView
+                } else {
+                    iv = holder.fourImages[0]
+                    for ((index, iv) in holder.fourImages.withIndex()) {
+                        if (index != 0) {
+                            iv.visibility = View.INVISIBLE
+                        }
+                    }
+                }
+                SelectRoutineFragment.fragment.goToEditRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+            }
         } else {
             holder.layout.setOnCreateContextMenuListener(null)
+            holder.layout.setOnClickListener(null)
         }
     }
 

@@ -25,7 +25,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
-import com.google.android.material.transition.platform.Hold
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -83,9 +82,7 @@ class StartFragment : Fragment(), View.OnClickListener {
                 val extras = FragmentNavigatorExtras(v to "container")
                 val directions = StartFragmentDirections.actionStartFragmentToSelectRoutineFragment()
 
-                Hold()
                 findNavController().navigate(directions, extras)
-                Hold()
             }
             R.id.btn_mainActivity_test -> {
                 val routine = ResourceClass.generateRandomRoutine()

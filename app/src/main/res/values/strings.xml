@@ -7,11 +7,11 @@
     <string name="str_button_MainActivity_test">test!</string>
     <string name="str_tv_MainActivity_username">Please log in!</string>
 
-    <string name="str_tv_SelectRoutine_createRoutine_name">Routine name</string>
+    <string name="str_tv_EditRoutine_sequential_tileName">Tile name</string>
     <string name="str_dd_SelectRoutine_createRoutine_mode">Routine mode</string>
 
-    <string name="str_btn_SetRoutine_image">set image</string>
-    <string name="str_btn_SetRoutine_color">Set Color</string>
+    <string name="str_btn_EditRoutine_sequential_icon">set icon</string>
+    <string name="str_btn_EditRoutine_sequential_color">Set Color</string>
     <string name="str_tv_SetRoutine_routineName">Routine name displayed here</string>
 
     <string name="str_actv_SelectRoutine_createRoutine_name">Name</string>
@@ -121,4 +121,8 @@
     <string name="str_tv_SelectRoutine_createRoutine_info">Create Routine</string>
     <string name="str_menu_SelectRoutine_contextMenu_delete">Delete</string>
     <string name="str_menu_SelectRoutine_contextMenu_duplicate">Duplicate</string>
+    <string name="str_btn_EditRoutine_sequential_convert">convert to continuous</string>
+    <string name="str_btn_EditRoutine_sequential_prev">Previous</string>
+    <string name="str_btn_EditRoutine_sequential_next">Next</string>
+    <string name="str_tv_EditRoutine_sequential_routineName">Routine name</string>
 </resources>

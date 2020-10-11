@@ -24,6 +24,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
@@ -111,7 +112,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         createForm = requireView().findViewById(R.id.fl_SelectRoutine_createRoutine_form)
         createFormCard = requireView().findViewById(R.id.cv_SelectRoutine_createRoutine_form)
         createFormDismissView = requireView().findViewById(R.id.v_SelectRoutine_createRoutine_deselectView)
-        createNameField = requireView().findViewById(R.id.et_SelectRoutine_createRoutine_name)
+        createNameField = requireView().findViewById(R.id.et_EditRoutine_sequential_routineName)
         createModeDropdown = requireView().findViewById(R.id.dd_SelectRoutine_createRoutine_mode)
         createSaveButton = requireView().findViewById(R.id.btn_SelectRoutine_createRoutine_save)
     }
@@ -336,6 +337,26 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_select_routine, container, false)
+    }
+
+    fun goToEditRoutine(v: LinearLayout, iv: ShapeableImageView, routineNameView: TextView, tmpRoutine: Routine) {
+        updateRoutines()
+        updateRoutineListView()
+
+        val editRoutineFragment = EditSequentialRoutineFragment()
+        editRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
+
+        var index: Int = 0
+        for ((currentIndex, routine) in routines!!.withIndex()) {
+            if (routine.uid == tmpRoutine.uid) {
+                index = currentIndex
+            }
+        }
+
+        val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(index)
+        val extras = FragmentNavigatorExtras(v to "editRoutineRoot", iv to "editRoutineIcon", routineNameView to "editRoutineRoutineName")
+
+        findNavController().navigate(directions, extras)
     }
 
     companion object {

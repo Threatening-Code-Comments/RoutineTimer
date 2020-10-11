@@ -3,7 +3,7 @@ package de.threateningcodecomments.routinetimer
 import java.util.*
 import kotlin.collections.ArrayList
 
-internal class Routine {
+class Routine {
     var name: String? = null
     var uid: String? = null
         get() = if (field == null) {

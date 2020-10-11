@@ -55,6 +55,8 @@
 
     <style name="textInputStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.FilledBox" />
 
+    <style name="textInputDiscreteStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense" />
+
     <style name="textInputShape" />
 
     <style name="dropdownsStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" />
