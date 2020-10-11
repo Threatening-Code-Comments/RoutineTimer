@@ -5,8 +5,29 @@ import kotlin.collections.ArrayList
 
 internal class Routine {
     var name: String? = null
-    private var uid: String? = null
-    private var lastUsed: Long? = null
+    var uid: String? = null
+        get() = if (field == null) {
+            val randomUid = UUID.randomUUID().toString()
+            field = randomUid
+            randomUid
+        } else {
+            field
+        }
+        set(value) {
+            if (field == null) {
+                field = value
+            }
+        }
+
+    var lastUsed: Long? = null
+        get() = if (field == null) {
+            val currentTime = System.currentTimeMillis()
+            field = currentTime
+            field
+        } else {
+            field
+        }
+
     var mode = 0
     var tiles: ArrayList<Tile>? = null
 
@@ -21,13 +42,20 @@ internal class Routine {
         this.lastUsed = lastUsed
     }
 
-    constructor(name: String?, tiles: ArrayList<Tile>?) {
+    constructor(name: String?, uid: String, tiles: ArrayList<Tile>?) {
         this.name = name
+        this.uid = uid
         this.tiles = tiles
     }
 
     constructor() {}
 
+    constructor(name: String, uid: String?, mode: Int, tiles: ArrayList<Tile>) {
+        this.name = name
+        this.uid = uid
+        this.mode = mode
+        this.tiles = tiles
+    }
     //endregion
 
     fun setAccessibility(isNightMode: Boolean) {
@@ -40,34 +68,10 @@ internal class Routine {
         }
     }
 
-    //region Getters and Setters
-    fun getUID(): String? = if (uid == null) {
-        UUID.randomUUID().toString()
-    } else {
-        uid
-    }
-
-    fun setUID(UID: String?) {
-        if (this.uid == null) {
-            this.uid = UID
-        }
-    }
-
-    fun getLastUsed(): Long {
-        if (lastUsed == null) {
-            lastUsed = System.currentTimeMillis()
-        }
-
-        return lastUsed!!
-    }
-
-    fun setLastUsed(value: Long?) {
-        lastUsed = value
-    }
-    //endregion
-
     companion object {
         const val ERROR_NAME = Tile.ERROR_NAME
+        const val ERROR_UID = "69420"
+
         const val MODE_CONTINUOUS = 1
         const val MODE_SEQUENTIAL = 0
 
@@ -75,7 +79,7 @@ internal class Routine {
         const val SEQUENTIAL_MESSAGE: String = "Sequential mode"
 
         @JvmField
-        val ERROR_ROUTINE = Routine(ERROR_NAME,
+        val ERROR_ROUTINE = Routine(ERROR_NAME, ERROR_UID,
                 ArrayList(
                         listOf(Tile.ERROR_TILE)
                 )

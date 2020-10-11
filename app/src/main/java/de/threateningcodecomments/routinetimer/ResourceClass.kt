@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -17,26 +18,30 @@ import com.google.firebase.database.ValueEventListener
 import com.maltaisn.icondialog.pack.IconPack
 import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
-import de.threateningcodecomments.routinetimer.Routine
 import java.util.*
 
 internal object ResourceClass {
-    //region random
-    var errorDrawable: Drawable? = null
-        get() {
-            if (field == null) {
-                MyLog.d("LMAO THE ERROR DRAWABLE IS NULL")
-                return object : Drawable() {
-                    override fun draw(canvas: Canvas) {}
-                    override fun setAlpha(alpha: Int) {}
-                    override fun setColorFilter(colorFilter: ColorFilter?) {}
-                    override fun getOpacity(): Int {
-                        return PixelFormat.OPAQUE
-                    }
-                }
-            }
-            return field
+
+    //region random vars
+
+    var errorDrawable: Drawable = object : Drawable() {
+        override fun draw(canvas: Canvas) {}
+        override fun setAlpha(alpha: Int) {}
+        override fun setColorFilter(colorFilter: ColorFilter?) {}
+        override fun getOpacity(): Int {
+            return PixelFormat.OPAQUE
         }
+    }
+
+    val sharedElementTransition = MaterialContainerTransform().apply {
+        drawingViewId = R.id.nhf_MainActivity_navHostFragment
+        duration = 300.toLong()
+        scrimColor = Color.TRANSPARENT
+    }
+
+    //endregion
+
+    //region random
 
     @JvmStatic
     fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
@@ -114,8 +119,9 @@ internal object ResourceClass {
     }
 
     //endregion
+
     //region Routines
-    var listenerAdded = false
+
     private var database: FirebaseDatabase? = null
     private var lastUser: FirebaseUser? = null
     private var valueEventListener: ValueEventListener? = null
@@ -163,6 +169,22 @@ internal object ResourceClass {
         }
     }
 
+    fun getRoutineFromUid(oldUid: String?): Routine {
+        var uid = oldUid
+        if (oldUid == null || oldUid == "") {
+            uid = Routine.ERROR_UID
+        }
+
+        var returnVal: Routine = Routine.ERROR_ROUTINE
+        for (routine in getRoutines()) {
+            if (uid == routine.uid) {
+                returnVal = routine
+            }
+        }
+
+        return returnVal
+    }
+
     fun getRoutines(): ArrayList<Routine> {
         val routines = if (routines == null) ArrayList() else routines!!
         sortRoutines(routines)
@@ -170,7 +192,7 @@ internal object ResourceClass {
     }
 
     fun sortRoutines(routines: ArrayList<Routine>): ArrayList<Routine> {
-        routines.sortWith(java.util.Comparator { a, b -> (b.getLastUsed() - a.getLastUsed()).toInt() })
+        routines.sortWith(java.util.Comparator { a, b -> (b.lastUsed!! - a.lastUsed!!).toInt() })
         return routines
     }
 
@@ -186,9 +208,17 @@ internal object ResourceClass {
         val user = FirebaseAuth.getInstance().currentUser
         database = FirebaseDatabase.getInstance()
         val path = "/users/" + user!!.uid + "/routines/"
-        val key = routine.getUID()
+        val key = routine.uid
         val value: Any = routine
         saveToDb(path, key, value)
+    }
+
+    fun removeRoutine(routine: Routine) {
+        val user = FirebaseAuth.getInstance().currentUser
+        database = FirebaseDatabase.getInstance()
+        val path = "/users/" + user!!.uid + "/routines/"
+        val key = routine.uid
+        removeFromDb(path, key!!)
     }
 
     fun generateRandomRoutine(): Routine {
@@ -203,6 +233,7 @@ internal object ResourceClass {
     }
 
     //endregion
+
     //region Database handling
     fun saveToDb(path: String?, key: String?, value: Any?) {
         val pathRef = database!!.getReference(path!!)
@@ -210,17 +241,13 @@ internal object ResourceClass {
         child.setValue(value)
     }
 
-    //endregion
-    //region tmpTile
-    @JvmStatic
-    var tmpTile = Tile()
-        private set
-
-    fun resetTmpTile() {
-        tmpTile = Tile()
+    fun removeFromDb(path: String, key: String) {
+        val pathRef = database!!.getReference(path)
+        val child = pathRef.child(key)
+        MyLog.d(child.toString())
+        child.removeValue()
     }
 
-    //endregion
     //region Icon Pack
     private var iconPack: IconPack? = null
     private var context: Context? = null

@@ -52,4 +52,17 @@
         <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
+
+    <style name="textInputStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.FilledBox" />
+
+    <style name="textInputShape" />
+
+    <style name="dropdownsStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" />
+
+    <style name="dropdownsShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10sp</item>
+    </style>
+
+
 </resources>

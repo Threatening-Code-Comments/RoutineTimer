@@ -6,15 +6,15 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.transition.TransitionManager
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -27,15 +27,12 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import java.util.*
+import kotlin.collections.ArrayList
 
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SelectRoutineFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SelectRoutineFragment : Fragment(), View.OnClickListener {
     private lateinit var activity: AppCompatActivity
+
     private lateinit var rootLayout: CoordinatorLayout
 
     private lateinit var toolbar: Toolbar
@@ -54,24 +51,17 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     private lateinit var createSaveButton: MaterialButton
 
     private var routines: ArrayList<Routine>? = null
-    private var bufferRoutine: Routine? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        sharedElementEnterTransition = ResourceClass.sharedElementTransition
 
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nhf_MainActivity_navHostFragment
-            duration = 300.toLong()
-            scrimColor = Color.TRANSPARENT
-        }
+        super.onViewCreated(view, savedInstanceState)
 
         super.onCreate(savedInstanceState)
 
-        activity = requireActivity() as AppCompatActivity
-
         initBufferViews()
 
-        activity.setSupportActionBar(toolbar)
+        initRandom()
 
         initListenersAndAdapters()
 
@@ -85,110 +75,9 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
         ResourceClass.loadRoutines()
         updateRoutines()
-        ResourceClass.updateNightMode(activity.application)
-        updateUI()
+        ResourceClass.updateNightMode(SelectRoutineFragment.activity.application)
+        updateRoutineListView()
         updateForm()
-    }
-
-    private fun updateRoutines() {
-        routines = ResourceClass.getRoutines()
-    }
-
-    private fun updateUI() {
-        if (routines == null) {
-            routines = ArrayList()
-        }
-
-        routines = ResourceClass.sortRoutines(routines!!)
-
-        if (routines!!.contains(Routine.ERROR_ROUTINE)) {
-            routines!!.clear()
-            routines!!.add(Routine.ERROR_ROUTINE)
-        }
-
-
-        mAdapter.notifyDataSetChanged()
-    }
-
-    private fun initListenersAndAdapters() {
-        toolbar.setNavigationOnClickListener {
-            val startFragment = StartFragment()
-            startFragment.sharedElementEnterTransition = MaterialContainerTransform()
-
-            val extras = FragmentNavigatorExtras(rootLayout to "setupButton")
-            val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
-
-            findNavController().navigate(directions, extras)
-        }
-
-        createFab.setOnClickListener(this)
-
-        createSaveButton.setOnClickListener(this)
-        createFormDismissView.setOnClickListener(this)
-
-        val options = arrayOf(Routine.CONTINUOUS_MESSAGE, Routine.SEQUENTIAL_MESSAGE)
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                requireContext(),
-                R.layout.routine_popup_item,
-                options)
-        createModeDropdown.setAdapter(adapter)
-
-        val textWatcher: TextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                updateForm()
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-        }
-        createNameField.addTextChangedListener(textWatcher)
-        createModeDropdown.addTextChangedListener(textWatcher)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.select_routine_contextmenu, menu)
-    }
-
-    private fun updateForm() {
-        val name: String? = createNameField.text.toString()
-        val mode: String? = createModeDropdown.text.toString()
-
-        createSaveButton.isEnabled = !(name?.length == 0 || mode?.length == 0)
-
-        MyLog.d(mode)
-    }
-
-    private fun initBufferViews() {
-        rootLayout = requireView().findViewById(R.id.cl_SelectRoutine_root)
-
-        recyclerView = requireView().findViewById(R.id.rv_SelectRoutine_recyclerView)
-        toolbar = requireView().findViewById(R.id.tb_SelectRoutine_toolbar)
-        toolBarLayout = requireView().findViewById(R.id.ctbl_SelectRoutine_collapsingToolbarLayout)
-        createFab = requireView().findViewById(R.id.fab_SelectRoutine_add)
-
-        createForm = requireView().findViewById(R.id.fl_SelectRoutine_createRoutine_form)
-        createFormCard = requireView().findViewById(R.id.cv_SelectRoutine_createRoutine_form)
-        createFormDismissView = requireView().findViewById(R.id.v_SelectRoutine_createRoutine_deselectView)
-        createNameField = requireView().findViewById(R.id.et_SelectRoutine_createRoutine_name)
-        createModeDropdown = requireView().findViewById(R.id.legacy_dd_SelectRoutine_createRoutine_mode)
-        createSaveButton = requireView().findViewById(R.id.btn_SelectRoutine_createRoutine_save)
-    }
-
-    private fun initRoutines() {
-        routines = ResourceClass.getRoutines()
-    }
-
-    private fun initRecyclerView() {
-        mAdapter = MyAdapter(routines)
-        recyclerView.adapter = mAdapter
-        layoutManager = LinearLayoutManager(activity)
-        recyclerView.layoutManager = layoutManager
-
-        registerForContextMenu(recyclerView)
     }
 
     override fun onClick(v: View) {
@@ -209,6 +98,128 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    //region init
+
+    private fun initBufferViews() {
+        rootLayout = requireView().findViewById(R.id.cl_SelectRoutine_root)
+
+        recyclerView = requireView().findViewById(R.id.rv_SelectRoutine_recyclerView)
+        toolbar = requireView().findViewById(R.id.tb_SelectRoutine_toolbar)
+        toolBarLayout = requireView().findViewById(R.id.ctbl_SelectRoutine_collapsingToolbarLayout)
+        createFab = requireView().findViewById(R.id.fab_SelectRoutine_add)
+
+        createForm = requireView().findViewById(R.id.fl_SelectRoutine_createRoutine_form)
+        createFormCard = requireView().findViewById(R.id.cv_SelectRoutine_createRoutine_form)
+        createFormDismissView = requireView().findViewById(R.id.v_SelectRoutine_createRoutine_deselectView)
+        createNameField = requireView().findViewById(R.id.et_SelectRoutine_createRoutine_name)
+        createModeDropdown = requireView().findViewById(R.id.dd_SelectRoutine_createRoutine_mode)
+        createSaveButton = requireView().findViewById(R.id.btn_SelectRoutine_createRoutine_save)
+    }
+
+    private fun initRandom() {
+        activity = requireActivity() as AppCompatActivity
+        SelectRoutineFragment.activity = activity
+        fragment = this
+        activity.setSupportActionBar(toolbar)
+    }
+
+    private fun initListenersAndAdapters() {
+        toolbar.setNavigationOnClickListener {
+            val startFragment = StartFragment()
+            startFragment.sharedElementEnterTransition = MaterialContainerTransform()
+
+            val extras = FragmentNavigatorExtras(rootLayout to "setupButton")
+            val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
+
+            findNavController().navigate(directions, extras)
+        }
+
+        createFab.setOnClickListener(this)
+
+        createSaveButton.setOnClickListener(this)
+        createFormDismissView.setOnClickListener(this)
+
+        val options = arrayOf(Routine.CONTINUOUS_MESSAGE, Routine.SEQUENTIAL_MESSAGE)
+        val adapter: ArrayAdapter<String> = ArrayAdapter(
+                requireContext(),
+                R.layout.routine_popup_item,
+                options)
+        createModeDropdown.setAdapter(adapter)
+
+        val textWatcher: TextWatcher = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                updateForm()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        }
+        createNameField.addTextChangedListener(textWatcher)
+        createModeDropdown.addTextChangedListener(textWatcher)
+    }
+
+    private fun initRoutines() {
+        routines = ResourceClass.getRoutines()
+
+        if (routines?.size == 0) {
+            routines!!.add(Routine.ERROR_ROUTINE)
+        }
+    }
+
+    private fun initRecyclerView() {
+        if (routines?.size == 0) {
+            ResourceClass.loadRoutines()
+            routines = ResourceClass.getRoutines()
+        }
+        mAdapter = MyAdapter(routines)
+        recyclerView.adapter = mAdapter
+        layoutManager = LinearLayoutManager(activity)
+        recyclerView.layoutManager = layoutManager
+
+        registerForContextMenu(recyclerView)
+    }
+
+    //endregion
+
+    //region handle context menu
+
+    fun handleCMDuplicate(position: Int) {
+        val uid = ((recyclerView[position] as ViewGroup)[0] as TextView).text
+        duplicateRoutine(ResourceClass.getRoutineFromUid(uid as String))
+    }
+
+    fun handleCMDelete(position: Int) {
+        val uid = ((recyclerView[position] as ViewGroup)[0] as TextView).text
+        removeRoutine(ResourceClass.getRoutineFromUid(uid as String))
+    }
+
+    //endregion
+
+    //region handle routines
+
+    private fun updateRoutineListView() {
+        if (routines == null) {
+            routines = ArrayList()
+        }
+
+        routines = ResourceClass.sortRoutines(routines!!)
+
+        if (routines!!.contains(Routine.ERROR_ROUTINE)) {
+            routines!!.clear()
+            routines!!.add(Routine.ERROR_ROUTINE)
+        }
+
+
+        mAdapter.notifyDataSetChanged()
+    }
+
+    private fun updateRoutines() {
+        routines = ResourceClass.getRoutines()
+    }
+
     private fun createRoutine() {
         val tmpRoutine = Routine()
 
@@ -224,9 +235,30 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         val tiles: ArrayList<Tile> = arrayListOf(Tile.DEFAULT_TILE)
         tmpRoutine.tiles = tiles
 
-        tmpRoutine.getUID()
+        tmpRoutine.uid
 
-        tmpRoutine.getLastUsed()
+        tmpRoutine.lastUsed
+
+        addRoutine(tmpRoutine)
+    }
+
+    private fun removeRoutine(routine: Routine) {
+        if (routines == null) {
+            routines = ResourceClass.getRoutines()
+        }
+
+        ResourceClass.removeRoutine(routine)
+        routines!!.remove(routine)
+
+        if (routines!!.size == 0) {
+            routines!!.add(Routine.ERROR_ROUTINE)
+        }
+
+        updateRoutineListView()
+    }
+
+    private fun duplicateRoutine(routine: Routine) {
+        val tmpRoutine = Routine(routine.name!! + " - Copy", UUID.randomUUID().toString(), routine.mode, routine.tiles!!)
 
         addRoutine(tmpRoutine)
     }
@@ -240,11 +272,18 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         routines!!.add(routine)
         routines!!.remove(Routine.ERROR_ROUTINE)
 
-        updateUI()
+        updateRoutineListView()
     }
 
-    private fun addRoutine() {
-        addRoutine(bufferRoutine!!)
+    //endregion
+
+    //region handle form
+
+    private fun updateForm() {
+        val name: String? = createNameField.text.toString()
+        val mode: String? = createModeDropdown.text.toString()
+
+        createSaveButton.isEnabled = !(name?.length == 0 || mode?.length == 0)
     }
 
     private fun minimizeForm() {
@@ -267,7 +306,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         createFab.visibility = View.VISIBLE
         createForm.visibility = View.GONE
 
-        (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+        (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
     private fun maximizeForm() {
@@ -291,10 +330,17 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         createForm.visibility = View.VISIBLE
     }
 
+    //endregion
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_select_routine, container, false)
+    }
+
+    companion object {
+        lateinit var activity: AppCompatActivity
+        lateinit var fragment: SelectRoutineFragment
     }
 
 }

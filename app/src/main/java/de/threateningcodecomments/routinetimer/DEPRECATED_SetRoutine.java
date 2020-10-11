@@ -1,3 +1,4 @@
+/*
 package de.threateningcodecomments.routinetimer;
 
 import android.content.Context;
@@ -67,7 +68,7 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
                         COUNTRIES);
 
         AutoCompleteTextView editTextFilledExposedDropdown =
-                findViewById(R.id.legacy_dd_SelectRoutine_createRoutine_mode);
+                findViewById(R.id.dd_SelectRoutine_createRoutine_mode);
         editTextFilledExposedDropdown.setAdapter(adapter);
     }
 
@@ -249,4 +250,4 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
     protected void onDestroy() {
         super.onDestroy();
     }
-}
+}*/

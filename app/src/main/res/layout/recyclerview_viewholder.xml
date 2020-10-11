@@ -9,6 +9,13 @@
     android:paddingEnd="10sp"
     app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
 
+    <TextView
+        android:id="@+id/tv_SelectRoutine_rv_routineUid"
+        android:layout_width="0sp"
+        android:layout_height="0sp"
+        android:text=""
+        android:visibility="invisible" />
+
     <LinearLayout
         android:id="@+id/fl_SelectRoutine_createRoutine_content"
         android:layout_width="match_parent"

@@ -3,7 +3,6 @@ package de.threateningcodecomments.routinetimer
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -32,11 +31,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 
-/**
- * A simple [Fragment] subclass.
- * Use the [StartFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class StartFragment : Fragment(), View.OnClickListener {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var mAuth: FirebaseAuth
@@ -44,18 +38,14 @@ class StartFragment : Fragment(), View.OnClickListener {
     private var account: FirebaseUser? = null
     private var setupButton: MaterialButton? = null
     private var testButton: MaterialButton? = null
-    private var profilepicview: ShapeableImageView? = null
+    private var profilepicView: ShapeableImageView? = null
     private var usernameView: MaterialTextView? = null
     private var nameCardView: MaterialCardView? = null
     private var isLoggedIn = false
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nhf_MainActivity_navHostFragment
-            duration = 300.toLong()
-            scrimColor = Color.TRANSPARENT
-        }
+        sharedElementEnterTransition = ResourceClass.sharedElementTransition
 
         super.onViewCreated(view, savedInstanceState)
 
@@ -64,8 +54,6 @@ class StartFragment : Fragment(), View.OnClickListener {
         initGSignIn()
 
         initBufferViews()
-
-        initOnClicks()
 
         account = FirebaseAuth.getInstance().currentUser
         if (account == null) {
@@ -77,16 +65,12 @@ class StartFragment : Fragment(), View.OnClickListener {
             ResourceClass.loadRoutines()
         }
 
+        initOnClicks()
+
         ResourceClass.loadRoutines()
 
         ResourceClass.initIconPack(activity)
-        ResourceClass.errorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_start, container, false)
+        ResourceClass.errorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
     }
 
     override fun onClick(v: View) {
@@ -111,11 +95,6 @@ class StartFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-
     //region init
     override fun onStart() {
         super.onStart()
@@ -127,7 +106,7 @@ class StartFragment : Fragment(), View.OnClickListener {
         setupButton = view?.findViewById(R.id.btn_mainActivity_setup)
         testButton = view?.findViewById(R.id.btn_mainActivity_test)
         usernameView = view?.findViewById(R.id.tv_MainActivity_username)
-        profilepicview = view?.findViewById(R.id.iv_MainActivity_profilepic)
+        profilepicView = view?.findViewById(R.id.iv_MainActivity_profilepic)
         nameCardView = view?.findViewById(R.id.cv_MainActivity_name)
     }
 
@@ -161,6 +140,7 @@ class StartFragment : Fragment(), View.OnClickListener {
     }
 
     //endregion
+
     //region Greeting
     private fun updateUI() {
         account = FirebaseAuth.getInstance().currentUser
@@ -176,16 +156,16 @@ class StartFragment : Fragment(), View.OnClickListener {
         val textColor = ResourceClass.calculateContrast(bgColor)
         usernameView!!.setTextColor(textColor)
         if (!isLoggedIn) {
-            profilepicview!!.setColorFilter(textColor)
+            profilepicView!!.setColorFilter(textColor)
         } else {
-            profilepicview!!.clearColorFilter()
+            profilepicView!!.clearColorFilter()
         }
     }
 
     private fun handleGreetAccount() {
         val message: String = "Welcome " + account!!.displayName + "!"
         val pathToPhoto = account!!.photoUrl
-        Glide.with(this).load(pathToPhoto).into(profilepicview!!)
+        Glide.with(this).load(pathToPhoto).into(profilepicView!!)
         Glide.with(this).asBitmap().load(pathToPhoto).into(object : CustomTarget<Bitmap?>() {
             override fun onLoadCleared(placeholder: Drawable?) {}
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
@@ -199,10 +179,9 @@ class StartFragment : Fragment(), View.OnClickListener {
 
     private fun handleGreetNoAccount() {
         val errorDrawable = ContextCompat.getDrawable(activity, R.drawable.ic_defaultdrawable)
-        profilepicview!!.setImageDrawable(errorDrawable)
+        profilepicView!!.setImageDrawable(errorDrawable)
         usernameView!!.text = getString(R.string.str_tv_MainActivity_login)
-        val bgColor: Int
-        bgColor = if (ResourceClass.isNightMode(activity.application)) {
+        val bgColor: Int = if (ResourceClass.isNightMode(activity.application)) {
             Tile.DEFAULT_COLOR_DARK
         } else {
             Tile.DEFAULT_COLOR
@@ -212,7 +191,9 @@ class StartFragment : Fragment(), View.OnClickListener {
     }
 
     //endregion
+
     //region handle sign in
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
@@ -279,7 +260,15 @@ class StartFragment : Fragment(), View.OnClickListener {
                 .addOnCompleteListener(activity) { MyLog.f("Logged out of google account!") }
         Toast.makeText(context, "Signed out! (also this uses context instead of activity on the fragment, how about that)", Toast.LENGTH_SHORT).show()
         isLoggedIn = false
-    } //endregion
+    }
+
+    //endregion
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_start, container, false)
+    }
 
     companion object {
         private const val RC_SIGN_IN = 123

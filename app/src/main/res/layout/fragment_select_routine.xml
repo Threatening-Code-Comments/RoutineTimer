@@ -111,11 +111,14 @@
                     android:layout_height="15sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/textInputStyle"
+                    app:shapeAppearance="@style/textInputShape"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/str_tv_SelectRoutine_createRoutine_name"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-                    app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
+                    app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
+                    app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_SelectRoutine_createRoutine_name"
@@ -130,15 +133,16 @@
                     android:layout_height="15sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    style="@style/dropdownsStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/str_dd_SelectRoutine_createRoutine_mode"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-                    app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
+                    app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
+                    app:shapeAppearance="@style/dropdownsShape">
 
                     <AutoCompleteTextView
-                        android:id="@+id/legacy_dd_SelectRoutine_createRoutine_mode"
+                        android:id="@+id/dd_SelectRoutine_createRoutine_mode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none" />

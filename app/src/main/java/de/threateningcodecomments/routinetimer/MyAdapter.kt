@@ -1,7 +1,9 @@
 package de.threateningcodecomments.routinetimer
 
 import android.graphics.Color
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -11,22 +13,19 @@ import de.threateningcodecomments.routinetimer.MyAdapter.MyViewHolder
 
 internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<MyViewHolder>() {
 
-    class MyViewHolder(v: View) : RecyclerView.ViewHolder(v), View.OnCreateContextMenuListener {
-        var layout: LinearLayout
-        var nameView: TextView
-        var modeView: TextView
-        var singleImageView: ShapeableImageView
-        var fourImages: ArrayList<ShapeableImageView>
+    class MyViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        var layout: LinearLayout = v.findViewById(R.id.fl_SelectRoutine_createRoutine_content)
+
+        var routineUidView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineUid)
+
+        var nameView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineName)
+
+        var modeView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineMode)
+
+        var singleImageView: ShapeableImageView = v.findViewById(R.id.iv_SelectRoutine_rv_singleImage)
+        var fourImages: ArrayList<ShapeableImageView> = ArrayList()
 
         init {
-            layout = v.findViewById(R.id.fl_SelectRoutine_createRoutine_content)
-
-            nameView = v.findViewById(R.id.tv_SelectRoutine_rv_routineName)
-
-            modeView = v.findViewById(R.id.tv_SelectRoutine_rv_routineMode)
-
-            singleImageView = v.findViewById(R.id.iv_SelectRoutine_rv_singleImage)
-            fourImages = ArrayList()
             var tmp: ShapeableImageView = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_1)
             fourImages.add(tmp)
             tmp = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_2)
@@ -35,15 +34,8 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
             fourImages.add(tmp)
             tmp = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_4)
             fourImages.add(tmp)
-
-        }
-
-        override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-            menu!!.add(Menu.NONE, R.menu.select_routine_contextmenu, Menu.NONE, "what?")
         }
     }
-
-    var position = 0
 
     private var routines: ArrayList<Routine>? = null
 
@@ -64,14 +56,22 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
 
         tmpRoutine.setAccessibility(isNightMode)
 
+        val uid = tmpRoutine.uid
+        holder.routineUidView.text = uid
+
         var name = tmpRoutine.name
-        if (name == Routine.ERROR_NAME) {
+        if (tmpRoutine == Routine.ERROR_ROUTINE) {
             name = "Nothing here yet!"
         }
         holder.nameView.text = name
         if (isNightMode) holder.nameView.setTextColor(Color.WHITE) else holder.nameView.setTextColor(Color.BLACK)
 
-        val mode = if (tmpRoutine.mode == Routine.MODE_CONTINUOUS) Routine.CONTINUOUS_MESSAGE else Routine.SEQUENTIAL_MESSAGE
+        val mode = when {
+            tmpRoutine == Routine.ERROR_ROUTINE -> ""
+            tmpRoutine.mode == Routine.MODE_CONTINUOUS -> Routine.CONTINUOUS_MESSAGE
+            tmpRoutine.mode == Routine.MODE_SEQUENTIAL -> Routine.SEQUENTIAL_MESSAGE
+            else -> "the mode couldn't be loaded"
+        }
         holder.modeView.text = mode
 
         if (tmpRoutine.tiles!!.size < 4) {
@@ -96,15 +96,20 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
             }
         }
 
-        MyLog.d("setting layout longclicklistener of ${holder.nameView.text}")
-        holder.layout.setOnLongClickListener { view ->
-            MyLog.d("long click!")
-            val items = arrayOf<CharSequence>("Supprimer", "etc", "etc1")
-            /*val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(view!!.context)
-            builder.setTitle("Select The Action")
-            builder.setItems(items, DialogInterface.OnClickListener { dialog, item -> })
-            builder.show()*/
-            true
+        if (tmpRoutine != Routine.ERROR_ROUTINE) {
+            MyLog.d("${tmpRoutine.name} is getting a listener!")
+            holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
+                contextMenu.add("Duplicate").setOnMenuItemClickListener {
+                    SelectRoutineFragment.fragment.handleCMDuplicate(position)
+                    true
+                }
+                contextMenu.add("Delete").setOnMenuItemClickListener {
+                    SelectRoutineFragment.fragment.handleCMDelete(position)
+                    true
+                }
+            }
+        } else {
+            holder.layout.setOnCreateContextMenuListener(null)
         }
     }
 
