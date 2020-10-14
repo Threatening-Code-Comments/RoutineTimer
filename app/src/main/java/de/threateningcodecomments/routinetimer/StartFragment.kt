@@ -1,5 +1,8 @@
 package de.threateningcodecomments.routinetimer
 
+import accessibility.MyLog
+import accessibility.ResourceClass
+import accessibility.Tile
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -255,7 +258,7 @@ class StartFragment : Fragment(), View.OnClickListener {
         FirebaseAuth.getInstance().signOut()
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(activity) { MyLog.f("Logged out of google account!") }
-        Toast.makeText(context, "Signed out! (also this uses context instead of activity on the fragment, how about that)", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Signed out!", Toast.LENGTH_SHORT).show()
         isLoggedIn = false
     }
 

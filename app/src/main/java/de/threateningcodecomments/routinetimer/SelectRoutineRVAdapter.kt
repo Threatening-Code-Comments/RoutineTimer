@@ -1,5 +1,8 @@
 package de.threateningcodecomments.routinetimer
 
+import accessibility.MyLog
+import accessibility.ResourceClass
+import accessibility.Routine
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -8,15 +11,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
-import de.threateningcodecomments.routinetimer.MyAdapter.MyViewHolder
+import de.threateningcodecomments.routinetimer.SelectRoutineRVAdapter.MyViewHolder
 
 
-internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<MyViewHolder>() {
+internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<MyViewHolder>() {
 
     class MyViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         var layout: LinearLayout = v.findViewById(R.id.fl_SelectRoutine_createRoutine_content)
-
-        var routineUidView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineUid)
 
         var nameView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineName)
 
@@ -57,7 +58,6 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
         tmpRoutine.setAccessibility(isNightMode)
 
         val uid = tmpRoutine.uid
-        holder.routineUidView.text = uid
 
         var name = tmpRoutine.name
         if (tmpRoutine == Routine.ERROR_ROUTINE) {
@@ -102,28 +102,29 @@ internal class MyAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<M
             MyLog.d("${tmpRoutine.name} is getting a listener!")
             holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
                 contextMenu.add("Duplicate").setOnMenuItemClickListener {
-                    SelectRoutineFragment.fragment.handleCMDuplicate(position)
+                    SelectRoutineFragment.fragment.handleCMDuplicate(position, tmpRoutine.uid)
                     true
                 }
                 contextMenu.add("Delete").setOnMenuItemClickListener {
-                    SelectRoutineFragment.fragment.handleCMDelete(position)
+                    SelectRoutineFragment.fragment.handleCMDelete(position, tmpRoutine.uid)
                     true
                 }
             }
             holder.layout.transitionName = tmpRoutine.uid
-            holder.nameView.transitionName = tmpRoutine.uid + name
+            holder.nameView.transitionName = tmpRoutine.uid + "name"
             holder.layout.setOnClickListener {
-                var iv: ShapeableImageView;
+                val iv: ShapeableImageView
                 if (tmpRoutine.tiles!!.size < 4) {
                     iv = holder.singleImageView
                 } else {
                     iv = holder.fourImages[0]
-                    for ((index, iv) in holder.fourImages.withIndex()) {
+                    for ((index, image) in holder.fourImages.withIndex()) {
                         if (index != 0) {
-                            iv.visibility = View.INVISIBLE
+                            image.visibility = View.INVISIBLE
                         }
                     }
                 }
+                iv.transitionName = tmpRoutine.uid + "icon"
                 SelectRoutineFragment.fragment.goToEditRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
             }
         } else {

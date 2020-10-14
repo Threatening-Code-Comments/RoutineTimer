@@ -1,8 +1,8 @@
-package de.threateningcodecomments.routinetimer;
+package accessibility;
 
 import android.util.Log;
 
-class MyLog {
+public class MyLog {
     public static final String DEFAULT_TAG = "myLog";
     public static final String DEFAULT_FIREBASE_TAG = "myFirebase";
 

@@ -5,9 +5,21 @@
     android:id="@+id/cl_EditRoutine_sequential_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/relatedElementsSpacing"
     android:transitionName="editRoutineRoot"
     tools:context=".EditSequentialRoutineFragment">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_EditRoutine_sequential_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15sp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_close"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/circleImageView" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_EditRoutine_sequential_routineNameInputLayout"
@@ -15,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/unrelatedElementsSpacing"
-        android:layout_marginTop="@dimen/relatedElementsSpacing"
+        android:layout_marginTop="50sp"
         android:hint="@string/str_tv_EditRoutine_sequential_routineName"
         app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
         app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
@@ -33,18 +45,31 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/materialButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/relatedElementsSpacing"
+        android:text="@string/str_btn_EditRoutine_sequential_convert"
+        app:cornerRadius="@dimen/dimen_btnCorners"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/til_EditRoutine_sequential_routineNameInputLayout" />
+
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_EditRoutine_sequential_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/unrelatedElementsSpacing"
-        android:layout_marginTop="50sp"
         android:clickable="true"
         android:elevation="10sp"
         app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
+        app:layout_constraintBottom_toTopOf="@+id/ll_EditRoutine_sequential_editLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/til_EditRoutine_sequential_routineNameInputLayout">
+        app:layout_constraintTop_toBottomOf="@+id/materialButton">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,6 +82,9 @@
                 android:id="@+id/iv_EditRoutine_sequential_icon"
                 android:layout_width="100sp"
                 android:layout_height="100sp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:transitionName="editRoutineIcon"
                 app:srcCompat="@drawable/ic_defaultdrawable" />
 
@@ -64,11 +92,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_EditRoutine_sequential_name"
+            <EditText
+                android:id="@+id/et_EditRoutine_sequential_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/str_tv_EditRoutine_sequential_tileName" />
+                android:imeOptions="actionDone"
+                android:inputType="none"
+                android:maxLines="1"
+                android:text="@string/str_tv_EditRoutine_sequential_tileName"
+                android:textSize="17sp" />
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -76,57 +109,11 @@
         android:id="@+id/ll_EditRoutine_sequential_editLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="50sp"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/unrelatedElementsSpacing"
-        android:paddingTop="@dimen/unrelatedElementsSpacing"
-        app:layout_constraintTop_toBottomOf="@+id/cv_EditRoutine_sequential_card">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_EditRoutine_sequential_tileName"
-            style="@style/textInputStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/str_tv_EditRoutine_sequential_tileName"
-            app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-            app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
-            app:shapeAppearance="@style/textInputShape">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_EditRoutine_sequential_tileName"
-                style="@style/textInputDiscreteStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/relatedElementsSpacing" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_EditRoutine_sequential_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/str_btn_EditRoutine_sequential_icon"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/relatedElementsSpacing" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_EditRoutine_sequential_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/str_btn_EditRoutine_sequential_color"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/relatedElementsSpacing" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
@@ -135,76 +122,39 @@
             android:text="delete tile!"
             app:cornerRadius="@dimen/dimen_btnCorners" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/looselyRelatedElementsSpacing"
-        android:paddingHorizontal="@dimen/unrelatedElementsSpacing"
-        app:layout_constraintTop_toBottomOf="@+id/ll_EditRoutine_sequential_editLayout">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_EditRoutine_sequential_prev"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="@string/str_btn_EditRoutine_sequential_prev"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-        <Space
-            android:layout_width="0sp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_EditRoutine_sequential_next"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="@string/str_btn_EditRoutine_sequential_next"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-    </LinearLayout>
-
-    <Space
-        android:id="@+id/space"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/looselyRelatedElementsSpacing"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/space">
-
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/str_btn_EditRoutine_sequential_convert"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-        <Space
+        <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/relatedElementsSpacing" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/materialButton"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="save routine!"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-    </LinearLayout>
+            android:paddingHorizontal="@dimen/unrelatedElementsSpacing"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_EditRoutine_sequential_editLayout">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_EditRoutine_sequential_prev"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="@string/str_btn_EditRoutine_sequential_prev"
+                app:cornerRadius="@dimen/dimen_btnCorners" />
+
+            <Space
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_EditRoutine_sequential_next"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="@string/str_btn_EditRoutine_sequential_next"
+                app:cornerRadius="@dimen/dimen_btnCorners" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

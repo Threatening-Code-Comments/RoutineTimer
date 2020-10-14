@@ -1,4 +1,4 @@
-package de.threateningcodecomments.routinetimer
+package accessibility
 
 import java.util.*
 import kotlin.collections.ArrayList
@@ -29,7 +29,7 @@ class Routine {
         }
 
     var mode = 0
-    var tiles: ArrayList<Tile>? = null
+    lateinit var tiles: ArrayList<Tile>
 
     //region Constructors
     constructor(mode: Int, name: String, tiles: ArrayList<Tile>, lastUsed: Long) {
@@ -42,7 +42,7 @@ class Routine {
         this.lastUsed = lastUsed
     }
 
-    constructor(name: String?, uid: String, tiles: ArrayList<Tile>?) {
+    constructor(name: String?, uid: String, tiles: ArrayList<Tile>) {
         this.name = name
         this.uid = uid
         this.tiles = tiles
@@ -59,11 +59,8 @@ class Routine {
     //endregion
 
     fun setAccessibility(isNightMode: Boolean) {
-        if (tiles == null) {
-            tiles = ArrayList()
-        }
 
-        for (tmpTile in tiles!!) {
+        for (tmpTile in tiles) {
             tmpTile.setAccessibility(isNightMode)
         }
     }

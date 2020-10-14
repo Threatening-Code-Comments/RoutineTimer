@@ -30,6 +30,9 @@ import com.maltaisn.icondialog.pack.IconPack;
 
 import java.util.List;
 
+import accessibility.ResourceClass;
+import accessibility.Tile;
+
 public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDialog.Callback {
 
     private static final String ICON_DIALOG_TAG = "icon-dialog";
@@ -250,4 +253,5 @@ public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDial
     protected void onDestroy() {
         super.onDestroy();
     }
-}*/
+}
+*/

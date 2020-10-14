@@ -1,4 +1,4 @@
-package de.threateningcodecomments.routinetimer
+package accessibility
 
 import android.app.Application
 import android.content.Context
@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener
 import com.maltaisn.icondialog.pack.IconPack
 import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
+import de.threateningcodecomments.routinetimer.R
 import java.util.*
 
 internal object ResourceClass {
@@ -247,14 +248,15 @@ internal object ResourceClass {
         MyLog.d(child.toString())
         child.removeValue()
     }
+    //endregion
 
     //region Icon Pack
     private var iconPack: IconPack? = null
     private var context: Context? = null
 
     @JvmStatic
-    fun getIconPack(): IconPack? {
-        return if (iconPack != null) iconPack else loadIconPack()
+    fun getIconPack(): IconPack {
+        return if (iconPack != null) iconPack!! else loadIconPack()!!
     }
 
     private fun loadIconPack(): IconPack? {

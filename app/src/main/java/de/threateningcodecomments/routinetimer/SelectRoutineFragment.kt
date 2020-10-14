@@ -1,5 +1,8 @@
 package de.threateningcodecomments.routinetimer
 
+import accessibility.ResourceClass
+import accessibility.Routine
+import accessibility.Tile
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -14,7 +17,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -41,7 +43,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     private lateinit var toolBarLayout: CollapsingToolbarLayout
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var mAdapter: MyAdapter
+    private lateinit var mAdapter: SelectRoutineRVAdapter
     private lateinit var layoutManager: RecyclerView.LayoutManager
 
     private lateinit var createForm: FrameLayout
@@ -56,9 +58,13 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sharedElementEnterTransition = ResourceClass.sharedElementTransition
 
+        postponeEnterTransition()
+
         super.onViewCreated(view, savedInstanceState)
 
         super.onCreate(savedInstanceState)
+
+        startPostponedEnterTransition()
 
         initBufferViews()
 
@@ -175,7 +181,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
             ResourceClass.loadRoutines()
             routines = ResourceClass.getRoutines()
         }
-        mAdapter = MyAdapter(routines)
+        mAdapter = SelectRoutineRVAdapter(routines)
         recyclerView.adapter = mAdapter
         layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
@@ -187,13 +193,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
     //region handle context menu
 
-    fun handleCMDuplicate(position: Int) {
-        val uid = ((recyclerView[position] as ViewGroup)[0] as TextView).text
+    fun handleCMDuplicate(position: Int, uid: String?) {
         duplicateRoutine(ResourceClass.getRoutineFromUid(uid as String))
     }
 
-    fun handleCMDelete(position: Int) {
-        val uid = ((recyclerView[position] as ViewGroup)[0] as TextView).text
+    fun handleCMDelete(position: Int, uid: String?) {
         removeRoutine(ResourceClass.getRoutineFromUid(uid as String))
     }
 
@@ -259,7 +263,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
     }
 
     private fun duplicateRoutine(routine: Routine) {
-        val tmpRoutine = Routine(routine.name!! + " - Copy", UUID.randomUUID().toString(), routine.mode, routine.tiles!!)
+        val tmpRoutine = Routine(routine.name!! + " - Copy", UUID.randomUUID().toString(), routine.mode, routine.tiles)
 
         addRoutine(tmpRoutine)
     }
@@ -335,6 +339,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_select_routine, container, false)
     }
