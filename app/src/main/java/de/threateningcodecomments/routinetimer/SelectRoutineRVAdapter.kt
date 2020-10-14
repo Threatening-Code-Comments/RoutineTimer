@@ -1,6 +1,5 @@
 package de.threateningcodecomments.routinetimer
 
-import accessibility.MyLog
 import accessibility.ResourceClass
 import accessibility.Routine
 import android.graphics.Color
@@ -53,7 +52,7 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val isNightMode = ResourceClass.wasNightMode()
         val tmpRoutine = routines!![position]
-        val firstTile = tmpRoutine.tiles!![0]
+        val firstTile = tmpRoutine.tiles[0]
 
         tmpRoutine.setAccessibility(isNightMode)
 
@@ -74,7 +73,7 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
         }
         holder.modeView.text = mode
 
-        if (tmpRoutine.tiles!!.size < 4) {
+        if (tmpRoutine.tiles.size < 4) {
             holder.singleImageView.transitionName = uid + "icon"
             holder.singleImageView.visibility = View.VISIBLE
             val icon = ResourceClass.getIconDrawable(firstTile)
@@ -88,7 +87,7 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
             holder.fourImages[0].transitionName = uid + "icon"
             holder.singleImageView.visibility = View.GONE
             for (i in 0..3) {
-                val currentTile = tmpRoutine.tiles!![i]
+                val currentTile = tmpRoutine.tiles[i]
                 val currentImageView = holder.fourImages[i]
                 currentImageView.visibility = View.VISIBLE
                 val icon = ResourceClass.getIconDrawable(currentTile)
@@ -99,7 +98,6 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
         }
 
         if (tmpRoutine != Routine.ERROR_ROUTINE) {
-            MyLog.d("${tmpRoutine.name} is getting a listener!")
             holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
                 contextMenu.add("Duplicate").setOnMenuItemClickListener {
                     SelectRoutineFragment.fragment.handleCMDuplicate(position, tmpRoutine.uid)
@@ -114,7 +112,7 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
             holder.nameView.transitionName = tmpRoutine.uid + "name"
             holder.layout.setOnClickListener {
                 val iv: ShapeableImageView
-                if (tmpRoutine.tiles!!.size < 4) {
+                if (tmpRoutine.tiles.size < 4) {
                     iv = holder.singleImageView
                 } else {
                     iv = holder.fourImages[0]

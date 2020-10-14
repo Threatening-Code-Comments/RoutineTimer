@@ -3,7 +3,6 @@ package de.threateningcodecomments.routinetimer
 import accessibility.ResourceClass
 import accessibility.Tile
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.maltaisn.icondialog.IconDialog
 import com.maltaisn.icondialog.IconDialogSettings
@@ -17,13 +16,13 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback {
         setContentView(R.layout.activity_main)
 
         activityBuffer = this
+        ResourceClass.initAnimations(this)
     }
 
     override val iconDialogIconPack: IconPack?
         get() = ResourceClass.getIconPack()
 
     override fun onIconDialogIconsSelected(dialog: IconDialog, icons: List<Icon>) {
-        Toast.makeText(applicationContext, "Icon nr. ${icons[0].id} selected!", Toast.LENGTH_LONG).show()
         val iconID = icons[0].id
         tmpTile.iconID = iconID
         EditSequentialRoutineFragment.fragment.updateUI()

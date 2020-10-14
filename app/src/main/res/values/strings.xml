@@ -123,6 +123,10 @@
     <string name="str_menu_SelectRoutine_contextMenu_duplicate">Duplicate</string>
     <string name="str_btn_EditRoutine_sequential_convert">convert to continuous</string>
     <string name="str_btn_EditRoutine_sequential_prev">Previous</string>
-    <string name="str_btn_EditRoutine_sequential_next">Next</string>
+    <string name="str_btn_EditRoutine_sequential_cycle_next">Next</string>
     <string name="str_tv_EditRoutine_sequential_routineName">Routine name</string>
+    <string name="str_tv_EditRoutine_sequential_color_hue">Hue</string>
+    <string name="str_btn_EditRoutine_sequential_cycle_delete">delete tile!</string>
+    <string name="str_btn_EditRoutine_sequential_routines_organize">organize routine</string>
+    <string name="str_btn_EditRoutine_sequential_cycle_add">add tile</string>
 </resources>

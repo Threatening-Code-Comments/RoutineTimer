@@ -118,7 +118,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         createForm = requireView().findViewById(R.id.fl_SelectRoutine_createRoutine_form)
         createFormCard = requireView().findViewById(R.id.cv_SelectRoutine_createRoutine_form)
         createFormDismissView = requireView().findViewById(R.id.v_SelectRoutine_createRoutine_deselectView)
-        createNameField = requireView().findViewById(R.id.et_EditRoutine_sequential_routineName)
+        createNameField = requireView().findViewById(R.id.et_EditRoutine_sequential_routine_name)
         createModeDropdown = requireView().findViewById(R.id.dd_SelectRoutine_createRoutine_mode)
         createSaveButton = requireView().findViewById(R.id.btn_SelectRoutine_createRoutine_save)
     }

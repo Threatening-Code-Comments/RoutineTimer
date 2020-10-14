@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -24,6 +26,13 @@ import java.util.*
 internal object ResourceClass {
 
     //region random vars
+
+    lateinit var slideUp: Animation
+    lateinit var slideDown: Animation
+    fun initAnimations(context: Context) {
+        slideUp = AnimationUtils.loadAnimation(context, R.anim.slide_up)
+        slideDown = AnimationUtils.loadAnimation(context, R.anim.slide_down)
+    }
 
     var errorDrawable: Drawable = object : Drawable() {
         override fun draw(canvas: Canvas) {}
@@ -43,28 +52,6 @@ internal object ResourceClass {
     //endregion
 
     //region random
-
-    @JvmStatic
-    fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
-        val hsvValues = FloatArray(3)
-        val red = Color.red(oldColor)
-        val green = Color.green(oldColor)
-        val blue = Color.blue(oldColor)
-        Color.RGBToHSV(red, green, blue, hsvValues)
-        if (hsvValues[0] == 0F) {
-            return if (isNightMode) {
-                Tile.DEFAULT_COLOR_DARK
-            } else {
-                Tile.DEFAULT_COLOR
-            }
-        }
-        if (isNightMode) {
-            hsvValues[1] = 0.5f
-        } else {
-            hsvValues[1] = 1f
-        }
-        return Color.HSVToColor(hsvValues)
-    }
 
     @JvmStatic
     fun isNightMode(application: Application): Boolean {
@@ -101,6 +88,47 @@ internal object ResourceClass {
         updateNightMode(isNightMode(application))
     }
 
+    fun random(start: Int, end: Int): Int {
+        val randomVal = Math.random()
+        return ((randomVal + start) * end).toInt()
+    }
+
+    //endregion
+
+    //region colors
+
+    fun calculateColorFromHue(hue: Float): Int {
+        val hsv = floatArrayOf(hue, 1.0f, 1.0f)
+        var color = Color.HSVToColor(hsv)
+        if (hue < 0.1) {
+            color = Tile.DEFAULT_COLOR_DARK
+        }
+        color = convertColorDayNight(wasNightMode(), color)
+        return color
+    }
+
+    @JvmStatic
+    fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
+        val hsvValues = FloatArray(3)
+        val red = Color.red(oldColor)
+        val green = Color.green(oldColor)
+        val blue = Color.blue(oldColor)
+        Color.RGBToHSV(red, green, blue, hsvValues)
+        if (hsvValues[0] == 0F) {
+            return if (isNightMode) {
+                Tile.DEFAULT_COLOR_DARK
+            } else {
+                Tile.DEFAULT_COLOR
+            }
+        }
+        if (isNightMode) {
+            hsvValues[1] = 0.5f
+        } else {
+            hsvValues[1] = 1f
+        }
+        return Color.HSVToColor(hsvValues)
+    }
+
     @JvmStatic
     fun calculateContrast(bgColor: Int): Int {
         val bgColor_cl = Color.valueOf(bgColor)
@@ -112,11 +140,6 @@ internal object ResourceClass {
             Color.WHITE
         }
         return contrastColor
-    }
-
-    fun random(start: Int, end: Int): Int {
-        val randomVal = Math.random()
-        return ((randomVal + start) * end).toInt()
     }
 
     //endregion
@@ -245,7 +268,6 @@ internal object ResourceClass {
     fun removeFromDb(path: String, key: String) {
         val pathRef = database!!.getReference(path)
         val child = pathRef.child(key)
-        MyLog.d(child.toString())
         child.removeValue()
     }
     //endregion

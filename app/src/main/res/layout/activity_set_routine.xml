@@ -3,124 +3,124 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_SetRoutine_main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="50sp"
-        android:clickable="true"
-        android:elevation="10sp"
-        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <!--    <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_SetRoutine_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="50sp"
+            android:clickable="true"
+            android:elevation="10sp"
+            app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="30dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_SetRoutine_icon"
+                    android:layout_width="100sp"
+                    android:layout_height="100sp"
+                    app:srcCompat="@drawable/ic_defaultdrawable" />
+
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_SetRoutine_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/str_tv_SelectRoutine_createRoutine_name" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="30dp">
+            android:padding="40sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cv_SetRoutine_main"
+            app:layout_constraintVertical_bias="0.2">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_SetRoutine_icon"
-                android:layout_width="100sp"
-                android:layout_height="100sp"
-                app:srcCompat="@drawable/ic_defaultdrawable" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="hint"
+                app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+                app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dd_SelectRoutine_createRoutine_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/str_tv_SelectRoutine_createRoutine_name"
+                app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+                app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_SelectRoutine_createRoutine_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="10dp" />
+                android:layout_height="20sp" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_SetRoutine_name"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_SetRoutine_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/str_tv_SelectRoutine_createRoutine_name" />
+                android:layout_gravity="center_horizontal"
+                android:text="@string/str_btn_SetRoutine_image"
+                app:cornerRadius="@dimen/dimen_btnCorners" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_SetRoutine_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/str_btn_SetRoutine_color"
+                app:cornerRadius="@dimen/dimen_btnCorners" />
+
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="40sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cv_SetRoutine_main"
-        app:layout_constraintVertical_bias="0.2">
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint"
-            app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-            app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
-
-            <AutoCompleteTextView
-                android:id="@+id/dd_SelectRoutine_createRoutine_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20sp" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/str_tv_SelectRoutine_createRoutine_name"
-            app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-            app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_SelectRoutine_createRoutine_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20sp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_SetRoutine_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/str_btn_SetRoutine_image"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
+            android:text="add tile!"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />-->
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_SetRoutine_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/str_btn_SetRoutine_color"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="add tile!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
--->
 </androidx.constraintlayout.widget.ConstraintLayout>
