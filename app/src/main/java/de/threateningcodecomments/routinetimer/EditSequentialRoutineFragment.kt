@@ -2,10 +2,18 @@ package de.threateningcodecomments.routinetimer
 
 import accessibility.ResourceClass
 import accessibility.ResourceClass.isNightMode
-import accessibility.ResourceClass.slideDown
-import accessibility.ResourceClass.slideUp
+import accessibility.ResourceClass.scaleDown
+import accessibility.ResourceClass.scaleUpSlow
+import accessibility.ResourceClass.slideDownIn
+import accessibility.ResourceClass.slideDownOut
+import accessibility.ResourceClass.slideUpIn
+import accessibility.ResourceClass.slideUpOut
 import accessibility.Routine
 import accessibility.Tile
+import adapters.ItemMoveCallbackListener
+import adapters.MyViewHolder
+import adapters.OnStartDragListener
+import adapters.OrganizeRoutineAdapter
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -13,7 +21,6 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.transition.TransitionManager
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +35,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
@@ -36,7 +46,7 @@ import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
 
 
-class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
+class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener {
     private val isNightMode: Boolean
         get() = isNightMode(requireActivity().application)
 
@@ -45,6 +55,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
 
     private lateinit var routineLayout: LinearLayout
     private lateinit var routineNameEditText: EditText
+    private lateinit var routineOrganizeBtn: MaterialButton
     private lateinit var routineConvertBtn: MaterialButton
 
     private lateinit var colorCard: MaterialCardView
@@ -58,6 +69,10 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
     private lateinit var tileCycleDeleteBtn: MaterialButton
     private lateinit var tileCyclePrevBtn: MaterialButton
     private lateinit var tileCycleNextBtn: MaterialButton
+
+    private lateinit var organizeRoutineRoot: LinearLayout
+    private lateinit var organizeRoutineRV: RecyclerView
+    private lateinit var organizeRoutineBackBtn: MaterialButton
 
     private var routines: ArrayList<Routine>? = null
     private lateinit var currentRoutine: Routine
@@ -83,6 +98,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         initUI()
 
         ResourceClass.updateNightMode(requireActivity().application)
+        initOrganizeRV()
     }
 
     override fun onClick(v: View?) {
@@ -100,15 +116,61 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
             R.id.btn_EditRoutine_sequential_cycle_prev ->
                 cycleToPrevTile()
             R.id.btn_EditRoutine_sequential_routines_convert ->
-                Toast.makeText(context, "Not yet implemented, I'm very sorry :(", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Not yet implemented, I'm so incredibly sorry :(", Toast.LENGTH_SHORT).show()
+            R.id.btn_EditRoutine_sequential_routines_organize ->
+                goIntoOrganizeMode()
+            R.id.btn_EditRoutine_sequential_organize_back ->
+                leaveOrganizeMode()
             else ->
                 Toast.makeText(context, "Wrong onClickListener, wtf did you do?", Toast.LENGTH_LONG).show()
         }
     }
 
+    private fun goIntoOrganizeMode() {
+        routineLayout.startAnimation(slideUpOut)
+        routineLayout.visibility = View.GONE
+        tileCycleLayout.startAnimation(slideDownOut)
+        tileCycleLayout.visibility = View.GONE
+        tileCardView.startAnimation(scaleDown)
+        tileCardView.visibility = View.GONE
+
+        organizeRoutineRoot.startAnimation(scaleUpSlow)
+        organizeRoutineRoot.visibility = View.VISIBLE
+    }
+
+    private fun leaveOrganizeMode() {
+        routineLayout.startAnimation(slideDownIn)
+        routineLayout.visibility = View.VISIBLE
+        tileCycleLayout.startAnimation(slideUpIn)
+        tileCycleLayout.visibility = View.VISIBLE
+        tileCardView.startAnimation(scaleUpSlow)
+        tileCardView.visibility = View.VISIBLE
+
+        organizeRoutineRoot.startAnimation(scaleDown)
+        organizeRoutineRoot.visibility = View.GONE
+    }
+
+    private var adapter: OrganizeRoutineAdapter? = null
+    private lateinit var touchHelper: ItemTouchHelper
+    override fun onStartDrag(viewHolder: MyViewHolder) {
+        touchHelper.startDrag(viewHolder)
+    }
+
+    private fun initOrganizeRV() {
+        adapter = OrganizeRoutineAdapter(this, currentRoutine)
+        val callback: ItemTouchHelper.Callback = ItemMoveCallbackListener(adapter!!)
+
+        touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(organizeRoutineRV)
+
+        organizeRoutineRV.layoutManager = LinearLayoutManager(requireContext())
+        organizeRoutineRV.adapter = adapter
+    }
+
     //region init
     private fun initListeners() {
         closeIcon.setOnClickListener(this)
+        closeIcon.setColorFilter(if (isNightMode) Color.WHITE else Color.BLACK)
 
         routineNameEditText.addTextChangedListener(afterTextChanged = { text: Editable? ->
             if (text.toString().isNotEmpty()) {
@@ -125,18 +187,19 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         }
         routineNameEditText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                tileCycleLayout.startAnimation(slideDown)
-                tileCycleLayout.visibility = View.GONE
-                tileCardView.startAnimation(slideDown)
-                tileCardView.visibility = View.GONE
+                tileCycleLayout.startAnimation(slideDownOut)
+                tileCycleLayout.visibility = View.INVISIBLE
+                tileCardView.startAnimation(slideDownOut)
+                tileCardView.visibility = View.INVISIBLE
             } else {
-                tileCycleLayout.startAnimation(slideUp)
+                tileCycleLayout.startAnimation(slideUpIn)
                 tileCycleLayout.visibility = View.VISIBLE
-                tileCardView.startAnimation(slideUp)
+                tileCardView.startAnimation(slideUpIn)
                 tileCardView.visibility = View.VISIBLE
             }
         }
         routineConvertBtn.setOnClickListener(this)
+        routineOrganizeBtn.setOnClickListener(this)
 
         colorSlider.addOnChangeListener(Slider.OnChangeListener { _, value, _ ->
             updateColor(value)
@@ -145,6 +208,17 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         tileIconView.setOnClickListener(this)
         tileNameView.imeOptions = EditorInfo.IME_ACTION_DONE
         tileNameView.setRawInputType(InputType.TYPE_CLASS_TEXT)
+        tileNameView.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                routineNameEditText.clearFocus()
+                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+            }
+            false
+        }
+        tileNameView.setOnFocusChangeListener { v, hasFocus ->
+
+            //TODO make tile name editing prettier
+        }
         tileNameView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -155,29 +229,13 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
                     editTileName(text.toString())
             }
         })
-        tileNameView.setOnKeyListener { _, keyCode, _ ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
-                tileNameView.clearFocus()
-                true
-            } else keyCode == KeyEvent.KEYCODE_ENTER
-            // Handle all other keys in the default way
-        }
         tileCardView.setOnClickListener(this)
 
         tileCycleDeleteBtn.setOnClickListener(this)
         tileCyclePrevBtn.setOnClickListener(this)
         tileCycleNextBtn.setOnClickListener(this)
-    }
 
-    private fun initRoutines() {
-        routines = ResourceClass.getRoutines()
-        if (routines == null) {
-            Toast.makeText(context, "Oh no, routines are null. Good bye.", Toast.LENGTH_LONG).show()
-        }
-        val position = args.routinePosition
-        currentRoutine = routines!![position]
-        currentRoutine.setAccessibility(isNightMode)
+        organizeRoutineBackBtn.setOnClickListener(this)
     }
 
     private fun initBufferViews() {
@@ -189,6 +247,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         routineLayout = v.findViewById(R.id.ll_EditRoutine_sequential_routine_layout)
         routineNameEditText = v.findViewById(R.id.et_EditRoutine_sequential_routine_name)
         routineConvertBtn = v.findViewById(R.id.btn_EditRoutine_sequential_routines_convert)
+        routineOrganizeBtn = v.findViewById(R.id.btn_EditRoutine_sequential_routines_organize)
 
         colorCard = v.findViewById(R.id.cv_EditRoutine_sequential_color_cardView)
         colorSlider = v.findViewById(R.id.sl_EditRoutine_sequential_color_hueSlider)
@@ -201,12 +260,27 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         tileCycleDeleteBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_delete)
         tileCyclePrevBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_prev)
         tileCycleNextBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_next)
+
+        organizeRoutineRoot = v.findViewById(R.id.ll_EditRoutine_sequential_organize_root)
+        organizeRoutineRV = v.findViewById(R.id.rv_EditRoutine_sequential_organize_recyclerview)
+        organizeRoutineBackBtn = v.findViewById(R.id.btn_EditRoutine_sequential_organize_back)
+    }
+
+    private fun initRoutines() {
+        routines = ResourceClass.getRoutines()
+        if (routines == null) {
+            Toast.makeText(context, "Oh no, routines are null. Good bye.", Toast.LENGTH_LONG).show()
+        }
+        val position = args.routinePosition
+        currentRoutine = routines!![position]
+        currentRoutine.setAccessibility(isNightMode)
     }
     //endregion
 
     //region update ui
     private fun initUI() {
         currentRoutine.setAccessibility(isNightMode)
+        routineNameEditText.clearFocus()
         updateCard()
 
         updateColorSliderHue()
@@ -295,7 +369,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
             scrimColor = Color.TRANSPARENT
         }
 
-        tileCycleLayout.startAnimation(slideUp)
+        tileCycleLayout.startAnimation(slideUpIn)
 
         TransitionManager.beginDelayedTransition(view as ViewGroup, transform)
         routineLayout.visibility = View.VISIBLE
@@ -317,7 +391,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
             scrimColor = Color.TRANSPARENT
         }
 
-        tileCycleLayout.startAnimation(slideDown)
+        tileCycleLayout.startAnimation(slideDownOut)
 
         TransitionManager.beginDelayedTransition(view as ViewGroup, transform)
         routineLayout.visibility = View.GONE
@@ -354,6 +428,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         } else {
             Toast.makeText(requireContext(), "Routine must have at least one tile!", Toast.LENGTH_SHORT).show()
         }
+        adapter?.notifyDataSetChanged()
     }
 
     private fun cycleToPrevTile() {
@@ -361,6 +436,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
             position--
             updateUI()
         }
+        adapter?.notifyDataSetChanged()
     }
 
     private fun cycleToNextTile() {
@@ -371,12 +447,16 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener {
         }
         position++
         updateUI()
+        adapter?.notifyDataSetChanged()
     }
 
     //endregion
 
     //region navigation
     private fun navigateBack() {
+        routineNameEditText.clearFocus()
+        tileNameView.clearFocus()
+
         val directions = EditSequentialRoutineFragmentDirections.actionEditSequentialRoutineFragmentToSelectRoutineFragment()
         val extras = FragmentNavigatorExtras(root as View to currentRoutine.uid!!, routineNameEditText to currentRoutine.name!!, tileIconView to currentRoutine.uid + "icon")
 

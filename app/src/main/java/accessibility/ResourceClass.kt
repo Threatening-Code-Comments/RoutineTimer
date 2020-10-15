@@ -27,12 +27,27 @@ internal object ResourceClass {
 
     //region random vars
 
-    lateinit var slideUp: Animation
-    lateinit var slideDown: Animation
+    lateinit var animContext: Context
+    lateinit var slideUpIn: Animation
+    lateinit var slideUpOut: Animation
+    lateinit var slideDownIn: Animation
+    lateinit var slideDownOut: Animation
+    lateinit var scaleDown: Animation
+    lateinit var scaleUp: Animation
+    lateinit var scaleUpSlow: Animation
     fun initAnimations(context: Context) {
-        slideUp = AnimationUtils.loadAnimation(context, R.anim.slide_up)
-        slideDown = AnimationUtils.loadAnimation(context, R.anim.slide_down)
+        animContext = context
+        slideUpIn = loadAnimation(R.anim.slide_up_in)
+        slideUpOut = loadAnimation(R.anim.slide_up_out)
+        slideDownIn = loadAnimation(R.anim.slide_down_in)
+        slideDownOut = loadAnimation(R.anim.slide_down_out)
+        scaleDown = loadAnimation(R.anim.scale_down)
+        scaleUp = loadAnimation(R.anim.scale_up)
+        scaleUpSlow = loadAnimation(R.anim.scale_up_slow)
     }
+
+    private fun loadAnimation(id: Int): Animation = AnimationUtils.loadAnimation(animContext, id)
+
 
     var errorDrawable: Drawable = object : Drawable() {
         override fun draw(canvas: Canvas) {}

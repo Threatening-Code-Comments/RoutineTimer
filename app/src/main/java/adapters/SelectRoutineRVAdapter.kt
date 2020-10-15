@@ -1,4 +1,4 @@
-package de.threateningcodecomments.routinetimer
+package adapters
 
 import accessibility.ResourceClass
 import accessibility.Routine
@@ -6,36 +6,13 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
-import de.threateningcodecomments.routinetimer.SelectRoutineRVAdapter.MyViewHolder
+import de.threateningcodecomments.routinetimer.R
+import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 
 
 internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<MyViewHolder>() {
-
-    class MyViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        var layout: LinearLayout = v.findViewById(R.id.fl_SelectRoutine_createRoutine_content)
-
-        var nameView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineName)
-
-        var modeView: TextView = v.findViewById(R.id.tv_SelectRoutine_rv_routineMode)
-
-        var singleImageView: ShapeableImageView = v.findViewById(R.id.iv_SelectRoutine_rv_singleImage)
-        var fourImages: ArrayList<ShapeableImageView> = ArrayList()
-
-        init {
-            var tmp: ShapeableImageView = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_1)
-            fourImages.add(tmp)
-            tmp = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_2)
-            fourImages.add(tmp)
-            tmp = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_3)
-            fourImages.add(tmp)
-            tmp = v.findViewById(R.id.iv_SelectRoutine_rv_smallImage_4)
-            fourImages.add(tmp)
-        }
-    }
 
     private var routines: ArrayList<Routine>? = null
 
@@ -75,21 +52,17 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
 
         if (tmpRoutine.tiles.size < 4) {
             holder.singleImageView.transitionName = uid + "icon"
-            holder.singleImageView.visibility = View.VISIBLE
+            holder.setSingleImage()
             val icon = ResourceClass.getIconDrawable(firstTile)
             holder.singleImageView.setImageDrawable(icon)
             holder.singleImageView.setBackgroundColor(firstTile.backgroundColor)
             holder.singleImageView.setColorFilter(firstTile.contrastColor)
-            for (imageView in holder.fourImages) {
-                imageView.visibility = View.GONE
-            }
         } else {
             holder.fourImages[0].transitionName = uid + "icon"
-            holder.singleImageView.visibility = View.GONE
+            holder.setFourImages()
             for (i in 0..3) {
                 val currentTile = tmpRoutine.tiles[i]
                 val currentImageView = holder.fourImages[i]
-                currentImageView.visibility = View.VISIBLE
                 val icon = ResourceClass.getIconDrawable(currentTile)
                 currentImageView.setImageDrawable(icon)
                 currentImageView.setBackgroundColor(currentTile.backgroundColor)

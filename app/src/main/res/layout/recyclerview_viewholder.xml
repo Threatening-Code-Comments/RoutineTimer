@@ -10,7 +10,7 @@
     app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
 
     <LinearLayout
-        android:id="@+id/fl_SelectRoutine_createRoutine_content"
+        android:id="@+id/fl_rvItem_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
@@ -20,12 +20,12 @@
         android:padding="5sp">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/cl_SelectRoutine_rv_coordinatorLayout"
+            android:id="@+id/cl_rvItem_coordinatorLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_SelectRoutine_rv_singleImage"
+                android:id="@+id/iv_rvItem_singleImage"
                 android:layout_width="@dimen/recyclerview_viewholder_iv_size"
                 android:layout_height="@dimen/recyclerview_viewholder_iv_size"
                 android:src="@drawable/ic_add"
@@ -38,7 +38,7 @@
                 android:rowCount="2">
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_SelectRoutine_rv_smallImage_1"
+                    android:id="@+id/iv_rvItem_smallImage_1"
                     android:layout_width="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_height="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_gravity="top|start"
@@ -46,7 +46,7 @@
                     app:shapeAppearanceOverlay="@style/rectImageView" />
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_SelectRoutine_rv_smallImage_2"
+                    android:id="@+id/iv_rvItem_smallImage_2"
                     android:layout_width="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_height="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_gravity="top|end"
@@ -54,7 +54,7 @@
                     app:shapeAppearanceOverlay="@style/rectImageView" />
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_SelectRoutine_rv_smallImage_3"
+                    android:id="@+id/iv_rvItem_smallImage_3"
                     android:layout_width="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_height="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_gravity="bottom|start"
@@ -62,7 +62,7 @@
                     app:shapeAppearanceOverlay="@style/rectImageView" />
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_SelectRoutine_rv_smallImage_4"
+                    android:id="@+id/iv_rvItem_smallImage_4"
                     android:layout_width="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_height="@dimen/recyclerview_viewholder_smallIv_size"
                     android:layout_gravity="bottom|end"
@@ -78,13 +78,13 @@
             android:layout_height="wrap_content" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_SelectRoutine_rv_routineName"
+                android:id="@+id/tv_rvItem_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
@@ -92,7 +92,7 @@
                 android:textSize="17sp" />
 
             <TextView
-                android:id="@+id/tv_SelectRoutine_rv_routineMode"
+                android:id="@+id/tv_rvItem_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="mode"
@@ -100,7 +100,16 @@
 
         </LinearLayout>
 
-
     </LinearLayout>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_rvItem_grab"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end|center_vertical"
+        android:layout_margin="12sp"
+        android:clickable="true"
+        android:src="@drawable/ic_drag"
+        android:visibility="gone" />
 
 </FrameLayout>

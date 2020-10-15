@@ -3,6 +3,7 @@ package de.threateningcodecomments.routinetimer
 import accessibility.ResourceClass
 import accessibility.Routine
 import accessibility.Tile
+import adapters.SelectRoutineRVAdapter
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle

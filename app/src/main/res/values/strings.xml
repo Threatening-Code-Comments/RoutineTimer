@@ -129,4 +129,5 @@
     <string name="str_btn_EditRoutine_sequential_cycle_delete">delete tile!</string>
     <string name="str_btn_EditRoutine_sequential_routines_organize">organize routine</string>
     <string name="str_btn_EditRoutine_sequential_cycle_add">add tile</string>
+    <string name="str_btn_EditRoutine_sequential_organize_back">Back</string>
 </resources>

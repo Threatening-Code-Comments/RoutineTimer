@@ -73,7 +73,9 @@ class Tile//region Constructor
         const val DEFAULT_COLOR = -0x1
         const val DEFAULT_COLOR_DARK = -0xdbdbdc
         const val MODE_COUNT_UP = 1
+        const val COUNT_UP_MESSAGE = "Counting up"
         const val MODE_COUNT_DOWN = -1
+        const val COUNT_DOWN_MESSAGE = "Counting down"
 
         val ERROR_TILE = Tile(ERROR_NAME, ERROR_ICONID, Color.RED)
         val DEFAULT_TILE = Tile("Nothing here yet!", 12, DEFAULT_COLOR)

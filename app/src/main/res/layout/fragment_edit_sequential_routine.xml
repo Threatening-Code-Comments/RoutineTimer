@@ -74,41 +74,11 @@
 
     </LinearLayout>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_EditRoutine_sequential_color_cardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/unrelatedElementsSpacing"
-        android:visibility="gone"
-        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
-        app:layout_constraintBottom_toTopOf="@+id/cv_EditRoutine_sequential_tile_card"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="40dp">
+    <include layout="@layout/layout_color_select_mode" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/looselyRelatedElementsSpacing">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/str_tv_EditRoutine_sequential_color_hue"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
-
-            <com.google.android.material.slider.Slider
-                android:id="@+id/sl_EditRoutine_sequential_color_hueSlider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:valueFrom="0"
-                android:valueTo="360" />
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+    <include
+        layout="@layout/layout_organize_sequential_routine"
+        android:visibility="gone" />
 
 
     <com.google.android.material.card.MaterialCardView
