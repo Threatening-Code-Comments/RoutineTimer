@@ -2,6 +2,7 @@ package adapters
 
 import accessibility.ResourceClass
 import accessibility.Routine
+import accessibility.Tile
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -49,6 +50,10 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
             else -> "the mode couldn't be loaded"
         }
         holder.modeView.text = mode
+
+        while (tmpRoutine.tiles.contains(Tile.ERROR_TILE)) {
+            tmpRoutine.tiles.remove(Tile.ERROR_TILE)
+        }
 
         if (tmpRoutine.tiles.size < 4) {
             holder.singleImageView.transitionName = uid + "icon"

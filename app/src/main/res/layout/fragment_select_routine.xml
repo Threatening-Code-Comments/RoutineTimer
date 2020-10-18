@@ -44,25 +44,18 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_SelectRoutine_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_SelectRoutine_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10sp"
-            android:scrollbars="vertical" />
-
-    </LinearLayout>
+        android:layout_marginTop="10sp"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_SelectRoutine_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|end"
         android:layout_margin="@dimen/fab_margin"
         android:text="@string/str_fab_SelectRoutine_add"
         android:tint="@android:color/white"
@@ -112,13 +105,13 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/textInputStyle"
-                    app:shapeAppearance="@style/textInputShape"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/str_tv_EditRoutine_sequential_tileName"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
                     app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
-                    app:endIconMode="clear_text">
+                    app:endIconMode="clear_text"
+                    app:shapeAppearance="@style/textInputShape">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_EditRoutine_sequential_routine_name"

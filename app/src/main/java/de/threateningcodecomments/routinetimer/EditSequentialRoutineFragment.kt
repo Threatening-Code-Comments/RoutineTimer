@@ -56,7 +56,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     private lateinit var routineLayout: LinearLayout
     private lateinit var routineNameEditText: EditText
     private lateinit var routineOrganizeBtn: MaterialButton
-    private lateinit var routineConvertBtn: MaterialButton
 
     private lateinit var colorCard: MaterialCardView
     private lateinit var colorSlider: Slider
@@ -115,8 +114,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
                 cycleToNextTile()
             R.id.btn_EditRoutine_sequential_cycle_prev ->
                 cycleToPrevTile()
-            R.id.btn_EditRoutine_sequential_routines_convert ->
-                Toast.makeText(context, "Not yet implemented, I'm so incredibly sorry :(", Toast.LENGTH_SHORT).show()
             R.id.btn_EditRoutine_sequential_routines_organize ->
                 goIntoOrganizeMode()
             R.id.btn_EditRoutine_sequential_organize_back ->
@@ -198,7 +195,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
                 tileCardView.visibility = View.VISIBLE
             }
         }
-        routineConvertBtn.setOnClickListener(this)
         routineOrganizeBtn.setOnClickListener(this)
 
         colorSlider.addOnChangeListener(Slider.OnChangeListener { _, value, _ ->
@@ -246,7 +242,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
         routineLayout = v.findViewById(R.id.ll_EditRoutine_sequential_routine_layout)
         routineNameEditText = v.findViewById(R.id.et_EditRoutine_sequential_routine_name)
-        routineConvertBtn = v.findViewById(R.id.btn_EditRoutine_sequential_routines_convert)
         routineOrganizeBtn = v.findViewById(R.id.btn_EditRoutine_sequential_routines_organize)
 
         colorCard = v.findViewById(R.id.cv_EditRoutine_sequential_color_cardView)

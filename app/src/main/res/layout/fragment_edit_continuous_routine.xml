@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:transitionName="editCRoutineRoot"
+    tools:context=".EditContinuousRoutineFragment">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_EditRoutine_continuous_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15sp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_close"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/circleImageView" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_EditRoutine_continuous_routines_name"
+            style="@style/textInputDiscreteStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/unrelatedElementsSpacing"
+            android:layout_marginTop="50sp"
+            android:hint="@string/str_tv_EditRoutine_continuous_routineName"
+            app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+            app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
+            app:shapeAppearance="@style/textInputShape">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_EditRoutine_continuous_routine_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
+                android:transitionName="editCRoutineName" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <GridLayout
+            android:id="@+id/gl_editRoutine_continuous_tiles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="12sp"
+            android:columnCount="2"
+            android:rowCount="7">
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+            <include
+                layout="@layout/viewholder_small_tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1" />
+
+        </GridLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

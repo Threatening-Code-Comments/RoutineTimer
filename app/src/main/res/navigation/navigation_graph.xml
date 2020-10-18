@@ -24,6 +24,9 @@
         <action
             android:id="@+id/action_selectRoutineFragment_to_editSequentialRoutineFragment"
             app:destination="@id/editSequentialRoutineFragment" />
+        <action
+            android:id="@+id/action_selectRoutineFragment_to_editContinuousRoutineFragment"
+            app:destination="@id/editContinuousRoutineFragment" />
     </fragment>
     <fragment
         android:id="@+id/editSequentialRoutineFragment"
@@ -36,5 +39,17 @@
         <argument
             android:name="routinePosition"
             app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/editContinuousRoutineFragment"
+        android:name="de.threateningcodecomments.routinetimer.EditContinuousRoutineFragment"
+        android:label="fragment_edit_continuous_routine"
+        tools:layout="@layout/fragment_edit_continuous_routine">
+        <action
+            android:id="@+id/action_editContinuousRoutineFragment_to_selectRoutineFragment"
+            app:destination="@id/selectRoutineFragment" />
+        <argument
+            android:name="routineUID"
+            app:argType="string" />
     </fragment>
 </navigation>

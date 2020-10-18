@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.util.TypedValue
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.google.android.material.transition.platform.MaterialContainerTransform
@@ -22,6 +23,7 @@ import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.R
 import java.util.*
+
 
 internal object ResourceClass {
 
@@ -106,6 +108,10 @@ internal object ResourceClass {
     fun random(start: Int, end: Int): Int {
         val randomVal = Math.random()
         return ((randomVal + start) * end).toInt()
+    }
+
+    fun spToPx(sp: Float, context: Context): Int {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.resources.displayMetrics).toInt()
     }
 
     //endregion
