@@ -46,6 +46,17 @@ class Tile//region Constructor
         contrastColor = calculateContrast(backgroundColor)
     }
 
+    override fun equals(tile: Any?): Boolean {
+        if (tile !is Tile) {
+            MyLog.d("comparison of ${tile?.javaClass} and Tile is not possible!")
+            return false
+        }
+
+        if (tile.mode != this.mode || tile.name != this.name || tile.iconID != this.iconID || tile.backgroundColor != this.backgroundColor) {
+            return false
+        }
+        return true
+    }
     //endregion
 
     //region getters and setters

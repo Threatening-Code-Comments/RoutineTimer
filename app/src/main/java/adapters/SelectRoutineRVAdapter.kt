@@ -51,11 +51,13 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
         }
         holder.modeView.text = mode
 
-        while (tmpRoutine.tiles.contains(Tile.ERROR_TILE)) {
-            tmpRoutine.tiles.remove(Tile.ERROR_TILE)
+        //initializes tile buffer to restore order of tiles and errortiles for continuous routine
+        val tilesWithoutErrors = ArrayList<Tile>(tmpRoutine.tiles)
+        while (tilesWithoutErrors.contains(Tile.ERROR_TILE)) {
+            tilesWithoutErrors.remove(Tile.ERROR_TILE)
         }
 
-        if (tmpRoutine.tiles.size < 4) {
+        if (tilesWithoutErrors.size < 4) {
             holder.singleImageView.transitionName = uid + "icon"
             holder.setSingleImage()
             val icon = ResourceClass.getIconDrawable(firstTile)
@@ -66,7 +68,7 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
             holder.fourImages[0].transitionName = uid + "icon"
             holder.setFourImages()
             for (i in 0..3) {
-                val currentTile = tmpRoutine.tiles[i]
+                val currentTile = tilesWithoutErrors[i]
                 val currentImageView = holder.fourImages[i]
                 val icon = ResourceClass.getIconDrawable(currentTile)
                 currentImageView.setImageDrawable(icon)
@@ -90,7 +92,7 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
             holder.nameView.transitionName = tmpRoutine.uid + "name"
             holder.layout.setOnClickListener {
                 val iv: ShapeableImageView
-                if (tmpRoutine.tiles.size < 4) {
+                if (tilesWithoutErrors.size < 4) {
                     iv = holder.singleImageView
                 } else {
                     iv = holder.fourImages[0]

@@ -12,11 +12,12 @@
         app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
 
         <LinearLayout
+            android:id="@+id/ll_viewholder_smallTile_contentLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingHorizontal="20sp"
-            android:paddingVertical="20sp">
+            android:paddingVertical="15sp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iv_viewholder_smallTile_icon"
