@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
     android:transitionName="editCRoutineRoot"
     tools:context=".EditContinuousRoutineFragment">
@@ -51,72 +52,107 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <GridLayout
-            android:id="@+id/gl_editRoutine_continuous_tiles"
+        <LinearLayout
+            android:id="@+id/ll_EditRoutine_continuous_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="12sp"
-            android:columnCount="2"
-            android:rowCount="7">
+            android:layout_margin="@dimen/relatedElementsSpacing"
+            android:orientation="vertical">
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+            <LinearLayout
+                android:id="@+id/ll_EditRoutine_continuous_firstRow"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_0"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_1"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+            </LinearLayout>
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+            <LinearLayout
+                android:id="@+id/ll_EditRoutine_continuous_secondRow"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_2"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_3"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
-            <include
-                layout="@layout/viewholder_small_tile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1" />
+            </LinearLayout>
 
-        </GridLayout>
+            <LinearLayout
+                android:id="@+id/ll_EditRoutine_continuous_thirdRow"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_4"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_5"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_EditRoutine_continuous_fourthRow"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_6"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_7"
+                    layout="@layout/viewholder_small_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

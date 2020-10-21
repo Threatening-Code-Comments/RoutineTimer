@@ -89,6 +89,18 @@ class Tile//region Constructor
         const val COUNT_DOWN_MESSAGE = "Counting down"
 
         val ERROR_TILE = Tile(ERROR_NAME, ERROR_ICONID, Color.RED)
+            get() {
+                val name = field.name
+                val iconID = field.iconID
+                val color = field.backgroundColor
+                return Tile(name, iconID, color)
+            }
         val DEFAULT_TILE = Tile("Nothing here yet!", 12, DEFAULT_COLOR)
+            get() {
+                val name = field.name
+                val iconID = field.iconID
+                val color = field.backgroundColor
+                return Tile(name, iconID, color)
+            }
     }
 }

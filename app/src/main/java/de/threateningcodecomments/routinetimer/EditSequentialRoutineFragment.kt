@@ -269,6 +269,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         val position = args.routinePosition
         currentRoutine = routines!![position]
         currentRoutine.setAccessibility(isNightMode)
+        currentRoutine.lastUsed = System.currentTimeMillis()
     }
     //endregion
 

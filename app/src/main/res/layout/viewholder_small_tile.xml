@@ -12,34 +12,81 @@
         app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
 
         <LinearLayout
-            android:id="@+id/ll_viewholder_smallTile_contentLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingHorizontal="20sp"
-            android:paddingVertical="15sp">
+            android:orientation="horizontal">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_viewholder_smallTile_icon"
-                android:layout_width="50sp"
-                android:layout_height="50sp"
-                android:layout_gravity="center"
+            <LinearLayout
+                android:id="@+id/ll_viewholder_smallTile_infoLayout"
+                android:layout_width="0sp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:src="@drawable/ic_defaultdrawable" />
+                android:orientation="vertical"
+                android:paddingHorizontal="20sp"
+                android:paddingVertical="15sp">
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="0sp"
-                android:layout_weight="0.03" />
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_viewholder_smallTile_icon"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_defaultdrawable" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_viewholder_smallTile_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="2"
-                android:text="Tile name!"
-                android:textAlignment="center"
-                android:textSize="20sp" />
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="0sp"
+                    android:layout_weight="0.03" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tv_viewholder_smallTile_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:imeOptions="actionDone"
+                    android:maxLines="2"
+                    android:text="Tile name!"
+                    android:textAlignment="center"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_viewholder_tile_infoRoot"
+                android:layout_width="0sp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="20sp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_viewholder_tile_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Time"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.3" />
+
+                <TextView
+                    android:id="@+id/tv_viewholder_tile_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1:20:20"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_tile_info"
+                    app:layout_constraintVertical_bias="0.4" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

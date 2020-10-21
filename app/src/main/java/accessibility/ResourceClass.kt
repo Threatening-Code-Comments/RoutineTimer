@@ -23,6 +23,7 @@ import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.R
 import java.util.*
+import kotlin.math.round
 
 
 internal object ResourceClass {
@@ -268,13 +269,13 @@ internal object ResourceClass {
 
     fun generateRandomRoutine(): Routine {
         val tiles = ArrayList<Tile>()
-        for (i in 0 until ((Math.random() + 1) * 3).toInt()) {
+        for (i in 0 until ((Math.random() + 1) * 8).toInt()) {
             tiles.add(Tile("random tile name " + random(0, 5) + "!",
                     random(0, 80),
                     Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat())
             ))
         }
-        return Routine(Routine.MODE_SEQUENTIAL, "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
+        return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
     }
 
     //endregion
