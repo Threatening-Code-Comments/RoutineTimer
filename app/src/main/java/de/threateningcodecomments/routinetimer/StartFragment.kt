@@ -3,6 +3,7 @@ package de.threateningcodecomments.routinetimer
 import accessibility.MyLog
 import accessibility.ResourceClass
 import accessibility.Tile
+import accessibility.UIContainer
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -33,7 +34,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 
-class StartFragment : Fragment(), View.OnClickListener {
+class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var mAuth: FirebaseAuth
     private lateinit var activity: Activity
@@ -52,6 +53,7 @@ class StartFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         activity = getActivity() as Activity
+        MainActivity.currentFragment = this
 
         initGSignIn()
 
@@ -142,7 +144,7 @@ class StartFragment : Fragment(), View.OnClickListener {
     //endregion
 
     //region Greeting
-    private fun updateUI() {
+    override fun updateUI() {
         account = FirebaseAuth.getInstance().currentUser
         if (account == null) {
             handleGreetNoAccount()

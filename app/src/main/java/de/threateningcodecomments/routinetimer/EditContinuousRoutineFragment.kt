@@ -3,13 +3,17 @@ package de.threateningcodecomments.routinetimer
 import accessibility.ResourceClass
 import accessibility.Routine
 import accessibility.Tile
+import accessibility.UIContainer
+import android.animation.LayoutTransition
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -24,15 +28,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
-import java.util.*
-import kotlin.collections.ArrayList
 
 
-class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
+class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     private var isNightMode: Boolean = false
     private lateinit var currentRoutine: Routine
     private lateinit var tiles: ArrayList<Tile>
 
+    private lateinit var root: ConstraintLayout
     private lateinit var closeView: ShapeableImageView
 
     private lateinit var tilesMainLayout: LinearLayout
@@ -47,6 +50,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         isNightMode = ResourceClass.isNightMode(requireActivity().application)
+        MainActivity.currentFragment = this
 
         initBufferViews()
 
@@ -98,25 +102,82 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
     private fun minimizeTile(index: Int) {
         val populatedRow = findRowWithChildCount(3)
         val previousTilePosition: Int
-        val nextIndex: Int
-        if (getTileRow(index) < populatedRow) {
-            nextIndex = index + 1
+        val nextIndex = if (getTileRow(index) < populatedRow) {
+            index + 1
         } else {
-            nextIndex = index - 1
+            index - 1
         }
-        moveTile(nextIndex)
+
         previousTilePosition = getTilePosition(nextIndex)
 
-        if (previousTilePosition == 0) {
-            val nextRowView = tileRows[getTileRow(index)]
-            val buffer = nextRowView[0]
-            nextRowView.removeView(buffer)
-            nextRowView.addView(buffer)
-        }
         val cv = gridTiles[index]
-        cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_infoRoot).visibility = View.GONE
-        Collections.swap(gridTiles, index, nextIndex)
-        Collections.swap(tiles, index, nextIndex)
+        if (previousTilePosition == 0) {
+            cv.startAnimation(ResourceClass.collapseTileLeft)
+        } else {
+            cv.startAnimation(ResourceClass.collapseTileRight)
+        }
+        Handler().postDelayed({
+            cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_countdownRoot).visibility = View.GONE
+        }, ResourceClass.collapseTileLeft.duration / 2)
+
+        Handler().postDelayed({
+            moveTile(nextIndex)
+        }, ResourceClass.collapseTileLeft.duration)
+        /*Collections.swap(gridTiles, index, nextIndex)
+        Collections.swap(tiles, index, nextIndex)*/
+    }
+
+    private var isExpanded: Boolean = false
+    private fun expandTile(index: Int) {
+        val cv = gridTiles[index]
+        val lastCvPos = getTilePosition(index)
+        val nextIndex: Int = if (getTilePosition(index) == 0) {
+            index + 1
+        } else {
+            index - 1
+        }
+        moveTile(nextIndex)
+
+        if (lastCvPos == 0) {
+            cv.startAnimation(ResourceClass.expandTileLeft)
+            cv.findViewById<EditText>(R.id.tv_viewholder_smallTile_name).startAnimation(ResourceClass.collapseTileRight)
+            cv.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon).startAnimation(ResourceClass.collapseTileRight)
+        } else {
+            cv.startAnimation(ResourceClass.expandTileRight)
+        }
+        Handler().postDelayed({
+            cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_countdownRoot).visibility = View.VISIBLE
+        }, ResourceClass.expandTileRight.duration / 2)
+        /*Collections.swap(gridTiles, index, nextIndex)
+        Collections.swap(tiles, index, nextIndex)*/
+    }
+
+    private fun moveTile(index: Int) {
+        val cv = gridTiles[index]
+        val row: Int = getTileRow(index)
+        val cvPosition: Int = getTilePosition(index)
+
+        var nextRow: Int = 0
+        if (isExpanded) {
+            nextRow = findRowWithChildCount(1)
+        } else {
+            nextRow = if (cvPosition == 0) row - 1 else row + 1
+        }
+        val rowView = tileRows[row]
+        val nextRowView = tileRows[nextRow]
+
+        rowView.removeView(cv.parent as View)
+        nextRowView.addView(cv.parent as View)
+
+        val previousViews = nextRowView.children.toList()
+        if (cvPosition != 0) {
+            for ((previousViewIndex, previousView) in previousViews.withIndex()) {
+                if (previousView != cv.parent) {
+                    nextRowView.removeView(previousView)
+                    nextRowView.addView(previousView)
+                }
+            }
+        }
     }
 
     private fun findRowWithChildCount(i: Int): Int {
@@ -126,21 +187,6 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
             }
         }
         return -1
-    }
-
-    private var isExpanded: Boolean = false
-    private fun expandTile(index: Int) {
-        val nextIndex: Int
-        if (getTilePosition(index) == 0) {
-            nextIndex = index + 1
-        } else {
-            nextIndex = index - 1
-        }
-        moveTile(nextIndex)
-        val cv = gridTiles[index]
-        cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_infoRoot).visibility = View.VISIBLE
-        Collections.swap(gridTiles, index, nextIndex)
-        Collections.swap(tiles, index, nextIndex)
     }
 
     private fun getTileRow(index: Int): Int {
@@ -168,28 +214,6 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
         return cvPosition
     }
 
-    private fun moveTile(index: Int) {
-        val cv = gridTiles[index]
-        val row: Int = getTileRow(index)
-        val cvPosition: Int = getTilePosition(index)
-
-        var nextRow: Int = 0
-        if (isExpanded) {
-            nextRow = findRowWithChildCount(1)
-        } else {
-            nextRow = when (row) {
-                0 -> 1
-                3 -> 2
-                else -> row - 1
-            }
-        }
-        val rowView = tileRows[row]
-        val nextRowView = tileRows[nextRow]
-
-        rowView.removeView(cv.parent as View)
-        nextRowView.addView(cv.parent as View)
-    }
-
     private fun createTile(index: Int) {
         tiles[index] = Tile.DEFAULT_TILE
         updateUI()
@@ -207,7 +231,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
         currentRoutine.lastUsed = System.currentTimeMillis()
     }
 
-    private fun updateUI() {
+    override fun updateUI() {
         for ((index, tileView) in gridTiles.withIndex()) {
             if (index >= tiles.size)
                 tiles.add(Tile.ERROR_TILE)
@@ -260,6 +284,8 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener {
     private fun initBufferViews() {
         val v: View = requireView()
 
+        root = v.findViewById(R.id.cl_EditRoutine_continuous_root)
+        root.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
         closeView = v.findViewById(R.id.iv_EditRoutine_continuous_close)
 
         tilesMainLayout = v.findViewById(R.id.ll_EditRoutine_continuous_main)

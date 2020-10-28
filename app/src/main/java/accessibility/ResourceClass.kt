@@ -21,6 +21,7 @@ import com.google.firebase.database.ValueEventListener
 import com.maltaisn.icondialog.pack.IconPack
 import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
+import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import java.util.*
 import kotlin.math.round
@@ -31,22 +32,36 @@ internal object ResourceClass {
     //region random vars
 
     lateinit var animContext: Context
+
     lateinit var slideUpIn: Animation
     lateinit var slideUpOut: Animation
     lateinit var slideDownIn: Animation
     lateinit var slideDownOut: Animation
+
     lateinit var scaleDown: Animation
     lateinit var scaleUp: Animation
     lateinit var scaleUpSlow: Animation
+
+    lateinit var expandTileLeft: Animation
+    lateinit var expandTileRight: Animation
+    lateinit var collapseTileLeft: Animation
+    lateinit var collapseTileRight: Animation
     fun initAnimations(context: Context) {
         animContext = context
+
         slideUpIn = loadAnimation(R.anim.slide_up_in)
         slideUpOut = loadAnimation(R.anim.slide_up_out)
         slideDownIn = loadAnimation(R.anim.slide_down_in)
         slideDownOut = loadAnimation(R.anim.slide_down_out)
+
         scaleDown = loadAnimation(R.anim.scale_down)
         scaleUp = loadAnimation(R.anim.scale_up)
         scaleUpSlow = loadAnimation(R.anim.scale_up_slow)
+
+        expandTileLeft = loadAnimation(R.anim.expand_tile_left)
+        expandTileRight = loadAnimation(R.anim.expand_tile_right)
+        collapseTileLeft = loadAnimation(R.anim.collapse_tile_left)
+        collapseTileRight = loadAnimation(R.anim.collapse_tile_right)
     }
 
     private fun loadAnimation(id: Int): Animation = AnimationUtils.loadAnimation(animContext, id)
@@ -213,6 +228,8 @@ internal object ResourceClass {
             val routine = routineDataSnapshot.getValue(Routine::class.java)!!
             routines!!.add(routine)
         }
+
+        MainActivity.currentFragment.updateUI()
     }
 
     fun getRoutineFromUid(oldUid: String?): Routine {
@@ -270,7 +287,7 @@ internal object ResourceClass {
     fun generateRandomRoutine(): Routine {
         val tiles = ArrayList<Tile>()
         for (i in 0 until ((Math.random() + 1) * 8).toInt()) {
-            tiles.add(Tile("random tile name " + random(0, 5) + "!",
+            tiles.add(Tile("random nr." + random(0, 200) + "!",
                     random(0, 80),
                     Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat())
             ))

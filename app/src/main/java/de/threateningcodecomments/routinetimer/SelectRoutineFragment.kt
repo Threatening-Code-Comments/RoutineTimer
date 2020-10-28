@@ -3,6 +3,7 @@ package de.threateningcodecomments.routinetimer
 import accessibility.ResourceClass
 import accessibility.Routine
 import accessibility.Tile
+import accessibility.UIContainer
 import adapters.SelectRoutineRVAdapter
 import android.content.Context
 import android.graphics.Color
@@ -36,7 +37,7 @@ import com.google.android.material.transition.platform.MaterialContainerTransfor
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SelectRoutineFragment : Fragment(), View.OnClickListener {
+class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var activity: AppCompatActivity
 
     private lateinit var rootLayout: CoordinatorLayout
@@ -67,6 +68,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
         super.onCreate(savedInstanceState)
 
+        MainActivity.currentFragment = this
+
         startPostponedEnterTransition()
 
         initBufferViews()
@@ -86,7 +89,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         ResourceClass.loadRoutines()
         updateRoutines()
         ResourceClass.updateNightMode(SelectRoutineFragment.activity.application)
-        updateRoutineListView()
+        updateUI()
         updateForm()
     }
 
@@ -208,7 +211,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
     //region handle routines
 
-    private fun updateRoutineListView() {
+    override fun updateUI() {
         if (routines == null) {
             routines = ArrayList()
         }
@@ -262,7 +265,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
             routines!!.add(Routine.ERROR_ROUTINE)
         }
 
-        updateRoutineListView()
+        updateUI()
     }
 
     private fun duplicateRoutine(routine: Routine) {
@@ -280,7 +283,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
         routines!!.add(routine)
         routines!!.remove(Routine.ERROR_ROUTINE)
 
-        updateRoutineListView()
+        updateUI()
     }
 
     //endregion
@@ -349,7 +352,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener {
 
     fun goToEditRoutine(v: LinearLayout, iv: ShapeableImageView, routineNameView: TextView, tmpRoutine: Routine) {
         updateRoutines()
-        updateRoutineListView()
+        updateUI()
 
         val editRoutineFragment = EditSequentialRoutineFragment()
         editRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()

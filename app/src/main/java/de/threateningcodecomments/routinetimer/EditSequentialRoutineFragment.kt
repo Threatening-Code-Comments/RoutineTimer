@@ -10,6 +10,7 @@ import accessibility.ResourceClass.slideUpIn
 import accessibility.ResourceClass.slideUpOut
 import accessibility.Routine
 import accessibility.Tile
+import accessibility.UIContainer
 import adapters.ItemMoveCallbackListener
 import adapters.MyViewHolder
 import adapters.OnStartDragListener
@@ -46,7 +47,7 @@ import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
 
 
-class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener {
+class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener, UIContainer {
     private val isNightMode: Boolean
         get() = isNightMode(requireActivity().application)
 
@@ -85,6 +86,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         super.onViewCreated(view, savedInstanceState)
 
         fragment = this
+        MainActivity.currentFragment = this
 
         initBufferViews()
 
@@ -282,7 +284,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         updateColorSliderHue()
     }
 
-    fun updateUI() {
+    override fun updateUI() {
         if (currentRoutine.tiles.size - 1 < position + 1) {
             tileCycleNextBtn.text = getString(R.string.str_btn_EditRoutine_sequential_cycle_add)
         } else {

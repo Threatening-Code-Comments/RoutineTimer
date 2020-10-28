@@ -2,6 +2,7 @@ package de.threateningcodecomments.routinetimer
 
 import accessibility.ResourceClass
 import accessibility.Tile
+import accessibility.UIContainer
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.maltaisn.icondialog.IconDialog
@@ -10,12 +11,13 @@ import com.maltaisn.icondialog.data.Icon
 import com.maltaisn.icondialog.pack.IconPack
 import de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment.Companion.ICON_DIALOG_TAG
 
-class MainActivity : AppCompatActivity(), IconDialog.Callback {
+class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         activityBuffer = this
+        currentFragment = this
         ResourceClass.initAnimations(this)
     }
 
@@ -36,7 +38,10 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback {
         tmpTile = tile
     }
 
+    override fun updateUI() {}
+
     companion object {
         lateinit var activityBuffer: MainActivity
+        lateinit var currentFragment: UIContainer
     }
 }

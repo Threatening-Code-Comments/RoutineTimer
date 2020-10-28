@@ -14,6 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -52,39 +53,58 @@
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_viewholder_tile_infoRoot"
+                android:id="@+id/cl_viewholder_tile_countdownRoot"
                 android:layout_width="0sp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="20sp"
                 android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/tv_viewholder_tile_info"
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/cb_viewholder_tile_countdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
-                    android:textSize="20sp"
+                    android:padding="10sp"
+                    android:text="Countdown"
+                    app:layout_constraintBottom_toTopOf="@id/cl_viewholder_tile_timeLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/cl_viewholder_tile_timeLayout"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_viewholder_tile_timeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0sp"
+                    android:layout_alignParentBottom="true"
+                    android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.3" />
+                    app:layout_constraintTop_toBottomOf="@id/cb_viewholder_tile_countdown">
 
-                <TextView
-                    android:id="@+id/tv_viewholder_tile_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1:20:20"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_tile_info"
-                    app:layout_constraintVertical_bias="0.4" />
+                    <TextView
+                        android:id="@+id/tv_viewholder_tile_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
+                    <TextView
+                        android:id="@+id/tv_viewholder_tile_countdownTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="10:00"
+                        android:textSize="20sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_tile_info" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
