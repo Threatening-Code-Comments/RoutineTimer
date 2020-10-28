@@ -28,15 +28,16 @@ public class MyLog {
         }
     }
 
+    public static void e(String message, Throwable tr) {
+        Log.w(DEFAULT_TAG, message, tr);
+    }
+
+
     public static void f(String str) {
         Log.d(DEFAULT_FIREBASE_TAG, str);
     }
 
-    public static void w(String message, Throwable tr) {
-        Log.w(DEFAULT_TAG, message, tr);
-    }
-
-    public static void fw(String message, Throwable tr) {
+    public static void fe(String message, Throwable tr) {
         Log.w(DEFAULT_FIREBASE_TAG, message, tr);
     }
 }

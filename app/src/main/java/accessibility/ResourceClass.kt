@@ -24,6 +24,7 @@ import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.round
 
 
@@ -248,10 +249,23 @@ internal object ResourceClass {
         return returnVal
     }
 
+    fun routineExists(routine: Routine): Boolean {
+        for (tmpRoutine in routines!!) {
+            if (tmpRoutine == routine) {
+                return true
+            }
+        }
+        return false
+    }
+
     fun getRoutines(): ArrayList<Routine> {
         val routines = if (routines == null) ArrayList() else routines!!
         sortRoutines(routines)
-        return routines
+        val tempList: ArrayList<Routine> = ArrayList()
+        for (routine in routines) {
+            tempList.add(Routine(routine))
+        }
+        return tempList
     }
 
     fun sortRoutines(routines: ArrayList<Routine>): ArrayList<Routine> {

@@ -209,7 +209,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                 isLoggedIn = false
 
                 // Google Sign In failed, update UI appropriately
-                MyLog.fw("Google sign in failed", e)
+                MyLog.fe("Google sign in failed", e)
                 // ...
             }
         }
@@ -233,7 +233,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                     } else {
                         // If sign in fails, display a message to the user.
                         isLoggedIn = false
-                        MyLog.fw("signInWithCredential:failure", task.exception)
+                        MyLog.fe("signInWithCredential:failure", task.exception)
                     }
                     updateUI()
                 }

@@ -28,6 +28,16 @@ class Routine {
             field
         }
 
+    override fun equals(other: Any?): Boolean {
+        if (other !is Routine)
+            return false
+        var r2 = other as Routine
+        MyLog.d("val: $this")
+        MyLog.d("com: $r2")
+        MyLog.d(name == r2.name && uid == r2.uid && lastUsed == r2.lastUsed && tiles == r2.tiles)
+        return name == r2.name && uid == r2.uid && lastUsed == r2.lastUsed && tiles == r2.tiles
+    }
+
     var mode = 0
     lateinit var tiles: ArrayList<Tile>
 
@@ -40,6 +50,22 @@ class Routine {
             uid = UUID.randomUUID().toString()
         }
         this.lastUsed = lastUsed
+    }
+
+    constructor(routine: Routine) {
+        this.mode = routine.mode
+
+        this.name = routine.name
+
+        val tmpTiles: ArrayList<Tile> = ArrayList()
+        for (tile in routine.tiles) {
+            tmpTiles.add(Tile(tile))
+        }
+        this.tiles = tmpTiles
+
+        this.uid = routine.uid
+
+        this.lastUsed = routine.lastUsed
     }
 
     constructor(name: String?, uid: String, tiles: ArrayList<Tile>) {
@@ -57,6 +83,17 @@ class Routine {
         this.tiles = tiles
     }
     //endregion
+
+    override fun toString(): String {
+        var stingray: String = ""
+
+        stingray += (this.name + " (name), ")
+        stingray += (if (this.mode == Routine.MODE_CONTINUOUS) Routine.CONTINUOUS_MESSAGE else Routine.SEQUENTIAL_MESSAGE + " (mode), ")
+        stingray += (this.tiles + " (tiles), ")
+        stingray += (this.uid + " (uid):END!")
+
+        return stingray
+    }
 
     fun setAccessibility(isNightMode: Boolean) {
 

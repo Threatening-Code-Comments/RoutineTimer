@@ -1,5 +1,6 @@
 package de.threateningcodecomments.routinetimer
 
+import accessibility.*
 import accessibility.ResourceClass
 import accessibility.ResourceClass.isNightMode
 import accessibility.ResourceClass.scaleDown
@@ -8,9 +9,6 @@ import accessibility.ResourceClass.slideDownIn
 import accessibility.ResourceClass.slideDownOut
 import accessibility.ResourceClass.slideUpIn
 import accessibility.ResourceClass.slideUpOut
-import accessibility.Routine
-import accessibility.Tile
-import accessibility.UIContainer
 import adapters.ItemMoveCallbackListener
 import adapters.MyViewHolder
 import adapters.OnStartDragListener
@@ -216,6 +214,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileNameView.setOnFocusChangeListener { v, hasFocus ->
 
             //TODO make tile name editing prettier
+            if (!hasFocus)
+                updateRoutine()
         }
         tileNameView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -291,7 +291,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
             tileCycleNextBtn.text = getString(R.string.str_btn_EditRoutine_sequential_cycle_next)
         }
         tileCyclePrevBtn.isEnabled = position - 1 >= 0
-        updateRoutine()
+        if (!ResourceClass.routineExists(currentRoutine))
+            updateRoutine()
         updateCard()
         updateColorSliderHue()
     }
@@ -318,8 +319,12 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         routineNameEditText.setText(currentRoutine.name)
     }
 
+    private var i: Int = 0
     private fun updateRoutine() {
         ResourceClass.saveRoutine(currentRoutine)
+        routineNameEditText.setText(currentRoutine.name)
+        MyLog.d(i)
+        i++
     }
     //endregion
 
@@ -328,7 +333,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     //region tile name
     private fun editTileName(s: String?) {
         currentRoutine.tiles[position].name = s
-        updateRoutine()
+        //updateRoutine()
     }
     //endregion
 

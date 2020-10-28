@@ -24,6 +24,7 @@ class Tile//region Constructor
         }
 
     constructor(name: String?, iconID: Int, color: Int) : this(name, iconID, color, calculateContrast(color), false, MODE_COUNT_UP) {}
+    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.contrastColor, tile.isNightMode, tile.mode)
 
     //endregion
 
@@ -75,6 +76,16 @@ class Tile//region Constructor
         isNightMode = nightMode
         setAccessibility()
     } //endregion
+
+    override fun toString(): String {
+        var stingray: String = ""
+
+        stingray += (this.name + " (name), ")
+        stingray += (this.backgroundColor.toString() + " (backgroundColor), ")
+        stingray += (this.iconID.toString() + " (icon):END!")
+
+        return super.toString()
+    }
 
     companion object {
         const val DEFAULT_NAME = ""

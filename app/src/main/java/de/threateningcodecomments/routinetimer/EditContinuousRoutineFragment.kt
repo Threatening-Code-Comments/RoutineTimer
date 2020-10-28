@@ -68,16 +68,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         }
     }
 
-    private fun initListeners() {
-        closeView.setOnClickListener(this)
-
-        for ((index, tileView) in gridTiles.withIndex()) {
-            tileView.setOnClickListener {
-                handleTileClick(it as MaterialCardView)
-            }
-        }
-    }
-
+    //region tile expanding
     private fun handleTileClick(cv: MaterialCardView) {
         val index = gridTiles.indexOf(cv)
         val clickedTile = tiles[index]
@@ -89,12 +80,22 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         }
     }
 
+    private var isExpanded: Boolean = false
+    private var expandedTile: Int? = null
     private fun toggleTileSize(index: Int) {
         if (!isExpanded) {
+            if (expandedTile != null) {
+                return
+            }
             expandTile(index)
+            expandedTile = index
             isExpanded = true
         } else {
+            if (expandedTile != index) {
+                return
+            }
             minimizeTile(index)
+            expandedTile = null
             isExpanded = false
         }
     }
@@ -127,7 +128,6 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         Collections.swap(tiles, index, nextIndex)*/
     }
 
-    private var isExpanded: Boolean = false
     private fun expandTile(index: Int) {
         val cv = gridTiles[index]
         val lastCvPos = getTilePosition(index)
@@ -140,10 +140,10 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
 
         if (lastCvPos == 0) {
             cv.startAnimation(ResourceClass.expandTileLeft)
-            cv.findViewById<EditText>(R.id.tv_viewholder_smallTile_name).startAnimation(ResourceClass.collapseTileRight)
-            cv.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon).startAnimation(ResourceClass.collapseTileRight)
+            //cv.findViewById<EditText>(R.id.tv_viewholder_smallTile_name).startAnimation(ResourceClass.collapseTileRight)
+            //cv.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon).startAnimation(ResourceClass.collapseTileRight)
         } else {
-            cv.startAnimation(ResourceClass.expandTileRight)
+            cv.findViewById<LinearLayout>(R.id.ll_viewholder_smallTile_cardContent).startAnimation(ResourceClass.expandTileRight)
         }
         Handler().postDelayed({
             cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_countdownRoot).visibility = View.VISIBLE
@@ -179,7 +179,9 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
             }
         }
     }
+    //endregion
 
+    //region tile searches
     private fun findRowWithChildCount(i: Int): Int {
         for (row in tileRows) {
             if (row.childCount == i) {
@@ -218,19 +220,9 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         tiles[index] = Tile.DEFAULT_TILE
         updateUI()
     }
+    //endregion
 
-    private fun initRoutine() {
-        val routines = ResourceClass.getRoutines()
-        for (routine in routines) {
-            if (routine.uid == args.routineUID) {
-                currentRoutine = routine
-                break
-            }
-        }
-        tiles = currentRoutine.tiles
-        currentRoutine.lastUsed = System.currentTimeMillis()
-    }
-
+    //region UI and routines
     override fun updateUI() {
         for ((index, tileView) in gridTiles.withIndex()) {
             if (index >= tiles.size)
@@ -280,7 +272,9 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
     private fun saveRoutine() {
         ResourceClass.saveRoutine(currentRoutine)
     }
+    //endregion
 
+    //region init
     private fun initBufferViews() {
         val v: View = requireView()
 
@@ -302,6 +296,29 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
             }
         }
     }
+
+    private fun initRoutine() {
+        val routines = ResourceClass.getRoutines()
+        for (routine in routines) {
+            if (routine.uid == args.routineUID) {
+                currentRoutine = routine
+                break
+            }
+        }
+        tiles = currentRoutine.tiles
+        currentRoutine.lastUsed = System.currentTimeMillis()
+    }
+
+    private fun initListeners() {
+        closeView.setOnClickListener(this)
+
+        for ((index, tileView) in gridTiles.withIndex()) {
+            tileView.setOnClickListener {
+                handleTileClick(it as MaterialCardView)
+            }
+        }
+    }
+    //endregion
 
     private fun goToSelectRoutine() {
         val directions: NavDirections = EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
