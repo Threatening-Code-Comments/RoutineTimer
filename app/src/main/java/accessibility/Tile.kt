@@ -4,11 +4,43 @@ import accessibility.ResourceClass.calculateContrast
 import accessibility.ResourceClass.convertColorDayNight
 import accessibility.ResourceClass.wasNightMode
 import android.graphics.Color
+import java.util.*
 
 class Tile//region Constructor
-(var name: String? = DEFAULT_NAME, var iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, contrastColor: Int = DEFAULT_COLOR_DARK, private var isNightMode: Boolean = false, var mode: Int = MODE_COUNT_UP) {
+{
+    var name: String?
+    var iconID: Int
+    private var isNightMode: Boolean
+    var mode: Int
+    var uid: String
 
-    var backgroundColor: Int = backgroundColor
+    constructor() : this(DEFAULT_NAME, DEFAULT_ICONID, DEFAULT_COLOR, false, MODE_COUNT_UP, DEFAULT_TILE_UID)
+
+    constructor(name: String? = DEFAULT_NAME, iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, isNightMode: Boolean = false, mode: Int = MODE_COUNT_UP, uid: String = Tile.DEFAULT_TILE_UID) {
+        this.name = name
+        this.iconID = iconID
+        this.isNightMode = isNightMode
+        this.mode = mode
+        this.uid = uid
+        this.tileUid = Tile.DEFAULT_TILE_UID
+        this.backgroundColor = backgroundColor
+    }
+
+    var tileUid: String = DEFAULT_TILE_UID
+        get() {
+            if (field == Tile.DEFAULT_TILE_UID) {
+                val uid = UUID.randomUUID().toString()
+                field = uid
+            }
+            return field
+        }
+        set(value) {
+            if (field == DEFAULT_TILE_UID) {
+                field = value
+            }
+        }
+
+    var backgroundColor: Int
         get() {
             field = convertColorDayNight(wasNightMode(), field)
             return field
@@ -17,14 +49,14 @@ class Tile//region Constructor
             field = convertColorDayNight(wasNightMode(), field)
             field = value
         }
-    var contrastColor: Int = contrastColor
+    var contrastColor: Int = Color.WHITE
         get() {
             field = calculateContrast(backgroundColor)
             return field
         }
 
-    constructor(name: String?, iconID: Int, color: Int) : this(name, iconID, color, calculateContrast(color), false, MODE_COUNT_UP) {}
-    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.contrastColor, tile.isNightMode, tile.mode)
+    constructor(name: String?, iconID: Int, color: Int) : this(name, iconID, color, false, MODE_COUNT_UP)
+    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.isNightMode, tile.mode, tile.tileUid)
 
     //endregion
 
@@ -60,14 +92,6 @@ class Tile//region Constructor
     }
     //endregion
 
-    //region getters and setters
-
-    fun setIconWithID(ID: Int) {
-        setAccessibility()
-        iconID = ID
-    }
-
-
     fun isNightMode(): Boolean {
         return isNightMode
     }
@@ -75,7 +99,7 @@ class Tile//region Constructor
     fun setNightMode(nightMode: Boolean) {
         isNightMode = nightMode
         setAccessibility()
-    } //endregion
+    }
 
     override fun toString(): String {
         var stingray: String = ""
@@ -88,16 +112,20 @@ class Tile//region Constructor
     }
 
     companion object {
+        const val MODE_COUNT_UP = 1
+        const val MODE_COUNT_DOWN = -1
+
         const val DEFAULT_NAME = ""
         const val ERROR_NAME = "HELP THIS IS ERROR AAAH"
         const val DEFAULT_ICONID = 0
         const val ERROR_ICONID = 69420
         const val DEFAULT_COLOR = -0x1
         const val DEFAULT_COLOR_DARK = -0xdbdbdc
-        const val MODE_COUNT_UP = 1
+        const val DEFAULT_TILE_UID = "default tile uid"
+
         const val COUNT_UP_MESSAGE = "Counting up"
-        const val MODE_COUNT_DOWN = -1
         const val COUNT_DOWN_MESSAGE = "Counting down"
+
 
         val ERROR_TILE = Tile(ERROR_NAME, ERROR_ICONID, Color.RED)
             get() {

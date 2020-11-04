@@ -1,7 +1,6 @@
 package de.threateningcodecomments.routinetimer
 
 import accessibility.*
-import accessibility.ResourceClass
 import accessibility.ResourceClass.isNightMode
 import accessibility.ResourceClass.scaleDown
 import accessibility.ResourceClass.scaleUpSlow
@@ -291,8 +290,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
             tileCycleNextBtn.text = getString(R.string.str_btn_EditRoutine_sequential_cycle_next)
         }
         tileCyclePrevBtn.isEnabled = position - 1 >= 0
-        if (!ResourceClass.routineExists(currentRoutine))
-            updateRoutine()
+        updateRoutine()
+        MyLog.d("updating ui!" + System.currentTimeMillis() + Math.random())
         updateCard()
         updateColorSliderHue()
     }
@@ -316,15 +315,15 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     //region handle routines
     private fun updateRoutineNameView() {
+        MyLog.d(currentRoutine.name + " is the name of routine")
         routineNameEditText.setText(currentRoutine.name)
+        MyLog.d("after name change")
     }
 
-    private var i: Int = 0
     private fun updateRoutine() {
         ResourceClass.saveRoutine(currentRoutine)
-        routineNameEditText.setText(currentRoutine.name)
-        MyLog.d(i)
-        i++
+        if (currentRoutine.name != routineNameEditText.text.toString())
+            routineNameEditText.setText(currentRoutine.name)
     }
     //endregion
 

@@ -23,6 +23,7 @@ import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
+import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
@@ -229,8 +230,10 @@ internal object ResourceClass {
             val routine = routineDataSnapshot.getValue(Routine::class.java)!!
             routines!!.add(routine)
         }
-
-        MainActivity.currentFragment.updateUI()
+        if (MainActivity.currentFragment is SelectRoutineFragment) {
+            MyLog.d("updating ui because of new values!")
+            MainActivity.currentFragment.updateUI()
+        }
     }
 
     fun getRoutineFromUid(oldUid: String?): Routine {
@@ -303,7 +306,10 @@ internal object ResourceClass {
         for (i in 0 until ((Math.random() + 1) * 8).toInt()) {
             tiles.add(Tile("random nr." + random(0, 200) + "!",
                     random(0, 80),
-                    Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat())
+                    Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat()),
+                    false,
+                    Tile.MODE_COUNT_UP,
+                    UUID.randomUUID().toString()
             ))
         }
         return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())

@@ -31,10 +31,7 @@ class Routine {
     override fun equals(other: Any?): Boolean {
         if (other !is Routine)
             return false
-        var r2 = other as Routine
-        MyLog.d("val: $this")
-        MyLog.d("com: $r2")
-        MyLog.d(name == r2.name && uid == r2.uid && lastUsed == r2.lastUsed && tiles == r2.tiles)
+        val r2 = other as Routine
         return name == r2.name && uid == r2.uid && lastUsed == r2.lastUsed && tiles == r2.tiles
     }
 

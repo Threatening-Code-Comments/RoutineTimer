@@ -13,7 +13,6 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -154,8 +153,24 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
 
     private fun moveTile(index: Int) {
         val cv = gridTiles[index]
+        val cvParent = cv.parent as FrameLayout
         val row: Int = getTileRow(index)
         val cvPosition: Int = getTilePosition(index)
+
+        if (index == 0 || index == 7) {
+            cvParent.startAnimation(ResourceClass.scaleDown)
+            cvParent.visibility = View.GONE
+            tileRows[row].removeView(cvParent)
+            return
+        }
+        if (index == 1 || index == 6) {
+            cvParent.startAnimation(ResourceClass.scaleUp)
+            cvParent.visibility = View.VISIBLE
+            val nextIndex = if (index == 0) 1 else 6
+            tileRows[row].removeView(gridTiles[nextIndex].parent as View)
+            tileRows[row].addView(cvParent)
+            return
+        }
 
         var nextRow: Int = 0
         if (isExpanded) {
@@ -166,13 +181,13 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         val rowView = tileRows[row]
         val nextRowView = tileRows[nextRow]
 
-        rowView.removeView(cv.parent as View)
-        nextRowView.addView(cv.parent as View)
+        rowView.removeView(cvParent)
+        nextRowView.addView(cvParent)
 
         val previousViews = nextRowView.children.toList()
         if (cvPosition != 0) {
             for ((previousViewIndex, previousView) in previousViews.withIndex()) {
-                if (previousView != cv.parent) {
+                if (previousView != cvParent) {
                     nextRowView.removeView(previousView)
                     nextRowView.addView(previousView)
                 }
