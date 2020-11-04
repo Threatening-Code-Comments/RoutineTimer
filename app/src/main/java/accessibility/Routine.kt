@@ -2,6 +2,7 @@ package accessibility
 
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.properties.Delegates
 
 class Routine {
     var name: String? = null
@@ -36,7 +37,11 @@ class Routine {
     }
 
     var mode = 0
-    lateinit var tiles: ArrayList<Tile>
+    var tiles: ArrayList<Tile> by Delegates.observable(initialValue = ArrayList(), onChange = { _, oldValue, newValue ->
+        for (tile in newValue) {
+            tile.setAccessibility(ResourceClass.wasNightMode())
+        }
+    })
 
     //region Constructors
     constructor(mode: Int, name: String, tiles: ArrayList<Tile>, lastUsed: Long) {
@@ -93,7 +98,6 @@ class Routine {
     }
 
     fun setAccessibility(isNightMode: Boolean) {
-
         for (tmpTile in tiles) {
             tmpTile.setAccessibility(isNightMode)
         }

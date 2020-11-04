@@ -307,10 +307,13 @@ internal object ResourceClass {
             tiles.add(Tile("random nr." + random(0, 200) + "!",
                     random(0, 80),
                     Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat()),
-                    false,
                     Tile.MODE_COUNT_UP,
                     UUID.randomUUID().toString()
             ))
+            if (Math.random() < 0.5) {
+                tiles[i].mode = Tile.MODE_COUNT_DOWN
+                tiles[i].countDownTime = (Math.random() * 10000).toLong()
+            }
         }
         return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
     }
@@ -335,7 +338,6 @@ internal object ResourceClass {
     private var iconPack: IconPack? = null
     private var context: Context? = null
 
-    @JvmStatic
     fun getIconPack(): IconPack {
         return if (iconPack != null) iconPack!! else loadIconPack()!!
     }

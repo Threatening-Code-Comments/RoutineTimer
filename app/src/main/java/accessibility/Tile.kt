@@ -10,25 +10,18 @@ class Tile//region Constructor
 {
     var name: String?
     var iconID: Int
-    private var isNightMode: Boolean
+    private var isNightMode: Boolean = false
     var mode: Int
-    var uid: String
 
-    constructor() : this(DEFAULT_NAME, DEFAULT_ICONID, DEFAULT_COLOR, false, MODE_COUNT_UP, DEFAULT_TILE_UID)
+    //time fields
+    var countDownTime: Long
 
-    constructor(name: String? = DEFAULT_NAME, iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, isNightMode: Boolean = false, mode: Int = MODE_COUNT_UP, uid: String = Tile.DEFAULT_TILE_UID) {
-        this.name = name
-        this.iconID = iconID
-        this.isNightMode = isNightMode
-        this.mode = mode
-        this.uid = uid
-        this.tileUid = Tile.DEFAULT_TILE_UID
-        this.backgroundColor = backgroundColor
-    }
+    //TODO settings
+    var countedTime: Long = DEFAULT_COUNTED_TIME
 
     var tileUid: String = DEFAULT_TILE_UID
         get() {
-            if (field == Tile.DEFAULT_TILE_UID) {
+            if (field == DEFAULT_TILE_UID) {
                 val uid = UUID.randomUUID().toString()
                 field = uid
             }
@@ -55,23 +48,28 @@ class Tile//region Constructor
             return field
         }
 
-    constructor(name: String?, iconID: Int, color: Int) : this(name, iconID, color, false, MODE_COUNT_UP)
-    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.isNightMode, tile.mode, tile.tileUid)
+    constructor(name: String? = DEFAULT_NAME, iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, mode: Int = MODE_COUNT_UP, uid: String = DEFAULT_TILE_UID, countDownTime: Long) {
+        this.name = name
+        this.iconID = iconID
+        this.mode = mode
+        this.tileUid = uid
+        this.tileUid = DEFAULT_TILE_UID
+        this.backgroundColor = backgroundColor
+        this.countDownTime = countDownTime
+    }
+
+    constructor() : this(DEFAULT_NAME, DEFAULT_ICONID, DEFAULT_COLOR, MODE_COUNT_UP, DEFAULT_TILE_UID, DEFAULT_COUNTDOWN_TIME)
+    constructor(name: String, iconID: Int, backgroundColor: Int, mode: Int, uid: String) : this(name, iconID, backgroundColor, mode, uid, DEFAULT_COUNTDOWN_TIME)
+    constructor(name: String?, iconID: Int, color: Int) : this(name, iconID, color, MODE_COUNT_UP, UUID.randomUUID().toString(), DEFAULT_COUNTDOWN_TIME)
+    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.mode, tile.tileUid, tile.countDownTime) {
+        this.countedTime = tile.countedTime
+    }
 
     //endregion
-
-    //region random
-    private fun setAccessibility() {
-        setAccessibility(isNightMode)
-    }
 
     private fun setDayNightMode(isNightMode: Boolean) {
         this.isNightMode = isNightMode
         backgroundColor = convertColorDayNight(isNightMode, backgroundColor)
-    }
-
-    private fun setDayNightMode() {
-        setDayNightMode(isNightMode)
     }
 
     fun setAccessibility(isNightMode: Boolean) {
@@ -79,30 +77,20 @@ class Tile//region Constructor
         contrastColor = calculateContrast(backgroundColor)
     }
 
-    override fun equals(tile: Any?): Boolean {
-        if (tile !is Tile) {
-            MyLog.d("comparison of ${tile?.javaClass} and Tile is not possible!")
+    override fun equals(other: Any?): Boolean {
+        if (other !is Tile) {
             return false
         }
 
-        if (tile.mode != this.mode || tile.name != this.name || tile.iconID != this.iconID || tile.backgroundColor != this.backgroundColor) {
+        if (other.mode != this.mode || other.name != this.name || other.iconID != this.iconID || other.backgroundColor != this.backgroundColor) {
             return false
         }
         return true
     }
     //endregion
 
-    fun isNightMode(): Boolean {
-        return isNightMode
-    }
-
-    fun setNightMode(nightMode: Boolean) {
-        isNightMode = nightMode
-        setAccessibility()
-    }
-
     override fun toString(): String {
-        var stingray: String = ""
+        var stingray = ""
 
         stingray += (this.name + " (name), ")
         stingray += (this.backgroundColor.toString() + " (backgroundColor), ")
@@ -125,6 +113,9 @@ class Tile//region Constructor
 
         const val COUNT_UP_MESSAGE = "Counting up"
         const val COUNT_DOWN_MESSAGE = "Counting down"
+
+        const val DEFAULT_COUNTDOWN_TIME = 1000L
+        const val DEFAULT_COUNTED_TIME = 0L
 
 
         val ERROR_TILE = Tile(ERROR_NAME, ERROR_ICONID, Color.RED)

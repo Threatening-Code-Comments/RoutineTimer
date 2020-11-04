@@ -291,7 +291,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         }
         tileCyclePrevBtn.isEnabled = position - 1 >= 0
         updateRoutine()
-        MyLog.d("updating ui!" + System.currentTimeMillis() + Math.random())
         updateCard()
         updateColorSliderHue()
     }
