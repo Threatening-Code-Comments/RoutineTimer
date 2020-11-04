@@ -1,0 +1,4 @@
+package accessibility
+
+class CountdownSettings {
+}
