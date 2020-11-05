@@ -1,5 +1,6 @@
 package adapters
 
+import accessibility.MyLog
 import accessibility.ResourceClass
 import accessibility.Routine
 import accessibility.Tile
@@ -9,12 +10,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
+import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
-import de.threateningcodecomments.routinetimer.SelectRoutineFragment
+import de.threateningcodecomments.routinetimer.SelectEditRoutineFragment
+import de.threateningcodecomments.routinetimer.SelectRunRoutineFragment
 
 
-internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerView.Adapter<MyViewHolder>() {
+internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
 
+    constructor(routines: ArrayList<Routine>, rvMode: Int) : super() {
+        val tmpRoutines = routines
+        if (tmpRoutines.size == 0) {
+            tmpRoutines.add(Routine.ERROR_ROUTINE)
+        } else {
+            this.routines = tmpRoutines
+        }
+        this.rvMode = rvMode
+    }
+
+    private var rvMode: Int
     private var routines: ArrayList<Routine>? = null
 
     // Create new views (invoked by the layout manager)
@@ -78,19 +92,22 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
         }
 
         if (tmpRoutine != Routine.ERROR_ROUTINE) {
-            holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
-                contextMenu.add("Duplicate").setOnMenuItemClickListener {
-                    SelectRoutineFragment.fragment.handleCMDuplicate(position, tmpRoutine.uid)
-                    true
-                }
-                contextMenu.add("Delete").setOnMenuItemClickListener {
-                    SelectRoutineFragment.fragment.handleCMDelete(position, tmpRoutine.uid)
-                    true
+            if (rvMode == MODE_EDIT) {
+                holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
+                    contextMenu.add("Duplicate").setOnMenuItemClickListener {
+                        SelectEditRoutineFragment.fragmentEditSelect.handleCMDuplicate(tmpRoutine.uid)
+                        true
+                    }
+                    contextMenu.add("Delete").setOnMenuItemClickListener {
+                        SelectEditRoutineFragment.fragmentEditSelect.handleCMDelete(tmpRoutine.uid)
+                        true
+                    }
                 }
             }
             holder.layout.transitionName = tmpRoutine.uid
             holder.nameView.transitionName = tmpRoutine.uid + "name"
             holder.layout.setOnClickListener {
+                MyLog.d("goitn ot trunr outine")
                 val iv: ShapeableImageView
                 if (tilesWithoutErrors.size < 4) {
                     iv = holder.singleImageView
@@ -103,7 +120,11 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
                     }
                 }
                 iv.transitionName = tmpRoutine.uid + "icon"
-                SelectRoutineFragment.fragment.goToEditRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+                if (rvMode == MODE_EDIT) {
+                    SelectEditRoutineFragment.fragmentEditSelect.goToEditRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+                } else {
+                    (MainActivity.currentFragment as SelectRunRoutineFragment).goToRunRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+                }
             }
         } else {
             holder.layout.setOnCreateContextMenuListener(null)
@@ -116,16 +137,8 @@ internal class SelectRoutineRVAdapter(routines: ArrayList<Routine>?) : RecyclerV
         return if (routines == null) 0 else routines!!.size
     }
 
-    init {
-        var tmpRoutines = routines
-
-        if (tmpRoutines == null) {
-            tmpRoutines = ArrayList()
-        }
-        if (tmpRoutines.size == 0) {
-            tmpRoutines.add(Routine.ERROR_ROUTINE)
-        } else {
-            this.routines = tmpRoutines
-        }
+    companion object {
+        const val MODE_EDIT = 0
+        const val MODE_RUN = 1
     }
 }

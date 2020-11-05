@@ -39,12 +39,15 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var mAuth: FirebaseAuth
     private lateinit var activity: Activity
     private var account: FirebaseUser? = null
-    private var setupButton: MaterialButton? = null
-    private var testButton: MaterialButton? = null
-    private var profilepicView: ShapeableImageView? = null
-    private var usernameView: MaterialTextView? = null
-    private var nameCardView: MaterialCardView? = null
+
+    private lateinit var profilepicView: ShapeableImageView
+    private lateinit var usernameView: MaterialTextView
+    private lateinit var nameCardView: MaterialCardView
     private var isLoggedIn = false
+
+    private lateinit var runButton: MaterialButton
+    private lateinit var setupButton: MaterialButton
+    private lateinit var testButton: MaterialButton
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -81,17 +84,22 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         when (v.id) {
             R.id.cv_MainActivity_name -> toggleSignIn()
             R.id.btn_mainActivity_setup -> {
-                val selectRoutineFragment = SelectRoutineFragment()
+                val selectRoutineFragment = SelectEditRoutineFragment()
                 selectRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
 
                 val extras = FragmentNavigatorExtras(v to "container")
-                val directions = StartFragmentDirections.actionStartFragmentToSelectRoutineFragment()
+                val directions = StartFragmentDirections.actionStartFragmentToSelectEditRoutineFragment()
 
                 findNavController().navigate(directions, extras)
             }
             R.id.btn_mainActivity_test -> {
                 val routine = ResourceClass.generateRandomRoutine()
                 ResourceClass.saveRoutine(routine)
+            }
+            R.id.btn_MainActivity_run -> {
+                val directions = StartFragmentDirections.actionStartFragmentToSelectRunRoutineFragment()
+
+                findNavController().navigate(directions)
             }
             else -> Toast.makeText(context, "Unknown Error, please see developer or priest", Toast.LENGTH_LONG).show()
         }
@@ -105,17 +113,21 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun initBufferViews() {
-        setupButton = view?.findViewById(R.id.btn_mainActivity_setup)
-        testButton = view?.findViewById(R.id.btn_mainActivity_test)
-        usernameView = view?.findViewById(R.id.tv_MainActivity_username)
-        profilepicView = view?.findViewById(R.id.iv_MainActivity_profilepic)
-        nameCardView = view?.findViewById(R.id.cv_MainActivity_name)
+        val v = requireView()
+
+        setupButton = v.findViewById(R.id.btn_mainActivity_setup)
+        testButton = v.findViewById(R.id.btn_mainActivity_test)
+        usernameView = v.findViewById(R.id.tv_MainActivity_username)
+        profilepicView = v.findViewById(R.id.iv_MainActivity_profilepic)
+        nameCardView = v.findViewById(R.id.cv_MainActivity_name)
+        runButton = v.findViewById(R.id.btn_MainActivity_run)
     }
 
     private fun initOnClicks() {
-        setupButton!!.setOnClickListener(this)
-        nameCardView!!.setOnClickListener(this)
-        testButton!!.setOnClickListener(this)
+        setupButton.setOnClickListener(this)
+        nameCardView.setOnClickListener(this)
+        testButton.setOnClickListener(this)
+        runButton.setOnClickListener(this)
     }
 
     private fun initGSignIn() {
@@ -133,11 +145,11 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun updateButtonClickable() {
         if (!isLoggedIn) {
-            testButton!!.isEnabled = false
-            setupButton!!.isEnabled = false
+            testButton.isEnabled = false
+            setupButton.isEnabled = false
         } else {
-            testButton!!.isEnabled = true
-            setupButton!!.isEnabled = true
+            testButton.isEnabled = true
+            setupButton.isEnabled = true
         }
     }
 
@@ -156,39 +168,39 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun setGreetTextColor(bgColor: Int) {
         val textColor = ResourceClass.calculateContrast(bgColor)
-        usernameView!!.setTextColor(textColor)
+        usernameView.setTextColor(textColor)
         if (!isLoggedIn) {
-            profilepicView!!.setColorFilter(textColor)
+            profilepicView.setColorFilter(textColor)
         } else {
-            profilepicView!!.clearColorFilter()
+            profilepicView.clearColorFilter()
         }
     }
 
     private fun handleGreetAccount() {
         val message: String = "Welcome " + account!!.displayName + "!"
         val pathToPhoto = account!!.photoUrl
-        Glide.with(this).load(pathToPhoto).into(profilepicView!!)
+        Glide.with(this).load(pathToPhoto).into(profilepicView)
         Glide.with(this).asBitmap().load(pathToPhoto).into(object : CustomTarget<Bitmap?>() {
             override fun onLoadCleared(placeholder: Drawable?) {}
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
                 val pixelColor = resource.getPixel(0, 0)
                 setGreetTextColor(pixelColor)
-                nameCardView!!.setCardBackgroundColor(pixelColor)
+                nameCardView.setCardBackgroundColor(pixelColor)
             }
         })
-        usernameView!!.text = message
+        usernameView.text = message
     }
 
     private fun handleGreetNoAccount() {
         val errorDrawable = ContextCompat.getDrawable(activity, R.drawable.ic_defaultdrawable)
-        profilepicView!!.setImageDrawable(errorDrawable)
-        usernameView!!.text = getString(R.string.str_tv_MainActivity_login)
+        profilepicView.setImageDrawable(errorDrawable)
+        usernameView.text = getString(R.string.str_tv_MainActivity_login)
         val bgColor: Int = if (ResourceClass.isNightMode(activity.application)) {
             Tile.DEFAULT_COLOR_DARK
         } else {
             Tile.DEFAULT_COLOR
         }
-        nameCardView!!.setCardBackgroundColor(bgColor)
+        nameCardView.setCardBackgroundColor(bgColor)
         setGreetTextColor(bgColor)
     }
 

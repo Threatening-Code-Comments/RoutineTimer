@@ -5,7 +5,9 @@
       <w>displayname</w>
       <w>profilepic</w>
       <w>routinetimer</w>
+      <w>shapeable</w>
       <w>threateningcodecomments</w>
+      <w>viewholder</w>
     </words>
   </dictionary>
 </component>

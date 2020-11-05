@@ -23,7 +23,7 @@ import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
-import de.threateningcodecomments.routinetimer.SelectRoutineFragment
+import de.threateningcodecomments.routinetimer.SelectEditRoutineFragment
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
@@ -230,7 +230,7 @@ internal object ResourceClass {
             val routine = routineDataSnapshot.getValue(Routine::class.java)!!
             routines!!.add(routine)
         }
-        if (MainActivity.currentFragment is SelectRoutineFragment) {
+        if (MainActivity.currentFragment is SelectEditRoutineFragment) {
             MyLog.d("updating ui because of new values!")
             MainActivity.currentFragment.updateUI()
         }
@@ -312,7 +312,6 @@ internal object ResourceClass {
             ))
             if (Math.random() < 0.5) {
                 tiles[i].mode = Tile.MODE_COUNT_DOWN
-                tiles[i].countDownTime = (Math.random() * 10000).toLong()
             }
         }
         return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
@@ -364,7 +363,7 @@ internal object ResourceClass {
         val iconID = tile.iconID
         val icon: Drawable?
         icon = if (iconID != Tile.ERROR_ICONID) {
-            getIconPack()!!.getIcon(iconID)!!.drawable
+            getIconPack().getIcon(iconID)!!.drawable
         } else {
             errorDrawable
         }

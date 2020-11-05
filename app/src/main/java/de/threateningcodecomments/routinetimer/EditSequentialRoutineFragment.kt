@@ -177,7 +177,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         routineNameEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 routineNameEditText.clearFocus()
-                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+                (SelectEditRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
             }
             false
         }
@@ -206,7 +206,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileNameView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 routineNameEditText.clearFocus()
-                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+                (SelectEditRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
             }
             false
         }

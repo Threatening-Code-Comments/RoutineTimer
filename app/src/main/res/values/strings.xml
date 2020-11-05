@@ -131,4 +131,6 @@
     <string name="str_btn_EditRoutine_sequential_cycle_add">add tile</string>
     <string name="str_btn_EditRoutine_sequential_organize_back">Back</string>
     <string name="str_tv_EditRoutine_continuous_routineName">Routine name</string>
+    <string name="str_btn_MainActivity_run">run routine!</string>
+    <string name="str_et_editContinuousRoutine_add">Add Tile!</string>
 </resources>

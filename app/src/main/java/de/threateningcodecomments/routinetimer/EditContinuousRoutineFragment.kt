@@ -172,11 +172,11 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
             return
         }
 
-        var nextRow: Int = 0
-        if (isExpanded) {
-            nextRow = findRowWithChildCount(1)
+        val nextRow: Int
+        nextRow = if (isExpanded) {
+            findRowWithChildCount(1)
         } else {
-            nextRow = if (cvPosition == 0) row - 1 else row + 1
+            if (cvPosition == 0) row - 1 else row + 1
         }
         val rowView = tileRows[row]
         val nextRowView = tileRows[nextRow]
@@ -186,7 +186,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
 
         val previousViews = nextRowView.children.toList()
         if (cvPosition != 0) {
-            for ((previousViewIndex, previousView) in previousViews.withIndex()) {
+            for (previousView in previousViews) {
                 if (previousView != cvParent) {
                     nextRowView.removeView(previousView)
                     nextRowView.addView(previousView)
@@ -208,7 +208,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
 
     private fun getTileRow(index: Int): Int {
         val cv = gridTiles[index]
-        var row: Int = 0
+        var row = 0
         for ((rowIndex, currentRow) in tileRows.withIndex()) {
             if (currentRow.contains(cv.parent as View)) {
                 row = rowIndex
@@ -220,7 +220,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
 
     private fun getTilePosition(index: Int): Int {
         val cv = gridTiles[index]
-        var cvPosition: Int = 0
+        var cvPosition = 0
         for (currentRow in tileRows) {
             if (currentRow.contains(cv.parent as View)) {
                 cvPosition = currentRow.indexOfChild(cv.parent as View)
@@ -250,18 +250,17 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
             val tmpTile = tiles[index]
 
             if (tiles[index] == Tile.ERROR_TILE) {
-                val shapeDrawable: Drawable
-                if (isNightMode)
-                    shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.white_dashed_outline, null)!!
+                val shapeDrawable: Drawable = if (isNightMode)
+                    ResourcesCompat.getDrawable(resources, R.drawable.white_dashed_outline, null)!!
                 else {
-                    shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.black_dashed_outline, null)!!
+                    ResourcesCompat.getDrawable(resources, R.drawable.black_dashed_outline, null)!!
                 }
                 ll.background = shapeDrawable
 
                 iv.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_add, null)!!)
                 iv.setColorFilter(if (isNightMode) Color.WHITE else Color.BLACK)
 
-                et.text = "Add Tile!"
+                et.text = getString(R.string.str_et_editContinuousRoutine_add)
                 et.inputType = InputType.TYPE_NULL
                 et.isCursorVisible = false
             } else {
@@ -327,7 +326,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
     private fun initListeners() {
         closeView.setOnClickListener(this)
 
-        for ((index, tileView) in gridTiles.withIndex()) {
+        for (tileView in gridTiles) {
             tileView.setOnClickListener {
                 handleTileClick(it as MaterialCardView)
             }
@@ -347,7 +346,5 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         return inflater.inflate(R.layout.fragment_edit_continuous_routine, container, false)
     }
 
-    companion object {
-
-    }
+    companion object
 }

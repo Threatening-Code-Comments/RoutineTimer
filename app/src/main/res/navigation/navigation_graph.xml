@@ -10,13 +10,16 @@
         android:name="de.threateningcodecomments.routinetimer.StartFragment"
         android:label="StartFragment">
         <action
-            android:id="@+id/action_startFragment_to_selectRoutineFragment"
-            app:destination="@id/selectRoutineFragment" />
+            android:id="@+id/action_startFragment_to_selectEditRoutineFragment"
+            app:destination="@id/selectEditRoutineFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_selectRunRoutineFragment"
+            app:destination="@id/selectRunRoutine" />
     </fragment>
 
     <fragment
-        android:id="@+id/selectRoutineFragment"
-        android:name="de.threateningcodecomments.routinetimer.SelectRoutineFragment"
+        android:id="@+id/selectEditRoutineFragment"
+        android:name="de.threateningcodecomments.routinetimer.SelectEditRoutineFragment"
         android:label="SelectRoutineFragment">
         <action
             android:id="@+id/action_selectRoutineFragment_to_startFragment"
@@ -35,7 +38,7 @@
         tools:layout="@layout/fragment_edit_sequential_routine">
         <action
             android:id="@+id/action_editSequentialRoutineFragment_to_selectRoutineFragment"
-            app:destination="@id/selectRoutineFragment" />
+            app:destination="@id/selectEditRoutineFragment" />
         <argument
             android:name="routinePosition"
             app:argType="integer" />
@@ -47,9 +50,29 @@
         tools:layout="@layout/fragment_edit_continuous_routine">
         <action
             android:id="@+id/action_editContinuousRoutineFragment_to_selectRoutineFragment"
-            app:destination="@id/selectRoutineFragment" />
+            app:destination="@id/selectEditRoutineFragment" />
         <argument
             android:name="routineUID"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectRunRoutine"
+        android:name="de.threateningcodecomments.routinetimer.SelectRunRoutineFragment"
+        android:label="SelectRunRoutine">
+        <action
+            android:id="@+id/action_selectRunRoutine_to_startFragment"
+            app:destination="@id/startFragment" />
+        <action
+            android:id="@+id/action_selectRunRoutine_to_runContinuousRoutine"
+            app:destination="@id/runContinuousRoutine" />
+    </fragment>
+    <fragment
+        android:id="@+id/runContinuousRoutine"
+        android:name="de.threateningcodecomments.routinetimer.RunContinuousRoutine"
+        android:label="fragment_run_continuous_routine"
+        tools:layout="@layout/fragment_run_continuous_routine">
+        <action
+            android:id="@+id/action_runContinuousRoutine_to_selectRunRoutine"
+            app:destination="@id/selectRunRoutine" />
     </fragment>
 </navigation>

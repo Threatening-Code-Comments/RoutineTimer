@@ -32,12 +32,11 @@ class Routine {
     override fun equals(other: Any?): Boolean {
         if (other !is Routine)
             return false
-        val r2 = other as Routine
-        return name == r2.name && uid == r2.uid && lastUsed == r2.lastUsed && tiles == r2.tiles
+        return name == other.name && uid == other.uid && lastUsed == other.lastUsed && tiles == other.tiles
     }
 
     var mode = 0
-    var tiles: ArrayList<Tile> by Delegates.observable(initialValue = ArrayList(), onChange = { _, oldValue, newValue ->
+    var tiles: ArrayList<Tile> by Delegates.observable(initialValue = ArrayList(), onChange = { _, _, newValue ->
         for (tile in newValue) {
             tile.setAccessibility(ResourceClass.wasNightMode())
         }
@@ -87,10 +86,10 @@ class Routine {
     //endregion
 
     override fun toString(): String {
-        var stingray: String = ""
+        var stingray = ""
 
         stingray += (this.name + " (name), ")
-        stingray += (if (this.mode == Routine.MODE_CONTINUOUS) Routine.CONTINUOUS_MESSAGE else Routine.SEQUENTIAL_MESSAGE + " (mode), ")
+        stingray += (if (this.mode == MODE_CONTINUOUS) CONTINUOUS_MESSAGE else SEQUENTIAL_MESSAGE + " (mode), ")
         stingray += (this.tiles + " (tiles), ")
         stingray += (this.uid + " (uid):END!")
 

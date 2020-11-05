@@ -44,6 +44,19 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_MainActivity_run"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/str_btn_MainActivity_run"
+        android:transitionName="runButton"
+        app:cornerRadius="@dimen/dimen_btnCorners"
+        app:layout_constraintBottom_toTopOf="@+id/btn_mainActivity_setup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_mainActivity_setup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
