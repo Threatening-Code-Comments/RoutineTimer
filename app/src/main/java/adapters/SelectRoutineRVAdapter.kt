@@ -1,34 +1,28 @@
 package adapters
 
-import accessibility.MyLog
 import accessibility.ResourceClass
 import accessibility.Routine
 import accessibility.Tile
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
-import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
-import de.threateningcodecomments.routinetimer.SelectEditRoutineFragment
-import de.threateningcodecomments.routinetimer.SelectRunRoutineFragment
+import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 
 
 internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
 
-    constructor(routines: ArrayList<Routine>, rvMode: Int) : super() {
+    constructor(routines: ArrayList<Routine>) : super() {
         val tmpRoutines = routines
         if (tmpRoutines.size == 0) {
             tmpRoutines.add(Routine.ERROR_ROUTINE)
         } else {
             this.routines = tmpRoutines
         }
-        this.rvMode = rvMode
     }
 
-    private var rvMode: Int
     private var routines: ArrayList<Routine>? = null
 
     // Create new views (invoked by the layout manager)
@@ -92,38 +86,27 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
         }
 
         if (tmpRoutine != Routine.ERROR_ROUTINE) {
-            if (rvMode == MODE_EDIT) {
-                holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
-                    contextMenu.add("Duplicate").setOnMenuItemClickListener {
-                        SelectEditRoutineFragment.fragmentEditSelect.handleCMDuplicate(tmpRoutine.uid)
-                        true
-                    }
-                    contextMenu.add("Delete").setOnMenuItemClickListener {
-                        SelectEditRoutineFragment.fragmentEditSelect.handleCMDelete(tmpRoutine.uid)
-                        true
-                    }
-                }
-            }
             holder.layout.transitionName = tmpRoutine.uid
             holder.nameView.transitionName = tmpRoutine.uid + "name"
+            val iv: ShapeableImageView = if (tilesWithoutErrors.size < 4) holder.singleImageView else holder.fourImages[0]
+            iv.transitionName = tmpRoutine.uid + "icon"
+
             holder.layout.setOnClickListener {
-                MyLog.d("goitn ot trunr outine")
-                val iv: ShapeableImageView
-                if (tilesWithoutErrors.size < 4) {
-                    iv = holder.singleImageView
-                } else {
-                    iv = holder.fourImages[0]
-                    for ((index, image) in holder.fourImages.withIndex()) {
-                        if (index != 0) {
-                            image.visibility = View.INVISIBLE
-                        }
-                    }
+                SelectRoutineFragment.fragmentEditSelect.goToRunRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+            }
+
+            holder.layout.setOnCreateContextMenuListener { contextMenu, _, _ ->
+                contextMenu.add("Edit").setOnMenuItemClickListener {
+                    SelectRoutineFragment.fragmentEditSelect.goToEditRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+                    true
                 }
-                iv.transitionName = tmpRoutine.uid + "icon"
-                if (rvMode == MODE_EDIT) {
-                    SelectEditRoutineFragment.fragmentEditSelect.goToEditRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
-                } else {
-                    (MainActivity.currentFragment as SelectRunRoutineFragment).goToRunRoutine(holder.layout, iv, holder.nameView, tmpRoutine)
+                contextMenu.add("Duplicate").setOnMenuItemClickListener {
+                    SelectRoutineFragment.fragmentEditSelect.handleCMDuplicate(tmpRoutine.uid)
+                    true
+                }
+                contextMenu.add("Delete").setOnMenuItemClickListener {
+                    SelectRoutineFragment.fragmentEditSelect.handleCMDelete(tmpRoutine.uid)
+                    true
                 }
             }
         } else {
@@ -135,10 +118,5 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount(): Int {
         return if (routines == null) 0 else routines!!.size
-    }
-
-    companion object {
-        const val MODE_EDIT = 0
-        const val MODE_RUN = 1
     }
 }

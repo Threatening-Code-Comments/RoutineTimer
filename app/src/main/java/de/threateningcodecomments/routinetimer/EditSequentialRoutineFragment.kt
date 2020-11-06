@@ -177,7 +177,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         routineNameEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 routineNameEditText.clearFocus()
-                (SelectEditRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
             }
             false
         }
@@ -206,7 +206,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileNameView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 routineNameEditText.clearFocus()
-                (SelectEditRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
             }
             false
         }
@@ -267,7 +267,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         if (routines == null) {
             Toast.makeText(context, "Oh no, routines are null. Good bye.", Toast.LENGTH_LONG).show()
         }
-        val position = args.routinePosition
+
+        val position: Int = routines!!.indexOf(ResourceClass.getRoutineFromUid(args.routineUid))
         currentRoutine = routines!![position]
         currentRoutine.setAccessibility(isNightMode)
         currentRoutine.lastUsed = System.currentTimeMillis()

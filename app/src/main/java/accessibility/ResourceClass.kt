@@ -23,7 +23,7 @@ import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
-import de.threateningcodecomments.routinetimer.SelectEditRoutineFragment
+import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
@@ -230,8 +230,7 @@ internal object ResourceClass {
             val routine = routineDataSnapshot.getValue(Routine::class.java)!!
             routines!!.add(routine)
         }
-        if (MainActivity.currentFragment is SelectEditRoutineFragment) {
-            MyLog.d("updating ui because of new values!")
+        if (MainActivity.currentFragment is SelectRoutineFragment) {
             MainActivity.currentFragment.updateUI()
         }
     }

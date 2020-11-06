@@ -1,9 +1,6 @@
 package de.threateningcodecomments.routinetimer
 
-import accessibility.ResourceClass
-import accessibility.Routine
-import accessibility.Tile
-import accessibility.UIContainer
+import accessibility.*
 import adapters.SelectRoutineRVAdapter
 import android.content.Context
 import android.graphics.Color
@@ -37,7 +34,7 @@ import com.google.android.material.transition.platform.MaterialContainerTransfor
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
+class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var activity: AppCompatActivity
 
     private lateinit var rootLayout: CoordinatorLayout
@@ -88,7 +85,7 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
 
         ResourceClass.loadRoutines()
         updateRoutines()
-        ResourceClass.updateNightMode(SelectEditRoutineFragment.activity.application)
+        ResourceClass.updateNightMode(SelectRoutineFragment.activity.application)
         updateUI()
         updateForm()
     }
@@ -131,7 +128,7 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
 
     private fun initRandom() {
         activity = requireActivity() as AppCompatActivity
-        SelectEditRoutineFragment.activity = activity
+        SelectRoutineFragment.activity = activity
         fragmentEditSelect = this
         activity.setSupportActionBar(toolbar)
     }
@@ -142,7 +139,7 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
             startFragment.sharedElementEnterTransition = MaterialContainerTransform()
 
             val extras = FragmentNavigatorExtras(rootLayout to "setupButton")
-            val directions = SelectEditRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
+            val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
 
             findNavController().navigate(directions, extras)
         }
@@ -187,7 +184,7 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
             ResourceClass.loadRoutines()
             routines = ResourceClass.getRoutines()
         }
-        mAdapter = SelectRoutineRVAdapter(routines!!, SelectRoutineRVAdapter.MODE_EDIT)
+        mAdapter = SelectRoutineRVAdapter(routines!!)
         recyclerView.adapter = mAdapter
         layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
@@ -212,6 +209,7 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
     //region handle routines
 
     override fun updateUI() {
+        updateRoutines()
         if (routines == null) {
             routines = ArrayList()
         }
@@ -223,8 +221,10 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
             routines!!.add(Routine.ERROR_ROUTINE)
         }
 
-
-        mAdapter.notifyDataSetChanged()
+        MyLog.d(routines)
+        mAdapter = SelectRoutineRVAdapter(routines!!)
+        recyclerView.adapter = mAdapter
+        //mAdapter.notifyDataSetChanged()
     }
 
     private fun updateRoutines() {
@@ -251,6 +251,8 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
         tmpRoutine.lastUsed
 
         addRoutine(tmpRoutine)
+
+        goToEditRoutine(null, null, null, tmpRoutine)
     }
 
     private fun removeRoutine(routine: Routine) {
@@ -317,7 +319,7 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
         createFab.visibility = View.VISIBLE
         createForm.visibility = View.GONE
 
-        (SelectEditRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+        (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
     private fun maximizeForm() {
@@ -350,36 +352,53 @@ class SelectEditRoutineFragment : Fragment(), View.OnClickListener, UIContainer 
         return inflater.inflate(R.layout.fragment_select_routine, container, false)
     }
 
-    fun goToEditRoutine(v: LinearLayout, iv: ShapeableImageView, routineNameView: TextView, tmpRoutine: Routine) {
+    fun goToEditRoutine(v: LinearLayout?, iv: ShapeableImageView?, routineNameView: TextView?, tmpRoutine: Routine) {
         updateRoutines()
         updateUI()
 
-        val editRoutineFragment = EditSequentialRoutineFragment()
-        editRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
-
-        var index = 0
-        for ((currentIndex, routine) in routines!!.withIndex()) {
-            if (routine.uid == tmpRoutine.uid) {
-                index = currentIndex
+        if (v == null || iv == null || routineNameView == null) {
+            val directions: NavDirections = if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
+                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid!!)
+            } else {
+                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid!!)
             }
-        }
 
-        val directions: NavDirections
-        val extras: FragmentNavigator.Extras
-        if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
-            directions = SelectEditRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(index)
-            extras = FragmentNavigatorExtras(v to "editRoutineRoot", iv to "editRoutineIcon", routineNameView to "editRoutineRoutineName")
+            findNavController().navigate(directions)
         } else {
-            directions = SelectEditRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid!!)
-            extras = FragmentNavigatorExtras(v to "editCRoutineRoot", routineNameView to "editCRoutineName")
-        }
 
-        findNavController().navigate(directions, extras)
+            val editRoutineFragment = EditSequentialRoutineFragment()
+            editRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
+
+            var index = 0
+            for ((currentIndex, routine) in routines!!.withIndex()) {
+                if (routine.uid == tmpRoutine.uid) {
+                    index = currentIndex
+                }
+            }
+
+            val directions: NavDirections
+            val extras: FragmentNavigator.Extras
+            if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
+                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid!!)
+                extras = FragmentNavigatorExtras(v to "editRoutineRoot", iv to "editRoutineIcon", routineNameView to "editRoutineRoutineName")
+            } else {
+                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid!!)
+                extras = FragmentNavigatorExtras(v to "editCRoutineRoot", routineNameView to "editCRoutineName")
+            }
+
+            findNavController().navigate(directions, extras)
+        }
+    }
+
+    fun goToRunRoutine(layout: LinearLayout?, iv: ShapeableImageView?, nameView: TextView?, tmpRoutine: Routine) {
+        val directions = SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid!!)
+
+        findNavController().navigate(directions)
     }
 
     companion object {
         lateinit var activity: AppCompatActivity
-        lateinit var fragmentEditSelect: SelectEditRoutineFragment
+        lateinit var fragmentEditSelect: SelectRoutineFragment
     }
 
 }

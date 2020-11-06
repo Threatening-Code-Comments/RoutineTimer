@@ -12,7 +12,7 @@ class Routine {
             field = randomUid
             randomUid
         } else {
-            field
+            field!!
         }
         set(value) {
             if (field == null) {

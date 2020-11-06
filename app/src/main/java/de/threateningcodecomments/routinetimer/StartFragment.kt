@@ -45,8 +45,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var nameCardView: MaterialCardView
     private var isLoggedIn = false
 
-    private lateinit var runButton: MaterialButton
-    private lateinit var setupButton: MaterialButton
+    private lateinit var routineButton: MaterialButton
     private lateinit var testButton: MaterialButton
 
 
@@ -84,7 +83,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         when (v.id) {
             R.id.cv_MainActivity_name -> toggleSignIn()
             R.id.btn_mainActivity_setup -> {
-                val selectRoutineFragment = SelectEditRoutineFragment()
+                val selectRoutineFragment = SelectRoutineFragment()
                 selectRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
 
                 val extras = FragmentNavigatorExtras(v to "container")
@@ -95,11 +94,6 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
             R.id.btn_mainActivity_test -> {
                 val routine = ResourceClass.generateRandomRoutine()
                 ResourceClass.saveRoutine(routine)
-            }
-            R.id.btn_MainActivity_run -> {
-                val directions = StartFragmentDirections.actionStartFragmentToSelectRunRoutineFragment()
-
-                findNavController().navigate(directions)
             }
             else -> Toast.makeText(context, "Unknown Error, please see developer or priest", Toast.LENGTH_LONG).show()
         }
@@ -115,19 +109,17 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private fun initBufferViews() {
         val v = requireView()
 
-        setupButton = v.findViewById(R.id.btn_mainActivity_setup)
+        routineButton = v.findViewById(R.id.btn_mainActivity_setup)
         testButton = v.findViewById(R.id.btn_mainActivity_test)
         usernameView = v.findViewById(R.id.tv_MainActivity_username)
         profilepicView = v.findViewById(R.id.iv_MainActivity_profilepic)
         nameCardView = v.findViewById(R.id.cv_MainActivity_name)
-        runButton = v.findViewById(R.id.btn_MainActivity_run)
     }
 
     private fun initOnClicks() {
-        setupButton.setOnClickListener(this)
+        routineButton.setOnClickListener(this)
         nameCardView.setOnClickListener(this)
         testButton.setOnClickListener(this)
-        runButton.setOnClickListener(this)
     }
 
     private fun initGSignIn() {
@@ -146,10 +138,10 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private fun updateButtonClickable() {
         if (!isLoggedIn) {
             testButton.isEnabled = false
-            setupButton.isEnabled = false
+            routineButton.isEnabled = false
         } else {
             testButton.isEnabled = true
-            setupButton.isEnabled = true
+            routineButton.isEnabled = true
         }
     }
 

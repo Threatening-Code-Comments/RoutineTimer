@@ -3,7 +3,7 @@
 
     <string name="str_test">test-String!</string>
 
-    <string name="str_btn_MainActivity_setup">Set up Routine!</string>
+    <string name="str_btn_MainActivity_routines">View Routines!</string>
     <string name="str_button_MainActivity_test">test!</string>
     <string name="str_tv_MainActivity_username">Please log in!</string>
 
