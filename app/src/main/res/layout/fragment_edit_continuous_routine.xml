@@ -71,14 +71,14 @@
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_0"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_1"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
@@ -95,14 +95,14 @@
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_2"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_3"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
@@ -119,14 +119,14 @@
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_4"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_5"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
@@ -143,14 +143,14 @@
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_6"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <include
                     android:id="@+id/tile_EditRoutine_continuous_7"
-                    layout="@layout/viewholder_small_tile"
+                    layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />

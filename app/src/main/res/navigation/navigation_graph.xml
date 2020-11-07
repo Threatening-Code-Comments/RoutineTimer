@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/runContinuousRoutine"
-        android:name="de.threateningcodecomments.routinetimer.RunContinuousRoutine"
+        android:name="de.threateningcodecomments.routinetimer.RunContinuousRoutineFragment"
         android:label="fragment_run_continuous_routine"
         tools:layout="@layout/fragment_run_continuous_routine">
         <action
