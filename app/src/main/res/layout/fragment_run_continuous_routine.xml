@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/et_RunRoutine_continuous_routine_name"
+            android:id="@+id/tv_RunRoutine_continuous_routine_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="30sp"
@@ -69,6 +69,7 @@
                     layout="@layout/viewholder_run_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
+                    android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/tile_RunRoutine_continuous_0" />
 

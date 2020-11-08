@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:animateLayoutChanges="true"
     tools:showIn="@layout/fragment_run_continuous_routine">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_viewholder_smallTile_card"
+        android:id="@+id/cv_viewholder_runTile_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="12sp"
         app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius">
 
         <LinearLayout
-            android:id="@+id/ll_viewholder_smallTile_cardContent"
+            android:id="@+id/ll_viewholder_runTile_cardContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
             <LinearLayout
-                android:id="@+id/ll_viewholder_smallTile_infoLayout"
+                android:id="@+id/ll_viewholder_runTile_infoLayout"
                 android:layout_width="0sp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -30,7 +31,7 @@
                 android:paddingVertical="15sp">
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_viewholder_smallTile_icon"
+                    android:id="@+id/iv_viewholder_runTile_icon"
                     android:layout_width="50sp"
                     android:layout_height="50sp"
                     android:layout_gravity="center"
@@ -43,7 +44,7 @@
                     android:layout_weight="0.02" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_viewholder_smallTile_name"
+                    android:id="@+id/tv_viewholder_runTile_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -55,25 +56,14 @@
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_viewholder_tile_countdownRoot"
+                android:id="@+id/cl_viewholder_runTile_countdownRoot"
                 android:layout_width="0sp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:visibility="gone">
 
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/cb_viewholder_tile_countdown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10sp"
-                    android:text="Countdown"
-                    app:layout_constraintBottom_toTopOf="@id/cl_viewholder_tile_timeLayout"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/cl_viewholder_tile_timeLayout"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/cl_viewholder_tile_timeLayout"
+                    android:id="@+id/cl_viewholder_runTile_timeLayout"
                     android:layout_width="match_parent"
                     android:layout_height="0sp"
                     android:layout_alignParentBottom="true"
@@ -81,30 +71,52 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/cb_viewholder_tile_countdown">
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <TextView
-                        android:id="@+id/tv_viewholder_tile_info"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_viewholder_runTile_currentTimeInfo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Time"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
-                        android:textSize="20sp"
+                        android:text="@string/str_tv_viewholder_runTile_currentTime"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        app:layout_constraintBottom_toTopOf="@id/tv_viewholder_runTile_currentTime"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tv_viewholder_tile_countdownTime"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_viewholder_runTile_currentTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="10:00"
-                        android:textSize="20sp"
+                        android:text="20:00"
+                        android:textSize="18sp"
+                        app:layout_constraintBottom_toTopOf="@id/tv_viewholder_runTile_totalTimeInfo"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_runTile_currentTimeInfo" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_viewholder_runTile_totalTimeInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total time:"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/tv_viewholder_runTile_totalTime"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_runTile_currentTime" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_viewholder_runTile_totalTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20:00"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_tile_info" />
-
+                        app:layout_constraintTop_toBottomOf="@+id/tv_viewholder_runTile_totalTimeInfo" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

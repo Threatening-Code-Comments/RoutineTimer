@@ -5,6 +5,7 @@ import accessibility.ResourceClass.convertColorDayNight
 import accessibility.ResourceClass.wasNightMode
 import android.graphics.Color
 import java.util.*
+import kotlin.properties.Delegates
 
 class Tile//region Constructor
 {
@@ -14,7 +15,12 @@ class Tile//region Constructor
     var mode: Int
 
     var countDownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS
-    var countedTime: Long = DEFAULT_COUNTED_TIME
+    var countedTime: Long by Delegates.observable(initialValue = DEFAULT_COUNTED_TIME, onChange = { _, oldValue, newValue ->
+        val difference = newValue - oldValue
+        totalCountedTime += difference
+    })
+
+    var totalCountedTime: Long = 0L
 
     var tileUid: String = DEFAULT_TILE_UID
         get() {
