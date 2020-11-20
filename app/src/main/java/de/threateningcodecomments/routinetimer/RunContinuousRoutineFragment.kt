@@ -29,6 +29,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     private lateinit var closeView: ShapeableImageView
     private lateinit var routineNameView: MaterialTextView
 
+    private var currentTile: Tile? = null
+
     private val args: RunContinuousRoutineFragmentArgs by navArgs()
 
     private lateinit var routine: Routine
@@ -61,6 +63,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         }
     }
 
+    //region UI
     override fun updateUI() {
         updateUI(null)
     }
@@ -145,14 +148,21 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
         colorAnimation.start()
     }
+    //endregion
 
     //region timing
     private fun stopCountingTile(tileIndex: Int) {
+        ResourceClass.currentTile = null
         updateUI()
     }
 
     private fun startCountingTile(tileIndex: Int) {
+        ResourceClass.currentTile = routine.tiles[tileIndex]
         updateUI(tileIndex)
+    }
+
+    override fun updateCurrentTile() {
+        currentTile = ResourceClass.currentTile
     }
     //endregion
 

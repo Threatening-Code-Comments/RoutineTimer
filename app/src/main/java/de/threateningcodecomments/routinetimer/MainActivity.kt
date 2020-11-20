@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
     }
 
     override fun updateUI() {}
+    override fun updateCurrentTile() {}
 
     companion object {
         lateinit var activityBuffer: MainActivity

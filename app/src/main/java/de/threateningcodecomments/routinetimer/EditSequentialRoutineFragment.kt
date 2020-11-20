@@ -472,6 +472,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         return inflater.inflate(R.layout.fragment_edit_sequential_routine, container, false)
     }
 
+    override fun updateCurrentTile() {}
+
     companion object {
         const val ICON_DIALOG_TAG = "icon-dialog"
 

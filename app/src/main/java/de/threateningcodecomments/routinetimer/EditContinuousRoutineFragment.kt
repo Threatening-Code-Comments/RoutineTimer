@@ -346,5 +346,7 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         return inflater.inflate(R.layout.fragment_edit_continuous_routine, container, false)
     }
 
+    override fun updateCurrentTile() {}
+
     companion object
 }

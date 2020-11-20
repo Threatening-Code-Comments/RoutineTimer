@@ -396,6 +396,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
         findNavController().navigate(directions)
     }
 
+    override fun updateCurrentTile() {}
+
     companion object {
         lateinit var activity: AppCompatActivity
         lateinit var fragmentEditSelect: SelectRoutineFragment

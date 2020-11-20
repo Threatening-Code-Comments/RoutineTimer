@@ -276,6 +276,8 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         return inflater.inflate(R.layout.fragment_start, container, false)
     }
 
+    override fun updateCurrentTile() {}
+
     companion object {
         private const val RC_SIGN_IN = 123
     }

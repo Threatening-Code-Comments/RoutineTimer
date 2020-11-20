@@ -184,37 +184,7 @@ internal object ResourceClass {
     //endregion
 
     //region Routines
-
-    private var database: FirebaseDatabase? = null
-    private var lastUser: FirebaseUser? = null
-    private var valueEventListener: ValueEventListener? = null
     private var routines: ArrayList<Routine>? = ArrayList()
-    fun loadRoutines() {
-        database = FirebaseDatabase.getInstance()
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            routines = ArrayList()
-            MyLog.d("FUCK FUCK FUCK ROUTINES IS NULL BECUASE OF NO USER HELP")
-            return
-        }
-        if (user !== lastUser) {
-            lastUser = user
-            val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
-            if (valueEventListener != null) {
-                routineRef.removeEventListener(valueEventListener!!)
-                MyLog.d("old listener is being removed!")
-            }
-            MyLog.d("new listener is being added!")
-            valueEventListener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    handleRoutineUpdate(snapshot)
-                }
-
-                override fun onCancelled(error: DatabaseError) {}
-            }
-            routineRef.addValueEventListener(valueEventListener as ValueEventListener)
-        }
-    }
 
     private fun handleRoutineUpdate(snapshot: DataSnapshot) {
         val routinesIterable = snapshot.children
@@ -249,15 +219,6 @@ internal object ResourceClass {
         }
 
         return returnVal
-    }
-
-    fun routineExists(routine: Routine): Boolean {
-        for (tmpRoutine in routines!!) {
-            if (tmpRoutine == routine) {
-                return true
-            }
-        }
-        return false
     }
 
     fun getRoutines(): ArrayList<Routine> {
@@ -315,10 +276,97 @@ internal object ResourceClass {
         }
         return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
     }
+    //endregion
 
+    //region tiles
+    fun getTileFromUid(uid: String?): Tile? {
+        if (uid == null) {
+            return null
+        } else {
+            for (routine in routines!!) {
+                for (tile in routine.tiles) {
+                    if (uid == tile.tileUid) {
+                        return tile
+                    }
+                }
+            }
+        }
+        return null
+    }
+    //endregion
+
+    //region currentTile
+    var currentTile: Tile? = null
+        get() {
+            field = getTileFromUid(currentTileUid)
+            updateCurrentTile(field)
+            return field
+        }
+        set(value) {
+            updateCurrentTile(value)
+            field = value
+        }
+
+
+    private var currentTileUid: String? = null
+
+    private fun updateCurrentTile(tile: Tile?) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val path = "/users/" + user.uid
+            val key = "currentTile"
+
+            val value = tile?.tileUid
+
+            saveToDb(path, key, value)
+        }
+    }
+
+    fun handleCurrentTileUpdate(snapshot: DataSnapshot) {
+        val currentTile: Tile? = snapshot.getValue(Tile::class.java)
+
+        MainActivity.currentFragment.updateCurrentTile()
+    }
     //endregion
 
     //region Database handling
+    private var database: FirebaseDatabase? = null
+    private var lastUser: FirebaseUser? = null
+    private var valueEventListener: ValueEventListener? = null
+    fun loadRoutines() {
+        database = FirebaseDatabase.getInstance()
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            routines = ArrayList()
+            MyLog.d("FUCK FUCK FUCK ROUTINES IS NULL BECUASE OF NO USER HELP")
+            return
+        }
+        if (user !== lastUser) {
+            lastUser = user
+            val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
+            val currentTileRef = database!!.getReference("/user/" + user.uid + "/currentTileUid")
+            if (valueEventListener != null) {
+                routineRef.removeEventListener(valueEventListener!!)
+                currentTileRef.removeEventListener(valueEventListener!!)
+                MyLog.d("old listener is being removed!")
+            }
+            MyLog.d("new listener is being added!")
+            valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    when (snapshot.ref) {
+                        routineRef -> handleRoutineUpdate(snapshot)
+                        currentTileRef -> handleCurrentTileUpdate(snapshot)
+                        else -> MyLog.d("snapshot ref is null!")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            }
+            routineRef.addValueEventListener(valueEventListener as ValueEventListener)
+            currentTileRef.addValueEventListener(valueEventListener as ValueEventListener)
+        }
+    }
+
     fun saveToDb(path: String?, key: String?, value: Any?) {
         val pathRef = database!!.getReference(path!!)
         val child = pathRef.child(key!!)
