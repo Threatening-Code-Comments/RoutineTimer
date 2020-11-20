@@ -252,6 +252,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     //endregion
 
     private fun navigateToSelectRoutine() {
+        ResourceClass.currentTile = null
+
         val directions = RunContinuousRoutineFragmentDirections.actionRunContinuousRoutineToSelectEditRoutineFragment()
 
         findNavController().navigate(directions)
