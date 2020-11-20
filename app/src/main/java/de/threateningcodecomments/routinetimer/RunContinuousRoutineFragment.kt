@@ -45,7 +45,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
         routine = ResourceClass.getRoutineFromUid(args.routineUid)
 
-        updateUI()
+        updateUI(UI_INIT_KEY)
     }
 
     override fun onClick(v: View?) {
@@ -83,15 +83,19 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
                 val oldColor: Int
                 val newColor =
-                        if (tileIndex == null || gridTileIndex == tileIndex) {
-                            oldColor = Color.GRAY
+                        if (expandedTile != null || gridTileIndex == expandedTile || gridTileIndex == tileIndex || tileIndex == UI_INIT_KEY) {
+                            oldColor =
+                                    if (gridTileIndex == expandedTile || gridTileIndex == tileIndex) {
+                                        tile.backgroundColor
+                                    } else Color.GRAY
+
                             tile.backgroundColor
                         } else {
                             oldColor = tile.backgroundColor
                             Color.GRAY
                         }
                 val contrastColor =
-                        if (tileIndex == null || gridTileIndex == tileIndex) tile.contrastColor
+                        if (expandedTile != null || gridTileIndex == expandedTile || gridTileIndex == tileIndex) tile.contrastColor
                         else Color.WHITE
 
                 animateColor(gridTile, oldColor, newColor)
@@ -247,5 +251,9 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_run_continuous_routine, container, false)
+    }
+
+    companion object {
+        const val UI_INIT_KEY = 69;
     }
 }
