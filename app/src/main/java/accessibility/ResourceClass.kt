@@ -330,8 +330,8 @@ internal object ResourceClass {
     //endregion
 
     //region Database handling
-    private var database: FirebaseDatabase? = null
     private var lastUser: FirebaseUser? = null
+    private var database: FirebaseDatabase? = null
     private var valueEventListener: ValueEventListener? = null
     fun loadRoutines() {
         database = FirebaseDatabase.getInstance()
