@@ -24,50 +24,70 @@ import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.SelectRoutineFragment
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
+import kotlin.properties.Delegates
 
 
 internal object ResourceClass {
 
     //region random vars
 
-    lateinit var animContext: Context
+    fun millisToHHMMSSmm(millis: Long): String {
+        val hours = (millis / (1000 * 60 * 60)).toInt()
+        val minutes = ((millis / (1000 * 60)) - (hours * 60)).toInt()
+        val secs = (millis / 1000 - hours * 3600 - minutes * 60).toInt()
+        val shortMillis = (millis - (hours * 3600 + minutes * 60 + secs) * 1000).toInt() / 10
 
-    lateinit var slideUpIn: Animation
-    lateinit var slideUpOut: Animation
-    lateinit var slideDownIn: Animation
-    lateinit var slideDownOut: Animation
-
-    lateinit var scaleDown: Animation
-    lateinit var scaleUp: Animation
-    lateinit var scaleUpSlow: Animation
-
-    lateinit var expandTileLeft: Animation
-    lateinit var expandTileRight: Animation
-    lateinit var collapseTileLeft: Animation
-    lateinit var collapseTileRight: Animation
-    fun initAnimations(context: Context) {
-        animContext = context
-
-        slideUpIn = loadAnimation(R.anim.slide_up_in)
-        slideUpOut = loadAnimation(R.anim.slide_up_out)
-        slideDownIn = loadAnimation(R.anim.slide_down_in)
-        slideDownOut = loadAnimation(R.anim.slide_down_out)
-
-        scaleDown = loadAnimation(R.anim.scale_down)
-        scaleUp = loadAnimation(R.anim.scale_up)
-        scaleUpSlow = loadAnimation(R.anim.scale_up_slow)
-
-        expandTileLeft = loadAnimation(R.anim.expand_tile_left)
-        expandTileRight = loadAnimation(R.anim.expand_tile_right)
-        collapseTileLeft = loadAnimation(R.anim.collapse_tile_left)
-        collapseTileRight = loadAnimation(R.anim.collapse_tile_right)
+        return if (hours == 0) String.format(
+                Locale.getDefault(),
+                "%02d:%02d.%02d",
+                minutes, secs, shortMillis)
+        else String.format(
+                Locale.getDefault(),
+                "%02d:%02d:%02d.%02d",
+                hours, minutes, secs, shortMillis)
     }
 
-    private fun loadAnimation(id: Int): Animation = AnimationUtils.loadAnimation(animContext, id)
+    object anim {
+        lateinit var animContext: Context
 
+        lateinit var slideUpIn: Animation
+        lateinit var slideUpOut: Animation
+        lateinit var slideDownIn: Animation
+        lateinit var slideDownOut: Animation
+
+        lateinit var scaleDown: Animation
+        lateinit var scaleUp: Animation
+        lateinit var scaleUpSlow: Animation
+
+        lateinit var expandTileLeft: Animation
+        lateinit var expandTileRight: Animation
+        lateinit var collapseTileLeft: Animation
+        lateinit var collapseTileRight: Animation
+        fun initAnimations(context: Context) {
+            animContext = context
+
+            slideUpIn = loadAnimation(R.anim.slide_up_in)
+            slideUpOut = loadAnimation(R.anim.slide_up_out)
+            slideDownIn = loadAnimation(R.anim.slide_down_in)
+            slideDownOut = loadAnimation(R.anim.slide_down_out)
+
+            scaleDown = loadAnimation(R.anim.scale_down)
+            scaleUp = loadAnimation(R.anim.scale_up)
+            scaleUpSlow = loadAnimation(R.anim.scale_up_slow)
+
+            expandTileLeft = loadAnimation(R.anim.expand_tile_left)
+            expandTileRight = loadAnimation(R.anim.expand_tile_right)
+            collapseTileLeft = loadAnimation(R.anim.collapse_tile_left)
+            collapseTileRight = loadAnimation(R.anim.collapse_tile_right)
+        }
+
+        private fun loadAnimation(id: Int): Animation = AnimationUtils.loadAnimation(animContext, id)
+    }
 
     var errorDrawable: Drawable = object : Drawable() {
         override fun draw(canvas: Canvas) {}
@@ -293,24 +313,65 @@ internal object ResourceClass {
         }
         return null
     }
+
+    fun getRoutineOfTile(tile: Tile): Routine {
+        for (routine in routines!!) {
+            if (routine.tiles.contains(tile)) {
+                return routine
+            }
+        }
+        return Routine.ERROR_ROUTINE
+    }
+
     //endregion
 
     //region currentTile
-    var currentTile: Tile? = null
-        get() {
-            field = getTileFromUid(currentTileUid)
-            updateCurrentTile(field)
-            return field
+    var currentTile by Delegates.observable<Tile?>(null)
+    { property, oldValue, newValue ->
+        updateCurrentTile(newValue)
+        when {
+            newValue != null -> saveEvent(newValue, true)
+            oldValue == null -> return@observable
+            else -> saveEvent(oldValue, false)
         }
-        set(value) {
-            updateCurrentTile(value)
-            field = value
+    }
+
+    private var eventStart: Long = 0L
+    private fun saveEvent(tile: Tile, isStarting: Boolean) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+            val parentRoutine = getRoutineOfTile(tile)
+
+            val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
+
+            if (isStarting) {
+                eventStart = System.currentTimeMillis()
+            } else {
+                var path = basePath + eventStart
+
+                var key = "tile"
+                var value = tile.tileUid
+                saveToDb(path, key, value)
+
+                key = "start"
+                value = eventStart.toString()
+                saveToDb(path, key, value)
+
+                key = "duration"
+                value = (System.currentTimeMillis() - eventStart).toString()
+                saveToDb(path, key, value)
+            }
+
         }
+    }
 
 
     private var currentTileUid: String? = null
 
     private fun updateCurrentTile(tile: Tile?) {
+        currentTileUid = tile?.tileUid
+
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val path = "/users/" + user.uid
@@ -333,7 +394,7 @@ internal object ResourceClass {
     private var lastUser: FirebaseUser? = null
     private var database: FirebaseDatabase? = null
     private var valueEventListener: ValueEventListener? = null
-    fun loadRoutines() {
+    fun loadDatabaseRes() {
         database = FirebaseDatabase.getInstance()
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -341,10 +402,10 @@ internal object ResourceClass {
             MyLog.d("FUCK FUCK FUCK ROUTINES IS NULL BECUASE OF NO USER HELP")
             return
         }
-        if (user !== lastUser) {
+        if (user != lastUser) {
             lastUser = user
             val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
-            val currentTileRef = database!!.getReference("/user/" + user.uid + "/currentTileUid")
+            val currentTileRef = database!!.getReference("/users/" + user.uid + "/currentTileUid")
             if (valueEventListener != null) {
                 routineRef.removeEventListener(valueEventListener!!)
                 currentTileRef.removeEventListener(valueEventListener!!)

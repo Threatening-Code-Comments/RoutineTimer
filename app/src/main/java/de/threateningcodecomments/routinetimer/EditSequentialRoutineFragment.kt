@@ -1,13 +1,13 @@
 package de.threateningcodecomments.routinetimer
 
 import accessibility.*
+import accessibility.ResourceClass.anim.scaleDown
+import accessibility.ResourceClass.anim.scaleUpSlow
+import accessibility.ResourceClass.anim.slideDownIn
+import accessibility.ResourceClass.anim.slideDownOut
+import accessibility.ResourceClass.anim.slideUpIn
+import accessibility.ResourceClass.anim.slideUpOut
 import accessibility.ResourceClass.isNightMode
-import accessibility.ResourceClass.scaleDown
-import accessibility.ResourceClass.scaleUpSlow
-import accessibility.ResourceClass.slideDownIn
-import accessibility.ResourceClass.slideDownOut
-import accessibility.ResourceClass.slideUpIn
-import accessibility.ResourceClass.slideUpOut
 import adapters.ItemMoveCallbackListener
 import adapters.MyViewHolder
 import adapters.OnStartDragListener

@@ -83,7 +83,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     override fun onStart() {
         super.onStart()
 
-        ResourceClass.loadRoutines()
+        ResourceClass.loadDatabaseRes()
         updateRoutines()
         ResourceClass.updateNightMode(SelectRoutineFragment.activity.application)
         updateUI()
@@ -181,7 +181,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun initRecyclerView() {
         if (routines?.size == 0) {
-            ResourceClass.loadRoutines()
+            ResourceClass.loadDatabaseRes()
             routines = ResourceClass.getRoutines()
         }
         mAdapter = SelectRoutineRVAdapter(routines!!)

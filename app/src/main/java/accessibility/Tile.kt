@@ -5,20 +5,19 @@ import accessibility.ResourceClass.convertColorDayNight
 import accessibility.ResourceClass.wasNightMode
 import android.graphics.Color
 import java.util.*
-import kotlin.properties.Delegates
 
 class Tile//region Constructor
 {
     var name: String?
     var iconID: Int
     private var isNightMode: Boolean = false
+        set(value) {
+            backgroundColor = convertColorDayNight(isNightMode, backgroundColor)
+            field = value
+        }
     var mode: Int
 
     var countDownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS
-    var countedTime: Long by Delegates.observable(initialValue = DEFAULT_COUNTED_TIME, onChange = { _, oldValue, newValue ->
-        val difference = newValue - oldValue
-        totalCountedTime += difference
-    })
 
     var totalCountedTime: Long = 0L
 
@@ -51,14 +50,14 @@ class Tile//region Constructor
             return field
         }
 
-    constructor(name: String? = DEFAULT_NAME, iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, mode: Int = MODE_COUNT_UP, uid: String = DEFAULT_TILE_UID, countedTime: Long = DEFAULT_COUNTED_TIME, countdownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS) {
+    constructor(name: String? = DEFAULT_NAME, iconID: Int = DEFAULT_ICONID, backgroundColor: Int = DEFAULT_COLOR, mode: Int = MODE_COUNT_UP, uid: String = DEFAULT_TILE_UID, totalCountedTime: Long = DEFAULT_COUNTED_TIME, countdownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS) {
         this.name = name
         this.iconID = iconID
         this.mode = mode
         this.tileUid = uid
         this.tileUid = DEFAULT_TILE_UID
         this.backgroundColor = backgroundColor
-        this.countedTime = countedTime
+        this.totalCountedTime = totalCountedTime
         this.countDownSettings = countdownSettings
     }
 
@@ -66,19 +65,14 @@ class Tile//region Constructor
     constructor(name: String, iconID: Int, backgroundColor: Int, mode: Int, uid: String, countdownSettings: CountdownSettings) : this(name, iconID, backgroundColor, mode, uid, DEFAULT_COUNTED_TIME, countdownSettings)
     constructor(name: String, iconID: Int, backgroundColor: Int, mode: Int, uid: String) : this(name, iconID, backgroundColor, mode, uid, DEFAULT_COUNTDOWN_SETTINGS)
     constructor(name: String, iconID: Int, color: Int) : this(name, iconID, color, MODE_COUNT_UP, UUID.randomUUID().toString(), DEFAULT_COUNTDOWN_SETTINGS)
-    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.mode, tile.tileUid, tile.countedTime, tile.countDownSettings) {
-        this.countedTime = tile.countedTime
+    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.mode, tile.tileUid, tile.totalCountedTime, tile.countDownSettings) {
+        this.totalCountedTime = tile.totalCountedTime
     }
 
     //endregion
 
-    private fun setDayNightMode(isNightMode: Boolean) {
-        this.isNightMode = isNightMode
-        backgroundColor = convertColorDayNight(isNightMode, backgroundColor)
-    }
-
     fun setAccessibility(isNightMode: Boolean) {
-        setDayNightMode(isNightMode)
+        this.isNightMode = isNightMode
         contrastColor = calculateContrast(backgroundColor)
     }
 

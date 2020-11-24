@@ -68,12 +68,12 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
             toggleSignIn()
         } else {
             isLoggedIn = true
-            ResourceClass.loadRoutines()
+            ResourceClass.loadDatabaseRes()
         }
 
         initOnClicks()
 
-        ResourceClass.loadRoutines()
+        ResourceClass.loadDatabaseRes()
 
         ResourceClass.initIconPack(activity)
         ResourceClass.errorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
@@ -232,7 +232,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                         val key = "displayname"
                         val value: Any? = user.displayName
                         ResourceClass.saveToDb(path, key, value)
-                        ResourceClass.loadRoutines()
+                        ResourceClass.loadDatabaseRes()
                         isLoggedIn = true
                     } else {
                         // If sign in fails, display a message to the user.
@@ -252,7 +252,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         }
         updateUI()
         updateButtonClickable()
-        ResourceClass.loadRoutines()
+        ResourceClass.loadDatabaseRes()
     }
 
     private fun signIn() {
