@@ -51,13 +51,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
         routine = ResourceClass.getRoutineFromUid(args.routineUid)
 
-        updateUI(UI_INIT_KEY)
+        updateUI()
     }
 
     override fun onClick(v: View?) {
         if (v is MaterialCardView) {
-            if (gridTiles.contains(v as MaterialCardView)) {
-                toggleTileSize(gridTiles.indexOf(v as MaterialCardView))
+            if (gridTiles.contains(v)) {
+                toggleTileSize(gridTiles.indexOf(v))
             }
         }
         when (v!!.id) {
@@ -69,10 +69,9 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     //region UI
     override fun updateUI() {
-        updateUI(null)
-    }
+        var tileIndex: Int? = routine.tiles.indexOf(ResourceClass.currentTile)
+        tileIndex = if (tileIndex == -1) null else tileIndex
 
-    private fun updateUI(tileIndex: Int?) {
         routineNameView.text = routine.name
 
         val tiles = routine.tiles
@@ -96,7 +95,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
                 val oldColor: Int
                 val newColor =
-                        if (expandedTile != null || gridTileIndex == expandedTile || gridTileIndex == tileIndex || tileIndex == UI_INIT_KEY) {
+                        if (tileIndex == null || gridTileIndex == expandedTile || gridTileIndex == tileIndex) {
                             oldColor =
                                     if (gridTileIndex == expandedTile || gridTileIndex == tileIndex) {
                                         tile.backgroundColor
@@ -109,7 +108,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                             Color.GRAY
                         }
                 val contrastColor =
-                        if (expandedTile != null || gridTileIndex == expandedTile || gridTileIndex == tileIndex || tileIndex == UI_INIT_KEY) tile.contrastColor
+                        if (tileIndex == null || gridTileIndex == expandedTile || gridTileIndex == tileIndex) tile.contrastColor
                         else Color.WHITE
 
                 animateColor(gridTile, oldColor, newColor)
@@ -120,9 +119,14 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 imageView.setImageDrawable(ResourceClass.getIconDrawable(tile))
 
                 animateColor(totalTimeMainView, oldColor, newColor)
-                val totalTileTime_str = ResourceClass.millisToHHMMSSmm(tile.totalCountedTime)
-                totalTimeMainView.text = totalTileTime_str.substring(0, totalTileTime_str.length - 3)
-
+                if (tile.mode == Tile.MODE_COUNT_UP) {
+                    val totalTileTime_str = ResourceClass.millisToHHMMSSmm(tile.totalCountedTime)
+                    totalTimeMainView.text = totalTileTime_str.substring(0, totalTileTime_str.length - 3)
+                } else {
+                    val timesPressed = (tile.totalCountedTime / tile.countDownSettings.countDownTime).toInt()
+                    val countDownTime_str = "Pressed ${timesPressed}x times"
+                    totalTimeMainView.text = countDownTime_str
+                }
 
                 animateColor(currentTimeInfo, oldColor, newColor)
                 animateColor(currentTimeDisplay, oldColor, newColor)
@@ -177,15 +181,18 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         totalTimeMainView.startAnimation(ResourceClass.anim.scaleUp)
         totalTimeMainView.visibility = View.VISIBLE
 
+        countDownTimer?.cancel()
+
         ResourceClass.saveRoutine(routine)
     }
 
     private var startingTime: Long? = null
+    private var countDownTimer: CountDownTimer? = null
     private fun startCountingTile(tileIndex: Int) {
         ResourceClass.currentTile = routine.tiles[tileIndex]
         val currentGridTile = gridTiles[tileIndex]
         val currentTile = routine.tiles[tileIndex]
-        updateUI(tileIndex)
+        updateUI()
 
         val currentTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTime)
         val totalTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTime)
@@ -196,6 +203,9 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 if (currentTile.mode == Tile.MODE_COUNT_UP) 0L
                 else currentTile.countDownSettings.countDownTime
         val totalTimeBuffer = currentTile.totalCountedTime
+
+        currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.VISIBLE
+        totalTimeField.visibility = View.VISIBLE
 
         val handler = Handler()
         if (currentTile.mode == Tile.MODE_COUNT_UP) {
@@ -215,27 +225,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 }
             })
         } else {
-            /*handler.post(object : Runnable {
-                override fun run() {
-                    if (startingTime == null)
-                        return
-
-                    currentTime = System.currentTimeMillis() - startingTime!!
-                    val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
-                    if (remainingTime < 200) {
-                        reminderForTile(currentTile)
-                        stopCountingTile(tileIndex)
-                        return
-                    }
-                    currentTimeField.text = ResourceClass.millisToHHMMSSmm()
-
-                    val totalTime = totalTimeBuffer + currentTime
-                    currentTile.totalCountedTime = totalTime
-                    totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
-
-                    handler.postDelayed(this, 10)
-                }
-            })*/
             val notification = NotificationCompat.Builder(requireContext(), App.TIMING_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_foreground)
                     .setContentTitle(currentTile.name)
@@ -246,19 +235,19 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
             notificationManager.notify(1, notification)
             currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTimeInfo).text = getString(R.string.str_tv_viewholder_runTile_currentTimeInfo_countDown)
 
-            object : CountDownTimer(currentTile.countDownSettings.countDownTime, 10) {
+            currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.GONE
+            totalTimeField.visibility = View.GONE
+
+            countDownTimer = object : CountDownTimer(currentTile.countDownSettings.countDownTime, 10) {
                 override fun onTick(millisUntilFinished: Long) {
                     currentTime = System.currentTimeMillis() - startingTime!!
                     val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
                     currentTimeField.text = ResourceClass.millisToHHMMSSmm(remainingTime)
-
-                    val totalTime = totalTimeBuffer + currentTime
-                    currentTile.totalCountedTime = totalTime
-                    totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
                 }
 
                 override fun onFinish() {
                     //reminderForTile(currentTile)
+                    currentTile.totalCountedTime += currentTile.countDownSettings.countDownTime
                     toggleTileSize(tileIndex)
                     stopCountingTile(tileIndex)
                 }
@@ -282,7 +271,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         val nextTile = if (tilePosition == 0) indexOf + 1 else indexOf - 1
 
         if (expandedTile == null) {
-            expandTile(indexOf, tilePosition, nextTile)
+            expandTile(indexOf, nextTile)
             expandedTile = indexOf
         } else if (expandedTile == indexOf) {
             minimizeTile(indexOf, nextTile)
@@ -290,7 +279,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         }
     }
 
-    private fun expandTile(indexOf: Int, tilePosition: Int, hideIndex: Int) {
+    private fun expandTile(indexOf: Int, hideIndex: Int) {
         val firstCard = gridTiles[indexOf]
         val hideCard = gridTiles[hideIndex]
 
@@ -321,8 +310,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     private fun getTileRow(tileIndex: Int): Int {
-        val compareCard = gridTiles[tileIndex]
-
         for (row in gridRows) {
             for (rowChild in row.children) {
                 val card = rowChild.findViewById<MaterialCardView>(R.id.cv_viewholder_runTile_card)
@@ -375,6 +362,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     companion object {
-        const val UI_INIT_KEY = 69;
+        const val UI_INIT_KEY = 69
     }
 }

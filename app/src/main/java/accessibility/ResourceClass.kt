@@ -334,6 +334,7 @@ internal object ResourceClass {
             oldValue == null -> return@observable
             else -> saveEvent(oldValue, false)
         }
+        MainActivity.currentFragment.updateUI()
     }
 
     private var eventStart: Long = 0L
