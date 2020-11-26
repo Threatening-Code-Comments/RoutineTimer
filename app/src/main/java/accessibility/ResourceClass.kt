@@ -347,15 +347,17 @@ internal object ResourceClass {
 
             if (isStarting) {
                 eventStart = System.currentTimeMillis()
+
+                val path = basePath + eventStart
+                val key = "start"
+                val value = eventStart.toString()
+
+                saveToDb(path, key, value)
             } else {
-                var path = basePath + eventStart
+                val path = basePath + eventStart
 
                 var key = "tile"
                 var value = tile.tileUid
-                saveToDb(path, key, value)
-
-                key = "start"
-                value = eventStart.toString()
                 saveToDb(path, key, value)
 
                 key = "duration"
