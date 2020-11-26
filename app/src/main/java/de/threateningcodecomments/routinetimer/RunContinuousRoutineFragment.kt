@@ -8,12 +8,15 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -189,25 +192,78 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
         startingTime = System.currentTimeMillis()
 
-        var currentTime = 0L
+        var currentTime =
+                if (currentTile.mode == Tile.MODE_COUNT_UP) 0L
+                else currentTile.countDownSettings.countDownTime
         val totalTimeBuffer = currentTile.totalCountedTime
 
         val handler = Handler()
-        handler.post(object : Runnable {
-            override fun run() {
-                if (startingTime == null)
-                    return
+        if (currentTile.mode == Tile.MODE_COUNT_UP) {
+            handler.post(object : Runnable {
+                override fun run() {
+                    if (startingTime == null)
+                        return
 
-                currentTime = System.currentTimeMillis() - startingTime!!
-                currentTimeField.text = ResourceClass.millisToHHMMSSmm(currentTime)
+                    currentTime = System.currentTimeMillis() - startingTime!!
+                    currentTimeField.text = ResourceClass.millisToHHMMSSmm(currentTime)
 
-                val totalTime = totalTimeBuffer + currentTime
-                currentTile.totalCountedTime = totalTime
-                totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
+                    val totalTime = totalTimeBuffer + currentTime
+                    currentTile.totalCountedTime = totalTime
+                    totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
 
-                handler.postDelayed(this, 10)
-            }
-        })
+                    handler.postDelayed(this, 10)
+                }
+            })
+        } else {
+            /*handler.post(object : Runnable {
+                override fun run() {
+                    if (startingTime == null)
+                        return
+
+                    currentTime = System.currentTimeMillis() - startingTime!!
+                    val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
+                    if (remainingTime < 200) {
+                        reminderForTile(currentTile)
+                        stopCountingTile(tileIndex)
+                        return
+                    }
+                    currentTimeField.text = ResourceClass.millisToHHMMSSmm()
+
+                    val totalTime = totalTimeBuffer + currentTime
+                    currentTile.totalCountedTime = totalTime
+                    totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
+
+                    handler.postDelayed(this, 10)
+                }
+            })*/
+            val notification = NotificationCompat.Builder(requireContext(), App.TIMING_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setContentTitle(currentTile.name)
+                    .setContentText(currentTile.totalCountedTime.toString())
+                    .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+                    .build()
+            val notificationManager = NotificationManagerCompat.from(requireContext())
+            notificationManager.notify(1, notification)
+            currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTimeInfo).text = getString(R.string.str_tv_viewholder_runTile_currentTimeInfo_countDown)
+
+            object : CountDownTimer(currentTile.countDownSettings.countDownTime, 10) {
+                override fun onTick(millisUntilFinished: Long) {
+                    currentTime = System.currentTimeMillis() - startingTime!!
+                    val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
+                    currentTimeField.text = ResourceClass.millisToHHMMSSmm(remainingTime)
+
+                    val totalTime = totalTimeBuffer + currentTime
+                    currentTile.totalCountedTime = totalTime
+                    totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
+                }
+
+                override fun onFinish() {
+                    //reminderForTile(currentTile)
+                    toggleTileSize(tileIndex)
+                    stopCountingTile(tileIndex)
+                }
+            }.start()
+        }
 
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
         totalTimeMainView.startAnimation(ResourceClass.anim.scaleDown)
@@ -229,7 +285,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
             expandTile(indexOf, tilePosition, nextTile)
             expandedTile = indexOf
         } else if (expandedTile == indexOf) {
-            minimizeTile(indexOf, tilePosition, nextTile)
+            minimizeTile(indexOf, nextTile)
             expandedTile = null
         }
     }
@@ -247,7 +303,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         startCountingTile(indexOf)
     }
 
-    private fun minimizeTile(indexOf: Int, tilePosition: Int, showIndex: Int) {
+    private fun minimizeTile(indexOf: Int, showIndex: Int) {
         val firstCard = gridTiles[indexOf]
         val showCard = gridTiles[showIndex]
 

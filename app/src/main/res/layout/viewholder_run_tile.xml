@@ -84,7 +84,7 @@
                     android:id="@+id/tv_viewholder_runTile_currentTimeInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/str_tv_viewholder_runTile_currentTime"
+                    android:text="@string/str_tv_viewholder_runTile_currentTimeInfo_countUp"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                     app:layout_constraintBottom_toTopOf="@id/tv_viewholder_runTile_currentTime"

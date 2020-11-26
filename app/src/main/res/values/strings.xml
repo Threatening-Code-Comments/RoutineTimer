@@ -134,5 +134,6 @@
     <string name="str_btn_MainActivity_run">run routine!</string>
     <string name="str_et_editContinuousRoutine_add">Add Tile!</string>
     <string name="str_tv_RunRoutine_continuous_routineName">Routine name</string>
-    <string name="str_tv_viewholder_runTile_currentTime">Current time:</string>
+    <string name="str_tv_viewholder_runTile_currentTimeInfo_countUp">Current time:</string>
+    <string name="str_tv_viewholder_runTile_currentTimeInfo_countDown">Remaining time:</string>
 </resources>
