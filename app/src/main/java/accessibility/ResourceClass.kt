@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.util.TypedValue
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -29,7 +30,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
-import kotlin.properties.Delegates
 
 
 internal object ResourceClass {
@@ -204,6 +204,27 @@ internal object ResourceClass {
     //endregion
 
     //region Routines
+    private var hasRoutineRefListener: Boolean = false
+    fun removeRoutineListener() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
+            if (valueEventListener != null && hasRoutineRefListener) {
+                routineRef.removeEventListener(valueEventListener!!)
+                hasRoutineRefListener = false
+            }
+        }
+    }
+
+    fun addRoutineListener() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null && !hasRoutineRefListener) {
+            val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
+            routineRef.addValueEventListener(valueEventListener!!)
+            hasRoutineRefListener = true
+        }
+    }
+
     private var routines: ArrayList<Routine>? = ArrayList()
 
     private fun handleRoutineUpdate(snapshot: DataSnapshot) {
@@ -223,6 +244,8 @@ internal object ResourceClass {
         if (MainActivity.currentFragment is SelectRoutineFragment) {
             MainActivity.currentFragment.updateUI()
         }
+
+        Log.d("database tag", "${snapshot.ref} was accessed")
     }
 
     fun getRoutineFromUid(oldUid: String?): Routine {
@@ -278,7 +301,7 @@ internal object ResourceClass {
         database = FirebaseDatabase.getInstance()
         val path = "/users/" + user!!.uid + "/routines/"
         val key = routine.uid
-        removeFromDb(path, key!!)
+        saveToDb(path, key!!, null)
     }
 
     fun generateRandomRoutine(): Routine {
@@ -325,20 +348,48 @@ internal object ResourceClass {
 
     //endregion
 
-    //region currentTile
-    var currentTile by Delegates.observable<Tile?>(null)
-    { property, oldValue, newValue ->
-        updateCurrentTile(newValue)
-        when {
-            newValue != null -> saveEvent(newValue, true)
-            oldValue == null -> return@observable
-            else -> saveEvent(oldValue, false)
+    class CurrentTileMap() : HashMap<String, Tile?>() {
+
+        private var lastValue: CurrentTileMap = this
+
+        override fun put(key: String, value: Tile?): Tile? {
+
+            val oldValue = lastValue[key]
+
+            val validTile = value ?: oldValue
+            updateCurrentTileInDB(value, getRoutineOfTile(validTile!!))
+
+            when {
+                value != null -> startEvent(value)
+                oldValue == null -> /*hier haben wir ein problem*/ MyLog.d("hey")
+                else -> stopEvent(oldValue)
+            }
+            MainActivity.currentFragment.updateUI()
+
+            if (value != null || oldValue != null)
+                lastValue = this
+
+            return super.put(key, value)
         }
-        MainActivity.currentFragment.updateUI()
+
+        val runningTiles: ArrayList<Tile>
+            get() {
+                this.values.remove(null)
+
+                val returnList = ArrayList<Tile>()
+                for (value in this.values) {
+                    returnList.add(value!!)
+                }
+
+                return returnList
+            }
+
     }
 
-    private var eventStart: Long = 0L
-    private fun saveEvent(tile: Tile, isStarting: Boolean) {
+    //region currentTile
+    var currentTiles: CurrentTileMap = ResourceClass.CurrentTileMap()
+
+    private fun startEvent(tile: Tile) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
@@ -346,38 +397,66 @@ internal object ResourceClass {
 
             val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
 
-            if (isStarting) {
-                eventStart = System.currentTimeMillis()
+            val eventStart = tile.countingStart
 
-                val path = basePath + eventStart
-                val key = "start"
-                val value = eventStart.toString()
+            val path = basePath + eventStart
+            val key = "start"
+            val value = eventStart.toString()
 
-                saveToDb(path, key, value)
-            } else {
-                val path = basePath + eventStart
-
-                var key = "tile"
-                var value = tile.tileUid
-                saveToDb(path, key, value)
-
-                key = "duration"
-                value = (System.currentTimeMillis() - eventStart).toString()
-                saveToDb(path, key, value)
-            }
-
+            saveToDb(path, key, value)
         }
     }
 
-
-    private var currentTileUid: String? = null
-
-    private fun updateCurrentTile(tile: Tile?) {
-        currentTileUid = tile?.tileUid
-
+    private fun stopEvent(tile: Tile) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            val path = "/users/" + user.uid
+            val eventStart = tile.countingStart
+
+            val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+            val parentRoutine = getRoutineOfTile(tile)
+
+            val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
+
+            if (tile.mode == Tile.MODE_COUNT_DOWN && System.currentTimeMillis() - eventStart < tile.countDownSettings.countDownTime) {
+                cancelEvent(tile)
+                return
+            }
+
+            val path = basePath + eventStart
+
+            var key = "tile"
+            var value = tile.tileUid
+            saveToDb(path, key, value)
+
+            key = "duration"
+            value = (System.currentTimeMillis() - eventStart).toString()
+            saveToDb(path, key, value)
+
+            tile.countingStart = 0L
+        }
+    }
+
+    private fun cancelEvent(tile: Tile) {
+        val eventStart = tile.countingStart
+
+        if (eventStart == 0L || tile.mode == Tile.MODE_COUNT_UP)
+            return
+
+        val user = FirebaseAuth.getInstance().currentUser!!
+        val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+        val parentRoutine = getRoutineOfTile(tile)
+
+        val path = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
+        val key = eventStart.toString()
+        val value = null
+
+        saveToDb(path, key, value)
+    }
+
+    private fun updateCurrentTileInDB(tile: Tile?, routine: Routine) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val path = "/users/${user.uid}/currentTiles/${routine.uid}"
             val key = "currentTile"
 
             val value = tile?.tileUid
@@ -386,10 +465,14 @@ internal object ResourceClass {
         }
     }
 
-    fun handleCurrentTileUpdate(snapshot: DataSnapshot) {
-        val currentTile: Tile? = snapshot.getValue(Tile::class.java)
+    fun getCurrentTile(routineUid: String): Tile? {
+        return currentTiles[routineUid]
+    }
 
-        MainActivity.currentFragment.updateCurrentTile()
+    fun updateCurrentTile(tile: Tile?, routineUid: String) {
+        if (currentTiles[routineUid] != tile) {
+            currentTiles[routineUid] = tile
+        }
     }
     //endregion
 
@@ -408,10 +491,8 @@ internal object ResourceClass {
         if (user != lastUser) {
             lastUser = user
             val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
-            val currentTileRef = database!!.getReference("/users/" + user.uid + "/currentTileUid")
             if (valueEventListener != null) {
                 routineRef.removeEventListener(valueEventListener!!)
-                currentTileRef.removeEventListener(valueEventListener!!)
                 MyLog.d("old listener is being removed!")
             }
             MyLog.d("new listener is being added!")
@@ -419,15 +500,13 @@ internal object ResourceClass {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     when (snapshot.ref) {
                         routineRef -> handleRoutineUpdate(snapshot)
-                        currentTileRef -> handleCurrentTileUpdate(snapshot)
                         else -> MyLog.d("snapshot ref is null!")
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
             }
-            routineRef.addValueEventListener(valueEventListener as ValueEventListener)
-            currentTileRef.addValueEventListener(valueEventListener as ValueEventListener)
+            addRoutineListener()
         }
     }
 
@@ -435,12 +514,8 @@ internal object ResourceClass {
         val pathRef = database!!.getReference(path!!)
         val child = pathRef.child(key!!)
         child.setValue(value)
-    }
 
-    fun removeFromDb(path: String, key: String) {
-        val pathRef = database!!.getReference(path)
-        val child = pathRef.child(key)
-        child.removeValue()
+        Log.d("database tag", "$key was set to $value in $path")
     }
     //endregion
 

@@ -16,7 +16,7 @@ class App : Application() {
             val channel = NotificationChannel(
                     TIMING_CHANNEL_ID,
                     "Tile controls",
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_DEFAULT
             )
             channel.description = "Notifications for Tile controlling"
             channel.enableVibration(false)
@@ -27,5 +27,6 @@ class App : Application() {
 
     companion object {
         const val TIMING_CHANNEL_ID = "tileTiming"
+        const val COUNTDOWN_NOTIFICATION_ID = 69
     }
 }

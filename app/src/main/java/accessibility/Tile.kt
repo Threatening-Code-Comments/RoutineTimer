@@ -20,6 +20,18 @@ class Tile//region Constructor
     var countDownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS
 
     var totalCountedTime: Long = 0L
+    var countingStart: Long = 0L
+        set(value) {
+            isRunning =
+                    (value != 0L)
+            val alreadyRuns = ResourceClass.currentTiles.values.contains(this)
+            if (isRunning && !alreadyRuns || !isRunning) {
+                field = value
+            } else if (alreadyRuns) {
+                field = ResourceClass.currentTiles[ResourceClass.getRoutineOfTile(this).uid]!!.countingStart
+            }
+        }
+    var isRunning: Boolean = countingStart != 0L
 
     var tileUid: String = DEFAULT_TILE_UID
         get() {

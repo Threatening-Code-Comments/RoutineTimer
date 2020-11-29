@@ -58,6 +58,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sharedElementEnterTransition = ResourceClass.sharedElementTransition
+        ResourceClass.addRoutineListener()
 
         postponeEnterTransition()
 
@@ -83,7 +84,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     override fun onStart() {
         super.onStart()
 
-        ResourceClass.loadDatabaseRes()
+        //ResourceClass.loadDatabaseRes()
+        ResourceClass.addRoutineListener()
         updateRoutines()
         ResourceClass.updateNightMode(SelectRoutineFragment.activity.application)
         updateUI()

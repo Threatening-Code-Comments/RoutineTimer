@@ -14,9 +14,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -38,6 +37,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     private val args: RunContinuousRoutineFragmentArgs by navArgs()
 
     private lateinit var routine: Routine
+    private lateinit var routineUid: String
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sharedElementEnterTransition = ResourceClass.sharedElementTransition
@@ -50,10 +50,12 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         initListeners()
 
         routine = ResourceClass.getRoutineFromUid(args.routineUid)
+        routineUid = routine.uid!!
 
-        updateUI()
+        updateUI(true)
     }
 
+    //region UI
     override fun onClick(v: View?) {
         if (v is MaterialCardView) {
             if (gridTiles.contains(v)) {
@@ -67,10 +69,18 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         }
     }
 
-    //region UI
     override fun updateUI() {
-        var tileIndex: Int? = routine.tiles.indexOf(ResourceClass.currentTile)
+        updateUI(false)
+    }
+
+    fun updateUI(isInit: Boolean) {
+        var tileIndex: Int? = routine.tiles.indexOf(ResourceClass.getCurrentTile(routineUid))
         tileIndex = if (tileIndex == -1) null else tileIndex
+
+        if (isInit && tileIndex != null) {
+            toggleTileSize(tileIndex)
+            return
+        }
 
         routineNameView.text = routine.name
 
@@ -170,7 +180,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     //region timing
     private fun stopCountingTile(tileIndex: Int) {
-        ResourceClass.currentTile = null
+        ResourceClass.updateCurrentTile(null, routineUid)
         val currentGridTile = gridTiles[tileIndex]
         val currentTile = routine.tiles[tileIndex]
         updateUI()
@@ -189,15 +199,17 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     private var startingTime: Long? = null
     private var countDownTimer: CountDownTimer? = null
     private fun startCountingTile(tileIndex: Int) {
-        ResourceClass.currentTile = routine.tiles[tileIndex]
         val currentGridTile = gridTiles[tileIndex]
         val currentTile = routine.tiles[tileIndex]
+
+        currentTile.countingStart = System.currentTimeMillis()
+        startingTime = currentTile.countingStart
+        ResourceClass.updateCurrentTile(routine.tiles[tileIndex], routineUid)
+
         updateUI()
 
         val currentTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTime)
         val totalTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTime)
-
-        startingTime = System.currentTimeMillis()
 
         var currentTime =
                 if (currentTile.mode == Tile.MODE_COUNT_UP) 0L
@@ -207,8 +219,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.VISIBLE
         totalTimeField.visibility = View.VISIBLE
 
-        val handler = Handler()
         if (currentTile.mode == Tile.MODE_COUNT_UP) {
+            val handler = Handler()
             handler.post(object : Runnable {
                 override fun run() {
                     if (startingTime == null)
@@ -225,14 +237,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 }
             })
         } else {
-            val notification = NotificationCompat.Builder(requireContext(), App.TIMING_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setContentTitle(currentTile.name)
-                    .setContentText(currentTile.totalCountedTime.toString())
-                    .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-                    .build()
-            val notificationManager = NotificationManagerCompat.from(requireContext())
-            notificationManager.notify(1, notification)
             currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTimeInfo).text = getString(R.string.str_tv_viewholder_runTile_currentTimeInfo_countDown)
 
             currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.GONE
@@ -241,15 +245,17 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
             countDownTimer = object : CountDownTimer(currentTile.countDownSettings.countDownTime, 10) {
                 override fun onTick(millisUntilFinished: Long) {
                     currentTime = System.currentTimeMillis() - startingTime!!
-                    val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
+                    var remainingTime = currentTile.countDownSettings.countDownTime - currentTime
+                    if (remainingTime < 0)
+                        remainingTime = 0L
                     currentTimeField.text = ResourceClass.millisToHHMMSSmm(remainingTime)
                 }
 
                 override fun onFinish() {
                     //reminderForTile(currentTile)
+                    Toast.makeText(requireContext(), "Timer finished!", Toast.LENGTH_SHORT).show()
                     currentTile.totalCountedTime += currentTile.countDownSettings.countDownTime
                     toggleTileSize(tileIndex)
-                    stopCountingTile(tileIndex)
                 }
             }.start()
         }
@@ -260,7 +266,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     override fun updateCurrentTile() {
-        currentTile = ResourceClass.currentTile
+        currentTile = ResourceClass.getCurrentTile(routineUid)
     }
     //endregion
 
@@ -347,8 +353,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
     //endregion
 
+    override fun onStart() {
+        super.onStart()
+        ResourceClass.removeRoutineListener()
+    }
+
     private fun navigateToSelectRoutine() {
-        ResourceClass.currentTile = null
+        //ResourceClass.updateCurrentTile(null, routineUid)
 
         val directions = RunContinuousRoutineFragmentDirections.actionRunContinuousRoutineToSelectEditRoutineFragment()
 
