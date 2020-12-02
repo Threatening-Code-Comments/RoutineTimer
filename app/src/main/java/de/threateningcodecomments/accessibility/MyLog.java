@@ -1,4 +1,4 @@
-package accessibility;
+package de.threateningcodecomments.accessibility;
 
 import android.util.Log;
 

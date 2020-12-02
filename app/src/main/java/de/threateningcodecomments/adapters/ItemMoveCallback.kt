@@ -1,4 +1,4 @@
-package adapters
+package de.threateningcodecomments.adapters
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView

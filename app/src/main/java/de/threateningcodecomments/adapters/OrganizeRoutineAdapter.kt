@@ -1,14 +1,14 @@
-package adapters
+package de.threateningcodecomments.adapters
 
-import accessibility.MyLog
-import accessibility.ResourceClass
-import accessibility.Routine
-import accessibility.Tile
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import de.threateningcodecomments.accessibility.MyLog
+import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
+import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment
 import de.threateningcodecomments.routinetimer.R
 import java.util.*

@@ -1,9 +1,5 @@
 package de.threateningcodecomments.routinetimer
 
-import accessibility.ResourceClass
-import accessibility.Routine
-import accessibility.Tile
-import accessibility.UIContainer
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.graphics.Color
@@ -14,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
@@ -23,6 +18,11 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
+import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
+import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.accessibility.UIContainer
+import de.threateningcodecomments.services_etc.CountdownService
 
 
 class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
@@ -237,32 +237,22 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 }
             })
         } else {
-            currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTimeInfo).text = getString(R.string.str_tv_viewholder_runTile_currentTimeInfo_countDown)
-
-            currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.GONE
-            totalTimeField.visibility = View.GONE
-
-            countDownTimer = object : CountDownTimer(currentTile.countDownSettings.countDownTime, 10) {
-                override fun onTick(millisUntilFinished: Long) {
-                    currentTime = System.currentTimeMillis() - startingTime!!
-                    var remainingTime = currentTile.countDownSettings.countDownTime - currentTime
-                    if (remainingTime < 0)
-                        remainingTime = 0L
-                    currentTimeField.text = ResourceClass.millisToHHMMSSmm(remainingTime)
-                }
-
-                override fun onFinish() {
-                    //reminderForTile(currentTile)
-                    Toast.makeText(requireContext(), "Timer finished!", Toast.LENGTH_SHORT).show()
-                    currentTile.totalCountedTime += currentTile.countDownSettings.countDownTime
-                    toggleTileSize(tileIndex)
-                }
-            }.start()
+            MainActivity.activityBuffer.startCountdownService(routineUid)
+            CountdownService.Timers.startCountdown(currentTile.countDownSettings.countDownTime, currentGridTile, currentTile)
         }
 
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
         totalTimeMainView.startAnimation(ResourceClass.anim.scaleDown)
         totalTimeMainView.visibility = View.GONE
+    }
+
+    fun cancelCountdown() {
+        //countDownTimer!!.cancel()
+        CountdownService.Timers.stopCountdown(routineUid)
+
+        val tileIndex = routine.tiles.indexOf(ResourceClass.getCurrentTile(routineUid))
+        toggleTileSize(tileIndex)
+        (activity as MainActivity).stopCountdownService()
     }
 
     override fun updateCurrentTile() {
@@ -272,7 +262,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     //region tile size
     private var expandedTile: Int? = null
-    private fun toggleTileSize(indexOf: Int) {
+    fun toggleTileSize(indexOf: Int) {
         val tilePosition = getTilePosition(indexOf)
         val nextTile = if (tilePosition == 0) indexOf + 1 else indexOf - 1
 
@@ -356,6 +346,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     override fun onStart() {
         super.onStart()
         ResourceClass.removeRoutineListener()
+        routine.setAccessibility(ResourceClass.isNightMode(requireActivity().application))
+        updateUI(false)
     }
 
     private fun navigateToSelectRoutine() {

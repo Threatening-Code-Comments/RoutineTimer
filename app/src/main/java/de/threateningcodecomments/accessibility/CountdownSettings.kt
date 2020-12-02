@@ -1,4 +1,4 @@
-package accessibility
+package de.threateningcodecomments.accessibility
 
 class CountdownSettings {
     var countDownTime: Long = DEFAULT_COUNTDOWN_TIME

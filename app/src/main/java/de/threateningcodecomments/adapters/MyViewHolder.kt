@@ -1,4 +1,4 @@
-package adapters
+package de.threateningcodecomments.adapters
 
 import android.view.View
 import android.widget.LinearLayout

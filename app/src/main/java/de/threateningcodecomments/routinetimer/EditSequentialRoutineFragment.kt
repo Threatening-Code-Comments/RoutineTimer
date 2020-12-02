@@ -1,17 +1,5 @@
 package de.threateningcodecomments.routinetimer
 
-import accessibility.*
-import accessibility.ResourceClass.anim.scaleDown
-import accessibility.ResourceClass.anim.scaleUpSlow
-import accessibility.ResourceClass.anim.slideDownIn
-import accessibility.ResourceClass.anim.slideDownOut
-import accessibility.ResourceClass.anim.slideUpIn
-import accessibility.ResourceClass.anim.slideUpOut
-import accessibility.ResourceClass.isNightMode
-import adapters.ItemMoveCallbackListener
-import adapters.MyViewHolder
-import adapters.OnStartDragListener
-import adapters.OrganizeRoutineAdapter
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -42,6 +30,18 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.slider.Slider
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.accessibility.ResourceClass.anim.scaleDown
+import de.threateningcodecomments.accessibility.ResourceClass.anim.scaleUpSlow
+import de.threateningcodecomments.accessibility.ResourceClass.anim.slideDownIn
+import de.threateningcodecomments.accessibility.ResourceClass.anim.slideDownOut
+import de.threateningcodecomments.accessibility.ResourceClass.anim.slideUpIn
+import de.threateningcodecomments.accessibility.ResourceClass.anim.slideUpOut
+import de.threateningcodecomments.accessibility.ResourceClass.isNightMode
+import de.threateningcodecomments.adapters.ItemMoveCallbackListener
+import de.threateningcodecomments.adapters.MyViewHolder
+import de.threateningcodecomments.adapters.OnStartDragListener
+import de.threateningcodecomments.adapters.OrganizeRoutineAdapter
 
 
 class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener, UIContainer {

@@ -1,13 +1,13 @@
-package adapters
+package de.threateningcodecomments.adapters
 
-import accessibility.ResourceClass
-import accessibility.Routine
-import accessibility.Tile
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
+import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
+import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 

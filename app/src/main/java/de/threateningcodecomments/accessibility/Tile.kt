@@ -1,9 +1,9 @@
-package accessibility
+package de.threateningcodecomments.accessibility
 
-import accessibility.ResourceClass.calculateContrast
-import accessibility.ResourceClass.convertColorDayNight
-import accessibility.ResourceClass.wasNightMode
 import android.graphics.Color
+import de.threateningcodecomments.accessibility.ResourceClass.calculateContrast
+import de.threateningcodecomments.accessibility.ResourceClass.convertColorDayNight
+import de.threateningcodecomments.accessibility.ResourceClass.wasNightMode
 import java.util.*
 
 class Tile//region Constructor

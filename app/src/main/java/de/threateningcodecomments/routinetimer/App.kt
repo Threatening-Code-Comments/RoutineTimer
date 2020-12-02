@@ -3,12 +3,23 @@ package de.threateningcodecomments.routinetimer
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.IntentFilter
 import android.os.Build
+import de.threateningcodecomments.services_etc.MyBroadcastReceiver
 
 class App : Application() {
+    val myBroadcastReceiver = MyBroadcastReceiver()
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        val filter = IntentFilter(MyBroadcastReceiver.CANCEL_ACTION)
+        registerReceiver(myBroadcastReceiver, filter)
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        unregisterReceiver(myBroadcastReceiver)
     }
 
     private fun createNotificationChannel() {

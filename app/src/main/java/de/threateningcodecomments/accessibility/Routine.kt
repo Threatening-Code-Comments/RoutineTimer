@@ -1,4 +1,4 @@
-package accessibility
+package de.threateningcodecomments.accessibility
 
 import java.util.*
 import kotlin.collections.ArrayList

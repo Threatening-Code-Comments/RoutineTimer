@@ -30,8 +30,8 @@ import com.maltaisn.icondialog.pack.IconPack;
 
 import java.util.List;
 
-import accessibility.ResourceClass;
-import accessibility.Tile;
+import de.threateningcodecomments.accessibility.ResourceClass;
+import de.threateningcodecomments.accessibility.Tile;
 
 public class DEPRECATED_SetRoutine extends AppCompatActivity implements IconDialog.Callback {
 

@@ -1,9 +1,5 @@
 package de.threateningcodecomments.routinetimer
 
-import accessibility.ResourceClass
-import accessibility.Routine
-import accessibility.Tile
-import accessibility.UIContainer
 import android.animation.LayoutTransition
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -27,6 +23,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
+import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
+import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.accessibility.UIContainer
 
 
 class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContainer {

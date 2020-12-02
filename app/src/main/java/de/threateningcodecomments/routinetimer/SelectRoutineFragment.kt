@@ -1,7 +1,5 @@
 package de.threateningcodecomments.routinetimer
 
-import accessibility.*
-import adapters.SelectRoutineRVAdapter
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -31,6 +29,8 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.adapters.SelectRoutineRVAdapter
 import java.util.*
 import kotlin.collections.ArrayList
 

@@ -1,4 +1,4 @@
-package accessibility
+package de.threateningcodecomments.accessibility
 
 import android.app.Application
 import android.content.Context
@@ -12,6 +12,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -35,6 +36,10 @@ import kotlin.math.round
 internal object ResourceClass {
 
     //region random vars
+    fun millisToHHMMSS(millis: Long): String {
+        val timeHHMMSSmm = millisToHHMMSSmm(millis)
+        return timeHHMMSSmm.substringBefore('.')
+    }
 
     fun millisToHHMMSSmm(millis: Long): String {
         val hours = (millis / (1000 * 60 * 60)).toInt()
@@ -107,6 +112,29 @@ internal object ResourceClass {
     //endregion
 
     //region random
+
+    fun convertUidToInt(uid: String): Int {
+        var number_str = ""
+        var number = 0L
+
+        val stepSize = 10
+        for (i in uid.indices step stepSize) {
+            var temp = 0
+            for (j in 0 until stepSize) {
+                if (i + j >= uid.length)
+                    break
+                temp += uid.toCharArray()[i + j].toInt()
+            }
+            number_str += temp.toString()
+        }
+
+        Toast.makeText(MainActivity.activityBuffer.applicationContext, number_str, Toast.LENGTH_SHORT).show()
+        number = number_str.toLong()
+        while (number > Int.MAX_VALUE) {
+            number /= 2
+        }
+        return number.toInt()
+    }
 
     @JvmStatic
     fun isNightMode(application: Application): Boolean {
