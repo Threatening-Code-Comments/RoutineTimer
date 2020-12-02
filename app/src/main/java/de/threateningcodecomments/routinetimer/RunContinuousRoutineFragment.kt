@@ -26,7 +26,7 @@ import de.threateningcodecomments.services_etc.CountdownService
 
 
 class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
-    private var gridTiles: ArrayList<MaterialCardView> = ArrayList()
+    var gridTiles: ArrayList<MaterialCardView> = ArrayList()
     private var gridRows: ArrayList<ConstraintLayout> = ArrayList()
 
     private lateinit var closeView: ShapeableImageView
@@ -188,7 +188,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         startingTime = null
 
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
-        totalTimeMainView.startAnimation(ResourceClass.anim.scaleUp)
+        totalTimeMainView.startAnimation(ResourceClass.Anim.scaleUp)
         totalTimeMainView.visibility = View.VISIBLE
 
         countDownTimer?.cancel()
@@ -238,21 +238,21 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
             })
         } else {
             MainActivity.activityBuffer.startCountdownService(routineUid)
-            CountdownService.Timers.startCountdown(currentTile.countDownSettings.countDownTime, currentGridTile, currentTile)
+            //CountdownService.Timers.startTileCountdown(currentTile.countDownSettings.countDownTime, currentGridTile, currentTile)
         }
 
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
-        totalTimeMainView.startAnimation(ResourceClass.anim.scaleDown)
+        totalTimeMainView.startAnimation(ResourceClass.Anim.scaleDown)
         totalTimeMainView.visibility = View.GONE
     }
 
     fun cancelCountdown() {
         //countDownTimer!!.cancel()
-        CountdownService.Timers.stopCountdown(routineUid)
+        //CountdownService.Timers.stopNotificationCountdown(routineUid)
 
         val tileIndex = routine.tiles.indexOf(ResourceClass.getCurrentTile(routineUid))
         toggleTileSize(tileIndex)
-        (activity as MainActivity).stopCountdownService()
+        //(activity as MainActivity).stopCountdownService()
     }
 
     override fun updateCurrentTile() {
@@ -282,8 +282,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         Handler().postDelayed({
             (hideCard.parent as View).visibility = View.GONE
             firstCard.findViewById<ConstraintLayout>(R.id.cl_viewholder_runTile_timeLayout).visibility = View.VISIBLE
-        }, ResourceClass.anim.scaleDown.duration * (2 / 3))
-        hideCard.startAnimation(ResourceClass.anim.scaleDown)
+        }, ResourceClass.Anim.scaleDown.duration * (2 / 3))
+        hideCard.startAnimation(ResourceClass.Anim.scaleDown)
 
         startCountingTile(indexOf)
     }
@@ -295,8 +295,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         Handler().postDelayed({
             (showCard.parent as View).visibility = View.VISIBLE
             firstCard.findViewById<ConstraintLayout>(R.id.cl_viewholder_runTile_timeLayout).visibility = View.GONE
-        }, ResourceClass.anim.scaleUp.duration * (2 / 3))
-        showCard.startAnimation(ResourceClass.anim.scaleUp)
+        }, ResourceClass.Anim.scaleUp.duration * (2 / 3))
+        showCard.startAnimation(ResourceClass.Anim.scaleUp)
 
         stopCountingTile(indexOf)
     }
@@ -360,11 +360,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        instance = this
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_run_continuous_routine, container, false)
     }
 
     companion object {
         const val UI_INIT_KEY = 69
+        lateinit var instance: RunContinuousRoutineFragment
     }
 }

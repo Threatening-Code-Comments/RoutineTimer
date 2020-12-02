@@ -112,17 +112,17 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
 
         val cv = gridTiles[index]
         if (previousTilePosition == 0) {
-            cv.startAnimation(ResourceClass.anim.collapseTileLeft)
+            cv.startAnimation(ResourceClass.Anim.collapseTileLeft)
         } else {
-            cv.startAnimation(ResourceClass.anim.collapseTileRight)
+            cv.startAnimation(ResourceClass.Anim.collapseTileRight)
         }
         Handler().postDelayed({
             cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_countdownRoot).visibility = View.GONE
-        }, ResourceClass.anim.collapseTileLeft.duration / 2)
+        }, ResourceClass.Anim.collapseTileLeft.duration / 2)
 
         Handler().postDelayed({
             moveTile(nextIndex)
-        }, ResourceClass.anim.collapseTileLeft.duration)
+        }, ResourceClass.Anim.collapseTileLeft.duration)
         /*Collections.swap(gridTiles, index, nextIndex)
         Collections.swap(tiles, index, nextIndex)*/
     }
@@ -138,15 +138,15 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         moveTile(nextIndex)
 
         if (lastCvPos == 0) {
-            cv.startAnimation(ResourceClass.anim.expandTileLeft)
+            cv.startAnimation(ResourceClass.Anim.expandTileLeft)
             //cv.findViewById<EditText>(R.id.tv_viewholder_smallTile_name).startAnimation(ResourceClass.anim.collapseTileRight)
             //cv.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon).startAnimation(ResourceClass.anim.collapseTileRight)
         } else {
-            cv.findViewById<LinearLayout>(R.id.ll_viewholder_smallTile_cardContent).startAnimation(ResourceClass.anim.expandTileRight)
+            cv.findViewById<LinearLayout>(R.id.ll_viewholder_smallTile_cardContent).startAnimation(ResourceClass.Anim.expandTileRight)
         }
         Handler().postDelayed({
             cv.findViewById<ConstraintLayout>(R.id.cl_viewholder_tile_countdownRoot).visibility = View.VISIBLE
-        }, ResourceClass.anim.expandTileRight.duration / 2)
+        }, ResourceClass.Anim.expandTileRight.duration / 2)
         /*Collections.swap(gridTiles, index, nextIndex)
         Collections.swap(tiles, index, nextIndex)*/
     }
@@ -158,13 +158,13 @@ class EditContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContai
         val cvPosition: Int = getTilePosition(index)
 
         if (index == 0 || index == 7) {
-            cvParent.startAnimation(ResourceClass.anim.scaleDown)
+            cvParent.startAnimation(ResourceClass.Anim.scaleDown)
             cvParent.visibility = View.GONE
             tileRows[row].removeView(cvParent)
             return
         }
         if (index == 1 || index == 6) {
-            cvParent.startAnimation(ResourceClass.anim.scaleUp)
+            cvParent.startAnimation(ResourceClass.Anim.scaleUp)
             cvParent.visibility = View.VISIBLE
             val nextIndex = if (index == 0) 1 else 6
             tileRows[row].removeView(gridTiles[nextIndex].parent as View)

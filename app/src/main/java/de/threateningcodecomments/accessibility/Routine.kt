@@ -6,16 +6,16 @@ import kotlin.properties.Delegates
 
 class Routine {
     var name: String? = null
-    var uid: String? = null
-        get() = if (field == null) {
+    var uid: String = "DEFAULT"
+        get() = if (field == "DEFAULT") {
             val randomUid = UUID.randomUUID().toString()
             field = randomUid
             randomUid
         } else {
-            field!!
+            field
         }
         set(value) {
-            if (field == null) {
+            if (field == "DEFAULT") {
                 field = value
             }
         }
@@ -77,7 +77,7 @@ class Routine {
 
     constructor() {}
 
-    constructor(name: String, uid: String?, mode: Int, tiles: ArrayList<Tile>) {
+    constructor(name: String, uid: String, mode: Int, tiles: ArrayList<Tile>) {
         this.name = name
         this.uid = uid
         this.mode = mode

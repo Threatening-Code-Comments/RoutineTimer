@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
 
         activityBuffer = this
         currentFragment = this
-        ResourceClass.anim.initAnimations(this)
+        ResourceClass.Anim.initAnimations(this)
     }
 
     override val iconDialogIconPack: IconPack?

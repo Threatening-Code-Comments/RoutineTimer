@@ -3,16 +3,12 @@ package de.threateningcodecomments.accessibility
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.ColorFilter
-import android.graphics.PixelFormat
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.util.TypedValue
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -57,7 +53,7 @@ internal object ResourceClass {
                 hours, minutes, secs, shortMillis)
     }
 
-    object anim {
+    object Anim {
         lateinit var animContext: Context
 
         lateinit var slideUpIn: Animation
@@ -112,6 +108,29 @@ internal object ResourceClass {
     //endregion
 
     //region random
+    /**
+     * A one color image.
+     * @param width
+     * @param height
+     * @param color
+     * @return A one color image with the given width and height.
+     */
+    fun createImage(width: Int, height: Int, color: Int): Bitmap {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint()
+        paint.color = color
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        return bitmap
+    }
+
+    fun overlayBmp(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
+        val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height, bmp1.config)
+        val canvas = Canvas(bmOverlay)
+        canvas.drawBitmap(bmp1, Matrix(), null)
+        canvas.drawBitmap(bmp2, Matrix(), null)
+        return bmOverlay
+    }
 
     fun convertUidToInt(uid: String): Int {
         var number_str = ""
@@ -128,7 +147,6 @@ internal object ResourceClass {
             number_str += temp.toString()
         }
 
-        Toast.makeText(MainActivity.activityBuffer.applicationContext, number_str, Toast.LENGTH_SHORT).show()
         number = number_str.toLong()
         while (number > Int.MAX_VALUE) {
             number /= 2
