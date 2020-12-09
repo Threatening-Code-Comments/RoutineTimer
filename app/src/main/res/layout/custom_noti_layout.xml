@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_viewholder_noti_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:orientation="horizontal"
+    android:padding="12sp">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="5sp">
+
+        <TextView
+            android:id="@+id/tv_viewholder_noti_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="Tile name!!!!"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_viewholder_noti_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:text="Time remaining: 1:20:02"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/iv_viewholder_noti_icon"
+        android:layout_width="60sp"
+        android:layout_height="60sp"
+        android:layout_gravity="right"
+        android:src="@drawable/ic_launcher_background" />
+
+</LinearLayout>

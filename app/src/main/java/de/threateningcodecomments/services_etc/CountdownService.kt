@@ -6,13 +6,11 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Icon
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.view.View
+import android.widget.RemoteViews
 import android.widget.Toast
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textview.MaterialTextView
@@ -25,7 +23,6 @@ import de.threateningcodecomments.routinetimer.RunContinuousRoutineFragment
 
 
 class CountdownService : Service() {
-    private val isRunning = false
     private lateinit var notificationCountdownTimer: CountDownTimer
 
     fun remind(tile: Tile) {
@@ -84,37 +81,39 @@ class CountdownService : Service() {
                     .setOnlyAlertOnce(true)
                     .build()
 
-            instance.startForeground(CountdownService.STATIC_NOTIFICATION_ID, notification)
+            instance.startForeground(STATIC_NOTIFICATION_ID, notification)
 
             val routine = ResourceClass.getRoutineOfTile(tile)
 
             val cancelI = Intent(MyBroadcastReceiver.CANCEL_ACTION)
-            cancelI.putExtra(MyBroadcastReceiver.ROUTINE_UID_KEY, routine.uid!!)
+            cancelI.putExtra(MyBroadcastReceiver.ROUTINE_UID_KEY, routine.uid)
             cancelIntent = PendingIntent.getBroadcast(instance, 0, cancelI, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         fun updateTileNotification(tile: Tile, millisUntilFinished: Long) {
+            val nameStr = "${tile.name}"
+            val timeStr = "Time remaining: ${ResourceClass.millisToHHMMSS(millisUntilFinished)}"
+
             //TODO update pendingintent for routine
-            //TODO left off here
-            //var notificationBmp = ResourceClass.getIconDrawable(tile)!!.toBitmap(200, 200, null)
-            //notificationBmp = ResourceClass.overlayBmp(ResourceClass.createImage(200, 200, tile.backgroundColor), notificationBmp)
-            var notificationBmp = ResourceClass.createImage(200, 200, tile.backgroundColor)
-            val notificationIcon = Icon.createWithBitmap(notificationBmp)
-                    .setTint(ResourceClass.calculateContrast(tile.backgroundColor))
+            val tileIcon = ResourceClass.getIconDrawable(tile)!!.toBitmap(200, 200, null)
+
+            val view = RemoteViews(instance.packageName, R.layout.custom_noti_layout)
+
+            view.setBitmap(R.id.iv_viewholder_noti_icon, "setImageBitmap", tileIcon)
+
+            view.setInt(R.id.ll_viewholder_noti_root, "setBackgroundColor", tile.backgroundColor)
+            view.setInt(R.id.iv_viewholder_noti_icon, "setColorFilter", tile.contrastColor)
+            view.setInt(R.id.tv_viewholder_noti_name, "setTextColor", tile.contrastColor)
+            view.setInt(R.id.tv_viewholder_noti_time, "setTextColor", tile.contrastColor)
+
+            view.setTextViewText(R.id.tv_viewholder_noti_name, nameStr)
+            view.setTextViewText(R.id.tv_viewholder_noti_time, timeStr)
+
+
 
             val notification: Notification = Notification.Builder(instance, App.TIMING_CHANNEL_ID)
-                    .setContentTitle("Counting down ${tile.name}")
-                    .setContentText("Time remaining: ${ResourceClass.millisToHHMMSS(millisUntilFinished)}")
                     .setSmallIcon(R.drawable.ic_logo)
-                    .setLargeIcon(notificationIcon)
-                    .setTicker("ticker text")
-                    .setColorized(true)
-                    .setColor(tile.backgroundColor)
-                    .setCategory(Notification.CATEGORY_PROGRESS)
-                    .addAction(android.R.drawable.ic_menu_view, "Cancel", cancelIntent)
-                    .setOnlyAlertOnce(true)
-                    .setStyle(Notification.MediaStyle()
-                            .setShowActionsInCompactView())
+                    .setCustomContentView(view)
                     .build()
 
             val routineUid = ResourceClass.getRoutineOfTile(tile).uid
@@ -147,20 +146,22 @@ class CountdownService : Service() {
                 notificationIds.remove(key)
                 if (this.size - 1 == 1) {
                     val notificationKey = notificationIds.keys.elementAt(0)
-                    notificationIds[notificationKey] = CountdownService.STATIC_NOTIFICATION_ID
+                    notificationIds[notificationKey] = STATIC_NOTIFICATION_ID
                 }
                 return super.remove(key)
             }
         }
         val notificationIds = object : HashMap<String, Int>() {
             override fun put(key: String, value: Int): Int? {
+                val fickDich = super.put(key, value)
                 onUpdate()
-                return super.put(key, value)
+                return fickDich
             }
 
             override fun remove(key: String): Int? {
+                val temp = super.remove(key)
                 onUpdate()
-                return super.remove(key)
+                return temp
             }
 
             fun onUpdate() {
@@ -181,7 +182,7 @@ class CountdownService : Service() {
             val routineUid = ResourceClass.getRoutineOfTile(tile).uid
 
             if (countdownTimers[routineUid] == null) {
-                createTimer(gridTile, tile, routineUid!!)
+                createTimer(gridTile, tile, routineUid)
             }
         }
 
@@ -194,7 +195,7 @@ class CountdownService : Service() {
             currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.GONE
             totalTimeField.visibility = View.GONE
 
-            var currentTime = currentTile.countDownSettings.countDownTime
+            var currentTime: Long
 
             var lastTimeValue = ""
             //MainActivity.activityBuffer.startCountdownService(routineUid)
