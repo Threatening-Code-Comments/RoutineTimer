@@ -20,10 +20,18 @@ class Tile//region Constructor
     var countDownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS
 
     var totalCountedTime: Long = 0L
-    var countingStart: Long = 0L
+        set(value) {
+            if (field > 500000) {
+                val routine = ResourceClass.getRoutineOfTile(this)
+                //MyLog.d("The value of ${this.name} is getting very large! $value was added. routine uid is ${routine.uid}, position is ${routine.tiles.indexOf(this)}")
+                MyLog.d("${routine.uid} at ${routine.tiles.indexOf(this)}")
+            }
+            field = value
+        }
+    var countingStart: Long = -1L
         set(value) {
             isRunning =
-                    (value != 0L)
+                    (value > 0L)
             val alreadyRuns = ResourceClass.currentTiles.values.contains(this)
             if (isRunning && !alreadyRuns || !isRunning) {
                 field = value
@@ -31,7 +39,7 @@ class Tile//region Constructor
                 field = ResourceClass.currentTiles[ResourceClass.getRoutineOfTile(this).uid]!!.countingStart
             }
         }
-    var isRunning: Boolean = countingStart != 0L
+    var isRunning: Boolean = countingStart > 0L
 
     var tileUid: String = DEFAULT_TILE_UID
         get() {

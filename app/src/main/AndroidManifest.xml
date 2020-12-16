@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <service
-            android:name="de.threateningcodecomments.services_etc.CountdownService"
+            android:name="de.threateningcodecomments.services_etc.CountingService"
             android:enabled="true"
             android:exported="true" />
 

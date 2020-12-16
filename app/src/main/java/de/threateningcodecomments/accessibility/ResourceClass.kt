@@ -134,7 +134,7 @@ internal object ResourceClass {
 
     fun convertUidToInt(uid: String): Int {
         var number_str = ""
-        var number = 0L
+        var number: Long
 
         val stepSize = 10
         for (i in uid.indices step stepSize) {
@@ -250,6 +250,24 @@ internal object ResourceClass {
     //endregion
 
     //region Routines
+    fun updateRoutine(tile: Tile) {
+        val routine = ResourceClass.getRoutineOfTile(tile)
+        val index = routine.tiles.indexOf(tile)
+        routine.tiles[index] = tile
+    }
+
+    fun updateRoutine(routineUid: String) {
+        val currentTile = ResourceClass.currentTiles[routineUid]
+                ?: ResourceClass.previousCurrentTiles[routineUid]
+
+
+        val routine = ResourceClass.getRoutineFromUid(routineUid)
+        val index = routine.tiles.indexOf(currentTile!!)
+        routine.tiles[index] = currentTile
+
+        saveRoutine(routine)
+    }
+
     private var hasRoutineRefListener: Boolean = false
     fun removeRoutineListener() {
         val user = FirebaseAuth.getInstance().currentUser
@@ -347,7 +365,7 @@ internal object ResourceClass {
         database = FirebaseDatabase.getInstance()
         val path = "/users/" + user!!.uid + "/routines/"
         val key = routine.uid
-        saveToDb(path, key!!, null)
+        saveToDb(path, key, null)
     }
 
     fun generateRandomRoutine(): Routine {
@@ -357,7 +375,8 @@ internal object ResourceClass {
                     random(0, 80),
                     Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat()),
                     Tile.MODE_COUNT_UP,
-                    UUID.randomUUID().toString()
+                    UUID.randomUUID().toString(),
+                    CountdownSettings((Math.random() * 60000 + 10000).toLong())
             ))
             if (Math.random() < 0.5) {
                 tiles[i].mode = Tile.MODE_COUNT_DOWN
@@ -399,8 +418,12 @@ internal object ResourceClass {
         private var lastValue: CurrentTileMap = this
 
         override fun put(key: String, value: Tile?): Tile? {
-
             val oldValue = lastValue[key]
+
+            if (oldValue == value)
+                return super.put(key, value)
+
+            previousCurrentTiles.put(key, oldValue)
 
             val validTile = value ?: oldValue
             updateCurrentTileInDB(value, getRoutineOfTile(validTile!!))
@@ -434,6 +457,7 @@ internal object ResourceClass {
 
     //region currentTile
     var currentTiles: CurrentTileMap = ResourceClass.CurrentTileMap()
+    var previousCurrentTiles = HashMap<String, Tile?>()
 
     private fun startEvent(tile: Tile) {
         val user = FirebaseAuth.getInstance().currentUser
@@ -463,7 +487,7 @@ internal object ResourceClass {
 
             val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
 
-            if (tile.mode == Tile.MODE_COUNT_DOWN && System.currentTimeMillis() - eventStart < tile.countDownSettings.countDownTime) {
+            if (tile.mode == Tile.MODE_COUNT_DOWN && System.currentTimeMillis() - eventStart <= tile.countDownSettings.countDownTime) {
                 cancelEvent(tile)
                 return
             }
@@ -478,7 +502,7 @@ internal object ResourceClass {
             value = (System.currentTimeMillis() - eventStart).toString()
             saveToDb(path, key, value)
 
-            tile.countingStart = 0L
+            tile.countingStart = -tile.countingStart
         }
     }
 
@@ -509,10 +533,6 @@ internal object ResourceClass {
 
             saveToDb(path, key, value)
         }
-    }
-
-    fun getCurrentTile(routineUid: String): Tile? {
-        return currentTiles[routineUid]
     }
 
     fun updateCurrentTile(tile: Tile?, routineUid: String) {

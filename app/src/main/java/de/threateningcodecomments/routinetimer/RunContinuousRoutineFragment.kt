@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.graphics.Color
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +21,7 @@ import de.threateningcodecomments.accessibility.ResourceClass
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
-import de.threateningcodecomments.services_etc.CountdownService
+import kotlin.math.abs
 
 
 class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
@@ -50,9 +49,10 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         initListeners()
 
         routine = ResourceClass.getRoutineFromUid(args.routineUid)
-        routineUid = routine.uid!!
+        routineUid = routine.uid
 
         updateUI(true)
+        updateCurrentTile()
     }
 
     //region UI
@@ -74,7 +74,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     fun updateUI(isInit: Boolean) {
-        var tileIndex: Int? = routine.tiles.indexOf(ResourceClass.getCurrentTile(routineUid))
+        var tileIndex: Int? = routine.tiles.indexOf(ResourceClass.currentTiles[routineUid])
         tileIndex = if (tileIndex == -1) null else tileIndex
 
         if (isInit && tileIndex != null) {
@@ -180,83 +180,108 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     //region timing
     private fun stopCountingTile(tileIndex: Int) {
-        ResourceClass.updateCurrentTile(null, routineUid)
         val currentGridTile = gridTiles[tileIndex]
         val currentTile = routine.tiles[tileIndex]
         updateUI()
 
+        if (ResourceClass.currentTiles.values.contains(currentTile)) {
+            App.instance.stopTile(routine)
+        }
         startingTime = null
+
+        val elapsedTime = if (currentTile.mode == Tile.MODE_COUNT_DOWN)
+            currentTile.countDownSettings.countDownTime
+        else
+            System.currentTimeMillis() - abs(currentTile.countingStart)
+        if (currentTile.mode == Tile.MODE_COUNT_UP || currentTile.countDownSettings.countDownTime >= elapsedTime)
+            currentTile.totalCountedTime += elapsedTime
 
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
         totalTimeMainView.startAnimation(ResourceClass.Anim.scaleUp)
         totalTimeMainView.visibility = View.VISIBLE
 
-        countDownTimer?.cancel()
-
-        ResourceClass.saveRoutine(routine)
+        totalTimeMainView.text = ResourceClass.millisToHHMMSS(currentTile.totalCountedTime)
     }
 
     private var startingTime: Long? = null
-    private var countDownTimer: CountDownTimer? = null
     private fun startCountingTile(tileIndex: Int) {
-        val currentGridTile = gridTiles[tileIndex]
         val currentTile = routine.tiles[tileIndex]
+        val currentGridTile = gridTiles[tileIndex]
 
-        currentTile.countingStart = System.currentTimeMillis()
+        App.instance.startTile(currentTile)
         startingTime = currentTile.countingStart
-        ResourceClass.updateCurrentTile(routine.tiles[tileIndex], routineUid)
 
         updateUI()
 
         val currentTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTime)
         val totalTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTime)
-
-        var currentTime =
-                if (currentTile.mode == Tile.MODE_COUNT_UP) 0L
-                else currentTile.countDownSettings.countDownTime
-        val totalTimeBuffer = currentTile.totalCountedTime
-
-        currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo).visibility = View.VISIBLE
-        totalTimeField.visibility = View.VISIBLE
-
-        if (currentTile.mode == Tile.MODE_COUNT_UP) {
-            val handler = Handler()
-            handler.post(object : Runnable {
-                override fun run() {
-                    if (startingTime == null)
-                        return
-
-                    currentTime = System.currentTimeMillis() - startingTime!!
-                    currentTimeField.text = ResourceClass.millisToHHMMSSmm(currentTime)
-
-                    val totalTime = totalTimeBuffer + currentTime
-                    currentTile.totalCountedTime = totalTime
-                    totalTimeField.text = ResourceClass.millisToHHMMSSmm(totalTime)
-
-                    handler.postDelayed(this, 10)
-                }
-            })
+        val totalTimeInfo = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo)
+        if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
+            totalTimeField.visibility = View.GONE
+            totalTimeInfo.visibility = View.GONE
         } else {
-            MainActivity.activityBuffer.startCountdownService(routineUid)
-            //CountdownService.Timers.startTileCountdown(currentTile.countDownSettings.countDownTime, currentGridTile, currentTile)
+            totalTimeField.visibility = View.VISIBLE
+            totalTimeInfo.visibility = View.VISIBLE
         }
+
+        val totalTimeBuffer = currentTile.totalCountedTime
 
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
         totalTimeMainView.startAnimation(ResourceClass.Anim.scaleDown)
         totalTimeMainView.visibility = View.GONE
+
+        val updatingHandler = object : Runnable {
+            override fun run() {
+                var currentTime = System.currentTimeMillis() - abs(currentTile.countingStart)
+                if (currentTime < 0)
+                    currentTime = 0L
+
+                val currentTimeStr = ResourceClass.millisToHHMMSSmm(
+                        if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
+                            currentTile.countDownSettings.countDownTime - currentTime
+                        } else {
+                            currentTime
+                        }
+                )
+                currentTimeField.text = currentTimeStr
+
+                val totalTime = currentTile.totalCountedTime + currentTime
+                val totalTimeStr = ResourceClass.millisToHHMMSS(totalTime)
+                totalTimeField.text = totalTimeStr
+
+                if (ResourceClass.currentTiles[routineUid] != null) {
+                    Handler().postDelayed(this, 10)
+                } else {
+                    if (expandedTile == tileIndex) {
+                        toggleTileSize(tileIndex)
+                    }
+                    updateUI(false)
+                    return
+                }
+            }
+        }.run()
     }
 
     fun cancelCountdown() {
         //countDownTimer!!.cancel()
         //CountdownService.Timers.stopNotificationCountdown(routineUid)
 
-        val tileIndex = routine.tiles.indexOf(ResourceClass.getCurrentTile(routineUid))
+        val tileIndex = routine.tiles.indexOf(ResourceClass.currentTiles[routineUid])
         toggleTileSize(tileIndex)
         //(activity as MainActivity).stopCountdownService()
     }
 
     override fun updateCurrentTile() {
-        currentTile = ResourceClass.getCurrentTile(routineUid)
+        currentTile = ResourceClass.currentTiles[routineUid]
+
+        if (currentTile != null) {
+            val indexOf = routine.tiles.indexOf(currentTile!!)
+            startCountingTile(indexOf)
+        } else {
+            val indexOf = routine.tiles.indexOf(ResourceClass.previousCurrentTiles[routineUid])
+            if (indexOf != -1)
+                stopCountingTile(indexOf)
+        }
     }
     //endregion
 
@@ -352,6 +377,10 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     private fun navigateToSelectRoutine() {
         //ResourceClass.updateCurrentTile(null, routineUid)
+        if (this.currentTile != null) {
+            val index = routine.tiles.indexOf(currentTile!!)
+            stopCountingTile(index)
+        }
 
         val directions = RunContinuousRoutineFragmentDirections.actionRunContinuousRoutineToSelectEditRoutineFragment()
 

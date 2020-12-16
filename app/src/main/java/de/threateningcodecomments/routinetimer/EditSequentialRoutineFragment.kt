@@ -104,7 +104,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
             R.id.iv_EditRoutine_sequential_close ->
                 navigateBack()
             R.id.iv_EditRoutine_sequential_tile_icon ->
-                MainActivity.activityBuffer.openIconDialog(currentRoutine.tiles[position])
+                MainActivity.instance.openIconDialog(currentRoutine.tiles[position])
             R.id.cv_EditRoutine_sequential_tile_card ->
                 handleColorModeToggle()
             R.id.btn_EditRoutine_sequential_cycle_delete ->
