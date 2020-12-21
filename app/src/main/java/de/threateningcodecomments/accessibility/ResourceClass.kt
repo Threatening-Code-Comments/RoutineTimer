@@ -26,6 +26,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.abs
 import kotlin.math.round
 
 
@@ -250,16 +251,17 @@ internal object ResourceClass {
     //endregion
 
     //region Routines
-    fun updateRoutine(tile: Tile) {
+    fun updateRoutineInDb(tile: Tile) {
         val routine = ResourceClass.getRoutineOfTile(tile)
         val index = routine.tiles.indexOf(tile)
         routine.tiles[index] = tile
+
+        updateRoutineInDb(routine.uid)
     }
 
-    fun updateRoutine(routineUid: String) {
+    fun updateRoutineInDb(routineUid: String) {
         val currentTile = ResourceClass.currentTiles[routineUid]
                 ?: ResourceClass.previousCurrentTiles[routineUid]
-
 
         val routine = ResourceClass.getRoutineFromUid(routineUid)
         val index = routine.tiles.indexOf(currentTile!!)
@@ -328,15 +330,8 @@ internal object ResourceClass {
         return returnVal
     }
 
-    fun getRoutines(): ArrayList<Routine> {
-        val routines = if (routines == null) ArrayList() else routines!!
-        sortRoutines(routines)
-        val tempList: ArrayList<Routine> = ArrayList()
-        for (routine in routines) {
-            tempList.add(Routine(routine))
-        }
-        return tempList
-    }
+    fun getRoutines(): ArrayList<Routine> = this.routines ?: ArrayList()
+
 
     fun sortRoutines(routines: ArrayList<Routine>): ArrayList<Routine> {
         routines.sortWith(java.util.Comparator { a, b -> (b.lastUsed!! - a.lastUsed!!).toInt() })
@@ -480,18 +475,21 @@ internal object ResourceClass {
     private fun stopEvent(tile: Tile) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            val eventStart = tile.countingStart
+            //countingStart should be negative here, to indicate that the tile is stopped
+            val eventStart = abs(tile.countingStart)
 
             val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
             val parentRoutine = getRoutineOfTile(tile)
 
             val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
 
+            //cancels event if countdownTile is stopped prematurely
             if (tile.mode == Tile.MODE_COUNT_DOWN && System.currentTimeMillis() - eventStart <= tile.countDownSettings.countDownTime) {
                 cancelEvent(tile)
                 return
             }
 
+            //saves to db
             val path = basePath + eventStart
 
             var key = "tile"
@@ -501,8 +499,6 @@ internal object ResourceClass {
             key = "duration"
             value = (System.currentTimeMillis() - eventStart).toString()
             saveToDb(path, key, value)
-
-            tile.countingStart = -tile.countingStart
         }
     }
 
@@ -523,6 +519,12 @@ internal object ResourceClass {
         saveToDb(path, key, value)
     }
 
+    /**
+     * Updates the current tile in the users list of current tiles under /users/userUid/currentTiles/routineUid/
+     *
+     * @param tile currentTile to save
+     * @param routine parent routine
+     */
     private fun updateCurrentTileInDB(tile: Tile?, routine: Routine) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {

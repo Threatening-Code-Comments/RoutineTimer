@@ -218,38 +218,42 @@ class CountingService : Service() {
     object Timers {
         private var tileTimers: HashMap<String, Runnable> = HashMap()
 
-        fun startCounting(tile: Tile) {
-            val routineUid = ResourceClass.getRoutineOfTile(tile).uid
+        fun startCounting(currentTile: Tile) {
+            val routineUid = ResourceClass.getRoutineOfTile(currentTile).uid
 
-            if (tileTimers[routineUid] == null || tileTimers.containsKey(routineUid)) {
-                createTimer(tile, routineUid)
+            //if there already is a timer running, don't create another one
+            if (tileTimers[routineUid] != null && !tileTimers.containsKey(routineUid)) {
+                return
             }
-        }
 
-        private fun createTimer(currentTile: Tile, routineUid: String) {
+            //updates countingStart to a positive value, indicating that the tile is running
             currentTile.countingStart = System.currentTimeMillis()
 
             var currentTime: Long
-
             var lastTimeValue = ""
+
+            //initializes a "counting up" type timer, so we can use this for both types of tiles
             val counter = object : Runnable {
                 override fun run() {
+                    //calculates time elapsed since start
                     currentTime = System.currentTimeMillis() - abs(currentTile.countingStart)
                     val curTimeStr = ResourceClass.millisToHHMMSS(currentTime)
+
+                    //updates the notification if the value has changed, this prevents spam and unnecessary battery drainage
                     if (lastTimeValue != curTimeStr) {
                         lastTimeValue = curTimeStr
                         Notifications.updateTileNotification(currentTile, currentTime)
 
-
+                        //checks if countdown time for the tile has ended, checking this only when the value has changed makes this more efficient
                         if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
                             val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
                             if (remainingTime < 30) {
                                 stopCounting(routineUid)
                             }
                         }
-
                     }
 
+                    //while this tile is supposed to be running, keep it running
                     if (ResourceClass.currentTiles[routineUid] == currentTile)
                         Handler().postDelayed(this, 300)
                     else
@@ -257,36 +261,46 @@ class CountingService : Service() {
                 }
             }
             counter.run()
+            //updates the value in tileTimers to indicate that the tile counter is running
             tileTimers[routineUid] = counter
 
-            ResourceClass.updateRoutine(currentTile)
+            //updates values in db
+            ResourceClass.updateRoutineInDb(currentTile)
         }
 
         fun stopCounting(routineUid: String) {
+            //buffers tile and routine
             val currentTile = ResourceClass.currentTiles[routineUid]
                     ?: ResourceClass.previousCurrentTiles[routineUid]
             val routine = ResourceClass.getRoutineOfTile(currentTile!!)
 
+            //if tile was already stopped, don't try to stop it again
             if (currentTile.countingStart < 0)
                 return
+            //indicate that the tile was stopped
+            currentTile.countingStart = -abs(currentTile.countingStart)
 
+            //time that was actually spent counting
+            val realElapsedTime = System.currentTimeMillis() - abs(currentTile.countingStart)
+
+            //guarantees that the tile indicates the right amount of time / presses
             val elapsedTime = if (currentTile.mode == Tile.MODE_COUNT_DOWN)
                 currentTile.countDownSettings.countDownTime
             else
-                System.currentTimeMillis() - abs(currentTile.countingStart)
-            if (currentTile.mode == Tile.MODE_COUNT_UP || currentTile.countDownSettings.countDownTime >= elapsedTime) {
-                MyLog.d(" elapsed time is $elapsedTime")
-                currentTile.totalCountedTime += elapsedTime
-            }
+                realElapsedTime
+
+            //resets active tile of routine
             ResourceClass.currentTiles[routineUid] = null
 
-            if (Notifications.notifications.size == 1)
+            //handles notification cancelling, if the corresponding notification is the last one, the only way to remove it is to cancel the service
+            if (Notifications.notifications.size == 1) {
                 instance.stopService()
-            else {
+            } else {
                 Notifications.notifications.remove(routineUid)
             }
 
-            ResourceClass.updateRoutine(currentTile)
+            //updates database values of the routine, specifically the values of currentTile
+            ResourceClass.updateRoutineInDb(currentTile)
         }
     }
 

@@ -17,10 +17,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
-import de.threateningcodecomments.accessibility.ResourceClass
-import de.threateningcodecomments.accessibility.Routine
-import de.threateningcodecomments.accessibility.Tile
-import de.threateningcodecomments.accessibility.UIContainer
+import de.threateningcodecomments.accessibility.*
 import kotlin.math.abs
 
 
@@ -180,62 +177,91 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     //region timing
     private fun stopCountingTile(tileIndex: Int) {
+        //buffers values and updates ui
         val currentGridTile = gridTiles[tileIndex]
         val currentTile = routine.tiles[tileIndex]
         updateUI()
 
+        //if tile is running, stop it in the CountingService
         if (ResourceClass.currentTiles.values.contains(currentTile)) {
             App.instance.stopTile(routine)
         }
+        //indicate that the tile isn't running in the ui anymore
         startingTime = null
 
+        //buffers the actual elapsed time
+        val realElapsedTime = System.currentTimeMillis() - abs(currentTile.countingStart)
+        //sets the cap for elapsedTime for countdownTiles to their countdownTime
         val elapsedTime = if (currentTile.mode == Tile.MODE_COUNT_DOWN)
             currentTile.countDownSettings.countDownTime
         else
-            System.currentTimeMillis() - abs(currentTile.countingStart)
-        if (currentTile.mode == Tile.MODE_COUNT_UP || currentTile.countDownSettings.countDownTime >= elapsedTime)
-            currentTile.totalCountedTime += elapsedTime
+            realElapsedTime
 
+        //adds the elapsed time to the tiles total runtime
+        if ((currentTile.mode == Tile.MODE_COUNT_UP) || (currentTile.countDownSettings.countDownTime <= realElapsedTime)) {
+            currentTile.totalCountedTime += elapsedTime
+        }
+
+        //handles UI visibility
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
         totalTimeMainView.startAnimation(ResourceClass.Anim.scaleUp)
         totalTimeMainView.visibility = View.VISIBLE
 
+        //updates total time main view in compacted tile view
         totalTimeMainView.text = ResourceClass.millisToHHMMSS(currentTile.totalCountedTime)
     }
 
     private var startingTime: Long? = null
     private fun startCountingTile(tileIndex: Int) {
+        //buffers values
         val currentTile = routine.tiles[tileIndex]
         val currentGridTile = gridTiles[tileIndex]
 
+        //starts counting tile externally (CountingService)
         App.instance.startTile(currentTile)
+        //indicates internally (this) that tile is being counted
         startingTime = currentTile.countingStart
 
         updateUI()
 
+        //buffers fields
+        val currentTimeInfo = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTimeInfo)
         val currentTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_currentTime)
         val totalTimeField = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTime)
         val totalTimeInfo = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeInfo)
+
+        /*if tile mode is countdown:
+        *   -set text for currentTimeInfo to "remaining time:"
+        *   -set text for totalTimeInfo to "times pressed:"
+        *   -set text for totalTimeField to times tile was pressed instead of actual tile
+        *
+        * else:
+        *   -just do the opposite lmao
+        * */
         if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
-            totalTimeField.visibility = View.GONE
-            totalTimeInfo.visibility = View.GONE
+            totalTimeInfo.text = "Pressed:"
+            val timesPressed = (currentTile.totalCountedTime / currentTile.countDownSettings.countDownTime).toInt()
+            totalTimeField.text = "${timesPressed}x"
         } else {
-            totalTimeField.visibility = View.VISIBLE
-            totalTimeInfo.visibility = View.VISIBLE
+            //Don't need to update value here, gets updated in the loop
+            totalTimeField.text = "Total time:"
         }
 
-        val totalTimeBuffer = currentTile.totalCountedTime
-
+        //hide the totalTimeMainView in the UI
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
         totalTimeMainView.startAnimation(ResourceClass.Anim.scaleDown)
         totalTimeMainView.visibility = View.GONE
 
+        //update time values in a loop
         val updatingHandler = object : Runnable {
             override fun run() {
+                //buffers currentTime, prevent currentTime from being negative
                 var currentTime = System.currentTimeMillis() - abs(currentTile.countingStart)
-                if (currentTime < 0)
+                if (currentTime < 0L)
                     currentTime = 0L
 
+                //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
+                // is the remaining time
                 val currentTimeStr = ResourceClass.millisToHHMMSSmm(
                         if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
                             currentTile.countDownSettings.countDownTime - currentTime
@@ -243,11 +269,15 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                             currentTime
                         }
                 )
+                MyLog.d("$currentTime and $currentTimeStr")
                 currentTimeField.text = currentTimeStr
 
-                val totalTime = currentTile.totalCountedTime + currentTime
-                val totalTimeStr = ResourceClass.millisToHHMMSS(totalTime)
-                totalTimeField.text = totalTimeStr
+                //updates the totalTimeField, only needs to be done with countUpTiles
+                if (currentTile.mode == Tile.MODE_COUNT_UP) {
+                    val totalTime = currentTile.totalCountedTime + currentTime
+                    val totalTimeStr = ResourceClass.millisToHHMMSS(totalTime)
+                    totalTimeField.text = totalTimeStr
+                }
 
                 if (ResourceClass.currentTiles[routineUid] != null) {
                     Handler().postDelayed(this, 10)
@@ -260,15 +290,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 }
             }
         }.run()
-    }
-
-    fun cancelCountdown() {
-        //countDownTimer!!.cancel()
-        //CountdownService.Timers.stopNotificationCountdown(routineUid)
-
-        val tileIndex = routine.tiles.indexOf(ResourceClass.currentTiles[routineUid])
-        toggleTileSize(tileIndex)
-        //(activity as MainActivity).stopCountdownService()
     }
 
     override fun updateCurrentTile() {

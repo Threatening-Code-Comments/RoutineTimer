@@ -21,13 +21,11 @@ class Tile//region Constructor
 
     var totalCountedTime: Long = 0L
         set(value) {
-            if (field > 500000) {
-                val routine = ResourceClass.getRoutineOfTile(this)
-                //MyLog.d("The value of ${this.name} is getting very large! $value was added. routine uid is ${routine.uid}, position is ${routine.tiles.indexOf(this)}")
-                MyLog.d("${routine.uid} at ${routine.tiles.indexOf(this)}")
-            }
+            if (value > 0)
+                MyLog.d("updating")
             field = value
         }
+
     var countingStart: Long = -1L
         set(value) {
             isRunning =
