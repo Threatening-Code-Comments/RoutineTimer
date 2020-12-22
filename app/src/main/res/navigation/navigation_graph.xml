@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_selectEditRoutineFragment_to_runContinuousRoutine"
             app:destination="@id/runContinuousRoutine" />
+        <action
+            android:id="@+id/action_selectRoutineFragment_to_runSequentialRoutine"
+            app:destination="@id/runSequentialRoutine" />
     </fragment>
     <fragment
         android:id="@+id/editSequentialRoutineFragment"
@@ -62,6 +65,18 @@
         tools:layout="@layout/fragment_run_continuous_routine">
         <action
             android:id="@+id/action_runContinuousRoutine_to_selectEditRoutineFragment"
+            app:destination="@id/selectRoutineFragment" />
+        <argument
+            android:name="routineUid"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/runSequentialRoutine"
+        android:name="de.threateningcodecomments.routinetimer.RunSequentialRoutine"
+        android:label="fragment_run_sequential_routine"
+        tools:layout="@layout/fragment_run_sequential_routine" >
+        <action
+            android:id="@+id/action_runSequentialRoutine_to_selectRoutineFragment"
             app:destination="@id/selectRoutineFragment" />
         <argument
             android:name="routineUid"

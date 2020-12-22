@@ -257,19 +257,18 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
             override fun run() {
                 //buffers currentTime, prevent currentTime from being negative
                 var currentTime = System.currentTimeMillis() - abs(currentTile.countingStart)
+                currentTime =
+                        if (currentTile.mode == Tile.MODE_COUNT_DOWN)
+                            currentTile.countDownSettings.countDownTime - currentTime
+                        else
+                            currentTime
+
                 if (currentTime < 0L)
                     currentTime = 0L
 
                 //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
                 // is the remaining time
-                val currentTimeStr = ResourceClass.millisToHHMMSSmm(
-                        if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
-                            currentTile.countDownSettings.countDownTime - currentTime
-                        } else {
-                            currentTime
-                        }
-                )
-                MyLog.d("$currentTime and $currentTimeStr")
+                val currentTimeStr = ResourceClass.millisToHHMMSSmm(currentTime)
                 currentTimeField.text = currentTimeStr
 
                 //updates the totalTimeField, only needs to be done with countUpTiles

@@ -393,7 +393,12 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     fun goToRunRoutine(layout: LinearLayout?, iv: ShapeableImageView?, nameView: TextView?, tmpRoutine: Routine) {
-        val directions = SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid!!)
+        /*val directions =
+                if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
+                    SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid!!)
+        else
+            SelectRoutineFragmentDirections.action*/
+        val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToRunSequentialRoutine(tmpRoutine.uid)
 
         findNavController().navigate(directions)
     }
