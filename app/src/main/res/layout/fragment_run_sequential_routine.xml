@@ -1,14 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingHorizontal="40sp"
+    android:paddingVertical="12sp"
     tools:context=".RunSequentialRoutine">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_EditRoutine_sequential_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15sp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_close"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/circleImageView" />
 
-</FrameLayout>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_RunRoutine_sequential_tileMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55sp"
+        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="25sp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_RunRoutine_sequential_tileIcon"
+                android:layout_width="match_parent"
+                android:layout_height="100sp"
+                android:src="@drawable/fui_ic_twitter_bird_white_24dp" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20sp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_RunRoutine_sequential_tileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Random 2!"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/materialCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30sp"
+        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
+        app:layout_constraintBottom_toTopOf="@id/btn_RunRoutine_sequential_pause"
+        app:layout_constraintTop_toBottomOf="@+id/cv_RunRoutine_sequential_tileMain"
+        tools:layout_editor_absoluteX="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="15sp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_RUnRoutine_sequential_info_routineName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Routine Name"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="30sp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_RunRoutine_sequential_info_currentInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Current Time:"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_RunRoutine_sequential_info_currentValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="02:20.00"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="12sp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_RunRoutine_sequential_info_totalInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Time:"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_RunRoutine_sequential_info_totalValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="02:20.00"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_RunRoutine_sequential_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="@dimen/dimen_btnCorners"
+        android:text="@string/str_btn_RunRoutine_sequential_pause"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialCardView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

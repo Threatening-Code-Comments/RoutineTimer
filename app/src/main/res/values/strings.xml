@@ -136,4 +136,5 @@
     <string name="str_tv_RunRoutine_continuous_routineName">Routine name</string>
     <string name="str_tv_viewholder_runTile_currentTimeInfo_countUp">Current time:</string>
     <string name="str_tv_viewholder_runTile_currentTimeInfo_countDown">Remaining time:</string>
+    <string name="str_btn_RunRoutine_sequential_pause">Pause</string>
 </resources>
