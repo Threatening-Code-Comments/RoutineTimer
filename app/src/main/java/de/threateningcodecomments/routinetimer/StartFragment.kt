@@ -33,6 +33,7 @@ import de.threateningcodecomments.accessibility.MyLog
 import de.threateningcodecomments.accessibility.ResourceClass
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
+import kotlinx.android.synthetic.main.fragment_start.*
 
 class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -46,6 +47,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private var isLoggedIn = false
 
     private lateinit var routineButton: MaterialButton
+    private lateinit var settingsButton: MaterialButton
     private lateinit var testButton: MaterialButton
 
 
@@ -82,8 +84,8 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private var serviceRunning = false
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.cv_MainActivity_name -> toggleSignIn()
-            R.id.btn_mainActivity_setup -> {
+            R.id.cv_StartFragment_name -> toggleSignIn()
+            R.id.btn_StartFragment_routines -> {
                 val selectRoutineFragment = SelectRoutineFragment()
                 selectRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
 
@@ -93,8 +95,16 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                 findNavController().navigate(directions, extras)
             }
             R.id.btn_mainActivity_test -> {
-                val routine = ResourceClass.generateRandomRoutine()
-                ResourceClass.saveRoutine(routine)
+                val debugActivated = MainActivity.sharedPreferences.getBoolean(getString(R.string.pref_dev_debug_key),
+                        false)
+                Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()
+
+                /*val routine = ResourceClass.generateRandomRoutine()
+                ResourceClass.saveRoutine(routine)*/
+            }
+            R.id.btn_StartFragment_settings -> {
+                val directions = StartFragmentDirections.actionStartFragmentToSettingsFragment()
+                findNavController().navigate(directions)
             }
             else -> Toast.makeText(context, "Unknown Error, please see developer or priest", Toast.LENGTH_LONG).show()
         }
@@ -110,17 +120,21 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private fun initBufferViews() {
         val v = requireView()
 
-        routineButton = v.findViewById(R.id.btn_mainActivity_setup)
+        routineButton = v.findViewById(R.id.btn_StartFragment_routines)
+        settingsButton = btn_StartFragment_settings
         testButton = v.findViewById(R.id.btn_mainActivity_test)
-        usernameView = v.findViewById(R.id.tv_MainActivity_username)
-        profilepicView = v.findViewById(R.id.iv_MainActivity_profilepic)
-        nameCardView = v.findViewById(R.id.cv_MainActivity_name)
+
+        usernameView = v.findViewById(R.id.tv_StartFragment_username)
+        profilepicView = v.findViewById(R.id.iv_StartFragment_profilepic)
+        nameCardView = v.findViewById(R.id.cv_StartFragment_name)
     }
 
     private fun initOnClicks() {
         routineButton.setOnClickListener(this)
-        nameCardView.setOnClickListener(this)
+        settingsButton.setOnClickListener(this)
         testButton.setOnClickListener(this)
+
+        nameCardView.setOnClickListener(this)
     }
 
     private fun initGSignIn() {

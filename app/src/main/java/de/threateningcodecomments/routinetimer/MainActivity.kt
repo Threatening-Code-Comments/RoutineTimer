@@ -1,7 +1,10 @@
 package de.threateningcodecomments.routinetimer
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import com.maltaisn.icondialog.IconDialog
 import com.maltaisn.icondialog.IconDialogSettings
@@ -23,7 +26,15 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         ResourceClass.Anim.initAnimations(this)
     }
 
-    override val iconDialogIconPack: IconPack?
+    override fun onStart() {
+        super.onStart()
+
+        if (SettingsFragment.preferences == SettingsFragment.Preferences()) {
+
+        }
+    }
+
+    override val iconDialogIconPack: IconPack
         get() = ResourceClass.getIconPack()
 
     override fun onIconDialogIconsSelected(dialog: IconDialog, icons: List<Icon>) {
@@ -57,5 +68,8 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         lateinit var instance: MainActivity
         lateinit var currentFragment: UIContainer
         var countdownServiceRunning = false
+
+        val sharedPreferences: SharedPreferences
+            get() = instance.getPreferences(Context.MODE_PRIVATE)
     }
 }

@@ -51,7 +51,7 @@
                 android:id="@+id/tv_RunRoutine_sequential_tileName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Random 2!"
+                android:text="@string/str_tv_RunRoutine_sequential_tileName"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
 
@@ -75,10 +75,10 @@
             android:padding="15sp">
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RUnRoutine_sequential_info_routineName"
+                android:id="@+id/tv_RunRoutine_sequential_info_routineName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Routine Name"
+                android:text="@string/str_tv_RunRoutine_sequential_info_routineName"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
 
@@ -90,7 +90,7 @@
                 android:id="@+id/tv_RunRoutine_sequential_info_currentInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Current Time:"
+                android:text="@string/str_tv_RunRoutine_sequential_info_currentInfo"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 
@@ -98,7 +98,7 @@
                 android:id="@+id/tv_RunRoutine_sequential_info_currentValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="02:20.00"
+                android:text="@string/str_tv_RunRoutine_sequential_info_currentValue"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 
@@ -110,7 +110,7 @@
                 android:id="@+id/tv_RunRoutine_sequential_info_totalInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Total Time:"
+                android:text="@string/str_tv_RunRoutine_sequential_info_totalInfo"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 
@@ -118,7 +118,7 @@
                 android:id="@+id/tv_RunRoutine_sequential_info_totalValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="02:20.00"
+                android:text="@string/str_tv_RunRoutine_sequential_info_totalValue"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 

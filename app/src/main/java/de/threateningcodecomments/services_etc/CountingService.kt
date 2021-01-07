@@ -96,7 +96,7 @@ class CountingService : Service() {
                     else
                         "Counted ${ResourceClass.millisToHHMMSS(currentTime)}"
 
-            //TODO update pendingintent for routine
+            //TODO update PendingIntent for routine
             val tileIcon = ResourceClass.getIconDrawable(tile)!!.toBitmap(200, 200, null)
 
             val view = RemoteViews(instance.packageName, R.layout.custom_noti_layout)

@@ -15,7 +15,6 @@ import com.google.android.material.textview.MaterialTextView
 import de.threateningcodecomments.accessibility.*
 import de.threateningcodecomments.accessibility.ResourceClass
 import kotlinx.android.synthetic.main.fragment_run_sequential_routine.*
-import kotlinx.android.synthetic.main.viewholder_run_tile.*
 import kotlin.math.abs
 
 class RunSequentialRoutine : Fragment(), UIContainer {
@@ -68,7 +67,7 @@ class RunSequentialRoutine : Fragment(), UIContainer {
         tileIconView = iv_RunRoutine_sequential_tileIcon
         tileNameView = tv_RunRoutine_sequential_tileName
 
-        routineNameView = tv_RUnRoutine_sequential_info_routineName
+        routineNameView = tv_RunRoutine_sequential_info_routineName
 
         currentTimeInfoView = tv_RunRoutine_sequential_info_currentInfo
         currentTimeValueView = tv_RunRoutine_sequential_info_currentValue
@@ -106,18 +105,7 @@ class RunSequentialRoutine : Fragment(), UIContainer {
             App.instance.startTile(tile)
             isRunning = true
 
-            if (tile.mode == Tile.MODE_COUNT_DOWN) {
-                currentTimeInfoView.text = "Remaining time:"
-
-                totalTimeInfoView.text = "Pressed:"
-                val timesPressed = tile.totalCountedTime / tile.countDownSettings.countDownTime
-                totalTimeValueView.text = ""
-            } else {
-                currentTimeInfoView.text = "Current time:"
-
-                totalTimeInfoView.text = "Total time:"
-                totalTimeInfoView.text = ResourceClass.millisToHHMMSS(tile.totalCountedTime)
-            }
+            updateUI()
 
             val updatingHandler = object : Runnable {
                 override fun run() {
@@ -182,6 +170,19 @@ class RunSequentialRoutine : Fragment(), UIContainer {
 
         tileIconView.setImageDrawable(ResourceClass.getIconDrawable(tile))
         tileIconView.setColorFilter(tile.contrastColor)
+
+        if (tile.mode == Tile.MODE_COUNT_DOWN) {
+            currentTimeInfoView.text = "Remaining time:"
+
+            totalTimeInfoView.text = "Pressed:"
+            val timesPressed = tile.totalCountedTime / tile.countDownSettings.countDownTime
+            totalTimeValueView.text = "${timesPressed}x"
+        } else {
+            currentTimeInfoView.text = "Current time:"
+
+            totalTimeInfoView.text = "Total time:"
+            totalTimeInfoView.text = ResourceClass.millisToHHMMSS(tile.totalCountedTime)
+        }
     }
 
     override fun updateCurrentTile() {

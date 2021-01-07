@@ -21,17 +21,6 @@ public class MyLog {
         d(message);
     }
 
-    public static void d(Object[] array) {
-        MyLog.d("length of the Array is: " + array.length);
-        for (Object v : array) {
-            MyLog.d("value: " + v.toString());
-        }
-    }
-
-    public static void e(String message, Throwable tr) {
-        Log.w(DEFAULT_TAG, message, tr);
-    }
-
 
     public static void f(String str) {
         Log.d(DEFAULT_FIREBASE_TAG, str);

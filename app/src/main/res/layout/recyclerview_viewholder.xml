@@ -20,7 +20,6 @@
         android:padding="5sp">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/cl_rvItem_coordinatorLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
@@ -88,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:text="Routine name"
+                android:text="@string/str_tv_rvItem_name"
                 android:textSize="17sp" />
 
             <TextView
@@ -96,7 +95,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:text="mode"
+                android:text="@string/str_tv_rvItem_mode"
                 android:textSize="12sp" />
 
         </LinearLayout>

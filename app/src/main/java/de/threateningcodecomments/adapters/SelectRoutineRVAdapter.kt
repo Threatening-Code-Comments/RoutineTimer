@@ -59,7 +59,7 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
         }
         holder.modeView.text = mode
 
-        //initializes tile buffer to restore order of tiles and errortiles for continuous routine
+        //initializes tile buffer to restore order of tiles and ErrorTiles for continuous routine
         val tilesWithoutErrors = ArrayList<Tile>(tmpRoutine.tiles)
         while (tilesWithoutErrors.contains(Tile.ERROR_TILE)) {
             tilesWithoutErrors.remove(Tile.ERROR_TILE)

@@ -239,12 +239,12 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         *   -just do the opposite lmao
         * */
         if (currentTile.mode == Tile.MODE_COUNT_DOWN) {
-            totalTimeInfo.text = "Pressed:"
+            totalTimeInfo.text = getString(R.string.str_RunRoutine_continuous_totalTime_countDown)
             val timesPressed = (currentTile.totalCountedTime / currentTile.countDownSettings.countDownTime).toInt()
             totalTimeField.text = "${timesPressed}x"
         } else {
             //Don't need to update value here, gets updated in the loop
-            totalTimeField.text = "Total time:"
+            totalTimeField.text = getString(R.string.str_RunRoutine_continuous_totalTimeField_countUp)
         }
 
         //hide the totalTimeMainView in the UI

@@ -7,13 +7,14 @@
     tools:context="de.threateningcodecomments.routinetimer.MainActivity">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_MainActivity_name"
+        android:id="@+id/cv_StartFragment_name"
         android:layout_width="300sp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
-        app:layout_constraintBottom_toTopOf="@+id/btn_mainActivity_setup"
+        app:layout_constraintBottom_toTopOf="@+id/btn_StartFragment_routines"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="50sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.1">
 
@@ -24,7 +25,7 @@
             android:padding="20sp">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_MainActivity_profilepic"
+                android:id="@+id/iv_StartFragment_profilepic"
                 android:layout_width="100sp"
                 android:layout_height="100sp"
                 android:layout_gravity="center"
@@ -32,7 +33,7 @@
                 app:srcCompat="@drawable/ic_defaultdrawable" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_MainActivity_username"
+                android:id="@+id/tv_StartFragment_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -44,17 +45,28 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_mainActivity_setup"
+        android:id="@+id/btn_StartFragment_routines"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="400sp"
         android:text="@string/str_btn_MainActivity_routines"
         android:transitionName="setupButton"
+        app:cornerRadius="@dimen/dimen_btnCorners"
+        app:layout_constraintBottom_toTopOf="@id/btn_StartFragment_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_StartFragment_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/str_btn_StartFragment_settings"
         app:cornerRadius="@dimen/dimen_btnCorners"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.8" />
+        app:layout_constraintTop_toBottomOf="@id/btn_StartFragment_routines" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_mainActivity_test"
@@ -64,7 +76,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_mainActivity_setup" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_StartFragment_settings" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

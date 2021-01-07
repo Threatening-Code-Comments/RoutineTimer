@@ -2,12 +2,11 @@
     android:id="@+id/ll_viewholder_noti_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
     android:orientation="horizontal"
     android:padding="12sp">
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical"
@@ -19,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:text="Tile name!!!!"
+            android:text="@string/str_tv_viewholder_noti_name"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             android:textSize="20sp" />
 
@@ -29,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:text="Time remaining: 1:20:02"
+            android:text="@string/str_tv_viewholder_noti_time"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:textSize="16sp" />
 
@@ -39,7 +38,7 @@
         android:id="@+id/iv_viewholder_noti_icon"
         android:layout_width="60sp"
         android:layout_height="60sp"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:src="@drawable/ic_launcher_background" />
 
 </LinearLayout>

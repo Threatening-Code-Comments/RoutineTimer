@@ -1,14 +1,17 @@
 package de.threateningcodecomments.accessibility
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.provider.Settings
 import android.util.Log
 import android.util.TypedValue
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.preference.Preference
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -16,12 +19,14 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
 import com.maltaisn.icondialog.pack.IconPack
 import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.SelectRoutineFragment
+import de.threateningcodecomments.routinetimer.SettingsFragment
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -55,7 +60,7 @@ internal object ResourceClass {
     }
 
     object Anim {
-        lateinit var animContext: Context
+        private lateinit var animContext: Context
 
         lateinit var slideUpIn: Animation
         lateinit var slideUpOut: Animation
@@ -279,15 +284,6 @@ internal object ResourceClass {
                 routineRef.removeEventListener(valueEventListener!!)
                 hasRoutineRefListener = false
             }
-        }
-    }
-
-    fun addRoutineListener() {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null && !hasRoutineRefListener) {
-            val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
-            routineRef.addValueEventListener(valueEventListener!!)
-            hasRoutineRefListener = true
         }
     }
 
@@ -544,7 +540,47 @@ internal object ResourceClass {
     }
     //endregion
 
+    //region Preferences
+    @SuppressLint("DefaultLocale")
+    fun updatePreference(preference: Preference, newValue: Any) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+
+        val prefCategory = preference.parent!!.title.toString().toLowerCase()
+
+        val path = "/users/${user.uid}/preferences/$prefCategory"
+        val key = preference.key
+
+        saveToDb(path, key, newValue)
+    }
+
+    fun handlePrefUpdate(snapshot: DataSnapshot) {
+        val generalChild = snapshot.child("general").value ?: initPreferenceValues(SettingsFragment.Preferences
+                .General())
+
+        val devChild = snapshot.child("dev").value ?: initPreferenceValues(SettingsFragment.Preferences.Dev())
+
+        val preferences = snapshot.getValue(SettingsFragment.Preferences::class.java)
+
+        SettingsFragment.preferences = preferences ?: SettingsFragment.Preferences()
+    }
+
+    private fun initPreferenceValues(classPassed: SettingsFragment.Preferences.PreferenceCategory) {
+
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+
+        val path = "/users/${user.uid}/preferences"
+        val key = classPassed.name
+
+        //if name field != null, it gets saved to db, so removing it on a copy of the original classPassed saves data
+        val value = classPassed.copyWithoutName()
+
+        saveToDb(path, key, value)
+    }
+
+    //endregion
+
     //region Database handling
+
     private var lastUser: FirebaseUser? = null
     private var database: FirebaseDatabase? = null
     private var valueEventListener: ValueEventListener? = null
@@ -559,22 +595,28 @@ internal object ResourceClass {
         if (user != lastUser) {
             lastUser = user
             val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
+            val prefRef = database!!.getReference("/users/${user.uid}/preferences")
+
             if (valueEventListener != null) {
                 routineRef.removeEventListener(valueEventListener!!)
-                MyLog.d("old listener is being removed!")
+                prefRef.removeEventListener(valueEventListener!!)
             }
-            MyLog.d("new listener is being added!")
+
             valueEventListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     when (snapshot.ref) {
                         routineRef -> handleRoutineUpdate(snapshot)
+                        prefRef -> handlePrefUpdate(snapshot)
                         else -> MyLog.d("snapshot ref is null!")
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
             }
-            addRoutineListener()
+
+            routineRef.addValueEventListener(valueEventListener!!)
+            hasRoutineRefListener = true
+            prefRef.addValueEventListener(valueEventListener!!)
         }
     }
 
