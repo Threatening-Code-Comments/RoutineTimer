@@ -270,9 +270,9 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     fun cycleForward() {
         val newTile = ResourceClass.currentTiles[routineUid]
         val tempIndex = currentRoutine.tiles.indexOf(newTile)
-        //prevent indexoutofbounds
+        //when the active tile is the first or last tile, cycle from / to the first tile
         val oldIndex =
-                if (tempIndex - 1 < 0)
+                if (tempIndex - 1 < 0 || tempIndex == currentRoutine.tiles.size - 1)
                     0
                 else
                     tempIndex - 1
@@ -284,8 +284,9 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
         //waiting for the animation to complete, so it doesn't get overridden
         Handler().postDelayed({
-
-            //TODO implement pausing at the end
+            //if the active tile is the last one in the list, begin from the start again
+            if (tempIndex == currentRoutine.tiles.size - 1)
+                restartRoutine()
 
             //animate new entry
             updateTileInUI(newTile)
