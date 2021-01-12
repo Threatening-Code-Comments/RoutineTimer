@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import com.maltaisn.icondialog.IconDialog
 import com.maltaisn.icondialog.IconDialogSettings
@@ -26,14 +25,6 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         ResourceClass.Anim.initAnimations(this)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        if (SettingsFragment.preferences == SettingsFragment.Preferences()) {
-
-        }
-    }
-
     override val iconDialogIconPack: IconPack
         get() = ResourceClass.getIconPack()
 
@@ -44,7 +35,7 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
     }
 
     private lateinit var tmpTile: Tile
-    public fun openIconDialog(tile: Tile) {
+    fun openIconDialog(tile: Tile) {
         val iconDialog = supportFragmentManager.findFragmentByTag(ICON_DIALOG_TAG) as IconDialog?
                 ?: IconDialog.newInstance(IconDialogSettings())
         iconDialog.show(supportFragmentManager, ICON_DIALOG_TAG)
@@ -55,10 +46,6 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         val intent = Intent(this, CountingService::class.java)
         intent.putExtra(CountingService.ROUTINE_UID_KEY, routineUid)
         startService(intent)
-    }
-
-    fun stopCountdownService() {
-        CountingService.instance.stopService()
     }
 
     override fun updateUI() {}

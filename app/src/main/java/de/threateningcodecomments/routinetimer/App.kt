@@ -13,7 +13,7 @@ import de.threateningcodecomments.services_etc.CountingService
 import de.threateningcodecomments.services_etc.MyBroadcastReceiver
 
 class App : Application() {
-    val myBroadcastReceiver = MyBroadcastReceiver()
+    private val myBroadcastReceiver = MyBroadcastReceiver()
 
     override fun onCreate() {
         super.onCreate()
@@ -34,16 +34,31 @@ class App : Application() {
         val user = FirebaseAuth.getInstance().currentUser
         val routine = ResourceClass.getRoutineOfTile(tile)
 
-        tile.countingStart = System.currentTimeMillis()
-        ResourceClass.updateCurrentTile(tile, routine.uid)
+        if (ResourceClass.currentTiles[routine.uid] == null) {
 
-        MainActivity.instance.startCountingService(routine.uid)
+            tile.countingStart = System.currentTimeMillis()
+            ResourceClass.updateCurrentTile(tile, routine.uid)
+
+            MainActivity.instance.startCountingService(routine.uid)
+        }
     }
 
     fun stopTile(routine: Routine) {
         ResourceClass.updateCurrentTile(null, routine.uid)
         ResourceClass.saveRoutine(routine)
         CountingService.Timers.stopCounting(routine.uid)
+    }
+
+    fun cycleForward(routine: Routine) {
+        val previousCurrentTile = ResourceClass.currentTiles[routine.uid] ?: ResourceClass
+                .previousCurrentTiles[routine.uid]
+        val previousIndex = routine.tiles.indexOf(previousCurrentTile)
+        stopTile(routine)
+
+        if (previousIndex + 1 < routine.tiles.size) {
+            val newTile = routine.tiles[previousIndex + 1]
+            startTile(newTile)
+        }
     }
 
     private fun createNotificationChannel() {

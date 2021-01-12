@@ -1,6 +1,10 @@
 package de.threateningcodecomments.accessibility;
 
 import android.util.Log;
+import android.widget.Toast;
+
+import de.threateningcodecomments.routinetimer.MainActivity;
+import de.threateningcodecomments.routinetimer.SettingsFragment;
 
 public class MyLog {
     public static final String DEFAULT_TAG = "myLog";
@@ -8,12 +12,19 @@ public class MyLog {
 
 
     public static void d(String message) {
-        if (message == null) {
-            Log.d(DEFAULT_TAG, "null value");
-        } else {
+        if (SettingsFragment.Companion.getPreferences().getDev().getDebug()) {
+            if (message == null) {
+                Log.d(DEFAULT_TAG, "null value");
+            } else {
 
-            Log.d(DEFAULT_TAG, message);
+                Log.d(DEFAULT_TAG, message);
+            }
         }
+    }
+
+    public static void t(String message) {
+        if (SettingsFragment.Companion.getPreferences().getDev().getDebug())
+            Toast.makeText(MainActivity.instance, message, Toast.LENGTH_SHORT).show();
     }
 
     public static void d(Object o) {

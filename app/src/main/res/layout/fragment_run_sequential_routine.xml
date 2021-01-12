@@ -9,7 +9,7 @@
     tools:context=".RunSequentialRoutine">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_EditRoutine_sequential_close"
+        android:id="@+id/iv_RunRoutine_sequential_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="15sp"
@@ -129,11 +129,29 @@
         android:id="@+id/btn_RunRoutine_sequential_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cornerRadius="@dimen/dimen_btnCorners"
         android:text="@string/str_btn_RunRoutine_sequential_pause"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:cornerRadius="@dimen/dimen_btnCorners"
+        app:layout_constraintBottom_toTopOf="@+id/ll_RunRoutine_sequential_accessibilityButtons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView" />
+
+    <LinearLayout
+        android:id="@+id/ll_RunRoutine_sequential_accessibilityButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="47dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_RunRoutine_sequential_pause">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_RunRoutine_sequential_restart"
+            android:layout_width="wrap_content"
+            android:text="@string/str_btn_RunRoutine_sequential_restartButton"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

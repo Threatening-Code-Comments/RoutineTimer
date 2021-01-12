@@ -460,7 +460,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileNameView.clearFocus()
 
         val directions = EditSequentialRoutineFragmentDirections.actionEditSequentialRoutineFragmentToSelectRoutineFragment()
-        val extras = FragmentNavigatorExtras(root as View to currentRoutine.uid!!, routineNameEditText to currentRoutine.name!!, tileIconView to currentRoutine.uid + "icon")
+        val extras = FragmentNavigatorExtras(root as View to currentRoutine.uid, routineNameEditText to currentRoutine.name!!, tileIconView to currentRoutine.uid + "icon")
 
         findNavController().navigate(directions, extras)
     }

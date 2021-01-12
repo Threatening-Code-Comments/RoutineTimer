@@ -5,7 +5,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import de.threateningcodecomments.accessibility.MyLog
 import de.threateningcodecomments.accessibility.ResourceClass
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
@@ -23,7 +22,6 @@ class OrganizeRoutineAdapter(private val startDragListener: OnStartDragListener,
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        MyLog.d("binding viewholder nr$position !")
         val tile = routine.tiles[position]
 
         holder.setSingleImage()

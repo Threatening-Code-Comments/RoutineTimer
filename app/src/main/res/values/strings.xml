@@ -51,4 +51,12 @@
     <string name="str_tv_viewholder_runTile_totalTime">20:00</string>
     <string name="str_RunRoutine_continuous_totalTime_countDown">Pressed:</string>
     <string name="str_RunRoutine_continuous_totalTimeField_countUp">Total time:</string>
+    <string name="str_RunRoutine_sequential_currentTimeInfo_countdown">Remaining time:</string>
+    <string name="str_RunRoutine_sequential_totalTimeInfo_countdown">Pressed:</string>
+    <string name="str_RunRoutine_sequential_currentTimeInfo_countup">Current time:</string>
+    <string name="str_RunRoutine_sequential_totalTimeInfo_countup">Total time:</string>
+    <string name="str_RunRoutine_sequential_pauseButtonResume">Resume</string>
+    <string name="str_RunRoutine_sequential_pauseButtonPause">pause</string>
+    <string name="str_RunRoutine_sequential_currentTimeInfo_notRunning">Not running!</string>
+    <string name="str_btn_RunRoutine_sequential_restartButton">restart routine</string>
 </resources>

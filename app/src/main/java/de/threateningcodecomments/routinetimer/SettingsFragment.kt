@@ -1,13 +1,11 @@
 package de.threateningcodecomments.routinetimer
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import de.threateningcodecomments.accessibility.MyLog
 import de.threateningcodecomments.accessibility.ResourceClass
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
@@ -19,10 +17,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
         instance = this
 
-        dataSavingPref = findPreference<SwitchPreferenceCompat>(getString(R.string.pref_general_dataSaving_key))!!
+        dataSavingPref = findPreference(getString(R.string.pref_general_dataSaving_key))!!
         dataSavingPref.onPreferenceChangeListener = this
 
-        debugModePref = findPreference<SwitchPreferenceCompat>(getString(R.string.pref_dev_debug_key))!!
+        debugModePref = findPreference(getString(R.string.pref_dev_debug_key))!!
         debugModePref.onPreferenceChangeListener = this
     }
 
@@ -32,7 +30,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         dataSavingPref.isChecked = preferences.general.dataSaving
 
         debugModePref.isChecked = preferences.dev.debug
-        MyLog.d("debug mode is ${preferences.dev.debug}")
     }
 
 
@@ -54,18 +51,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
         constructor() : this(General(), Dev())
 
-        constructor(pref: Preferences) : this(pref.general, pref.dev)
-
 
         constructor(general: General, dev: Dev) {
             this.general = general
             this.dev = dev
 
             //printUpdate()
-        }
-
-        private fun printUpdate() {
-            MyLog.d("updating preferences! $this")
         }
 
         class General : PreferenceCategory {
@@ -147,16 +138,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
         override fun toString(): String {
             return "prefs:{$general, $dev}"
-        }
-
-        fun isDifferentFromSharedPreferences(): Boolean {
-            val sharedPrefs = MainActivity.instance.getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE)
-
-            var identical = true
-            if (!this.general.isIdenticalWith(sharedPrefs) || !this.dev.isIdenticalWith(sharedPrefs))
-                identical = false
-
-            return identical
         }
 
         interface PreferenceCategory {

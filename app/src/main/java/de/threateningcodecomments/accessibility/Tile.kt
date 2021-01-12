@@ -20,11 +20,6 @@ class Tile//region Constructor
     var countDownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS
 
     var totalCountedTime: Long = 0L
-        set(value) {
-            if (value > 0)
-                MyLog.d("updating")
-            field = value
-        }
 
     var countingStart: Long = -1L
         set(value) {
@@ -39,7 +34,7 @@ class Tile//region Constructor
         }
     var isRunning: Boolean = countingStart > 0L
 
-    var tileUid: String = DEFAULT_TILE_UID
+    var uid: String = DEFAULT_TILE_UID
         get() {
             if (field == DEFAULT_TILE_UID) {
                 val uid = UUID.randomUUID().toString()
@@ -72,8 +67,8 @@ class Tile//region Constructor
         this.name = name
         this.iconID = iconID
         this.mode = mode
-        this.tileUid = uid
-        this.tileUid = DEFAULT_TILE_UID
+        this.uid = uid
+        this.uid = DEFAULT_TILE_UID
         this.backgroundColor = backgroundColor
         this.totalCountedTime = totalCountedTime
         this.countDownSettings = countdownSettings
@@ -83,7 +78,7 @@ class Tile//region Constructor
     constructor(name: String, iconID: Int, backgroundColor: Int, mode: Int, uid: String, countdownSettings: CountdownSettings) : this(name, iconID, backgroundColor, mode, uid, DEFAULT_COUNTED_TIME, countdownSettings)
     constructor(name: String, iconID: Int, backgroundColor: Int, mode: Int, uid: String) : this(name, iconID, backgroundColor, mode, uid, DEFAULT_COUNTDOWN_SETTINGS)
     constructor(name: String, iconID: Int, color: Int) : this(name, iconID, color, MODE_COUNT_UP, UUID.randomUUID().toString(), DEFAULT_COUNTDOWN_SETTINGS)
-    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.mode, tile.tileUid, tile.totalCountedTime, tile.countDownSettings) {
+    constructor(tile: Tile) : this(tile.name, tile.iconID, tile.backgroundColor, tile.mode, tile.uid, tile.totalCountedTime, tile.countDownSettings) {
         this.totalCountedTime = tile.totalCountedTime
     }
 
@@ -114,6 +109,13 @@ class Tile//region Constructor
         stingray += (this.iconID.toString() + " (icon):END!")
 
         return super.toString()
+    }
+
+    fun getModeAsString(): String {
+        return if (this.mode == MODE_COUNT_DOWN)
+            "Countdown mode"
+        else
+            "Count up mode"
     }
 
     companion object {

@@ -17,12 +17,15 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
-import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
+import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.accessibility.UIContainer
 import kotlin.math.abs
 
 
 class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
-    var gridTiles: ArrayList<MaterialCardView> = ArrayList()
+    private var gridTiles: ArrayList<MaterialCardView> = ArrayList()
     private var gridRows: ArrayList<ConstraintLayout> = ArrayList()
 
     private lateinit var closeView: ShapeableImageView
@@ -127,12 +130,12 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
                 animateColor(totalTimeMainView, oldColor, newColor)
                 if (tile.mode == Tile.MODE_COUNT_UP) {
-                    val totalTileTime_str = ResourceClass.millisToHHMMSSmm(tile.totalCountedTime)
-                    totalTimeMainView.text = totalTileTime_str.substring(0, totalTileTime_str.length - 3)
+                    val totalTileTimeStr = ResourceClass.millisToHHMMSSmm(tile.totalCountedTime)
+                    totalTimeMainView.text = totalTileTimeStr.substring(0, totalTileTimeStr.length - 3)
                 } else {
                     val timesPressed = (tile.totalCountedTime / tile.countDownSettings.countDownTime).toInt()
-                    val countDownTime_str = "Pressed ${timesPressed}x times"
-                    totalTimeMainView.text = countDownTime_str
+                    val countdownTimeStr = "Pressed ${timesPressed}x times"
+                    totalTimeMainView.text = countdownTimeStr
                 }
 
                 animateColor(currentTimeInfo, oldColor, newColor)
@@ -350,18 +353,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         return if (tileIndex % 2 != 0) 1 else 0
     }
 
-    private fun getTileRow(tileIndex: Int): Int {
-        for (row in gridRows) {
-            for (rowChild in row.children) {
-                val card = rowChild.findViewById<MaterialCardView>(R.id.cv_viewholder_runTile_card)
-                if (gridTiles.contains(card)) {
-                    return gridRows.indexOf(row)
-                }
-            }
-        }
-
-        return -1
-    }
     //endregion
 
     //region init
@@ -415,7 +406,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     companion object {
-        const val UI_INIT_KEY = 69
         lateinit var instance: RunContinuousRoutineFragment
     }
 }

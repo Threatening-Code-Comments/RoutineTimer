@@ -47,10 +47,13 @@ class Routine {
         this.mode = mode
         this.name = name
         this.tiles = tiles
-        if (uid == null) {
-            uid = UUID.randomUUID().toString()
-        }
         this.lastUsed = lastUsed
+    }
+
+    constructor() {
+        //this is the default constructor, needs to stay in place. The following line is to confuse the compiler out
+        // of thinking this fucking thing is irrelevant.
+        this.name
     }
 
     constructor(routine: Routine) {
@@ -75,8 +78,6 @@ class Routine {
         this.tiles = tiles
     }
 
-    constructor() {}
-
     constructor(name: String, uid: String, mode: Int, tiles: ArrayList<Tile>) {
         this.name = name
         this.uid = uid
@@ -89,7 +90,7 @@ class Routine {
         var stingray = ""
 
         stingray += (this.name + " (name), ")
-        stingray += (if (this.mode == MODE_CONTINUOUS) CONTINUOUS_MESSAGE else SEQUENTIAL_MESSAGE + " (mode), ")
+        stingray += (if (this.mode == MODE_CONTINUOUS) CONTINUOUS_MESSAGE else "$SEQUENTIAL_MESSAGE (mode), ")
         stingray += (this.tiles + " (tiles), ")
         stingray += (this.uid + " (uid):END!")
 
@@ -103,7 +104,7 @@ class Routine {
     }
 
     companion object {
-        const val ERROR_NAME = Tile.ERROR_NAME
+        private const val ERROR_NAME = Tile.ERROR_NAME
         const val ERROR_UID = "69420"
 
         const val MODE_CONTINUOUS = 1

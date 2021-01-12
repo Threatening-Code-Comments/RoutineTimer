@@ -15,10 +15,6 @@ class CountdownSettings {
     }
 
     constructor() : this(DEFAULT_COUNTDOWN_TIME, DEFAULT_REMIND, DEFAULT_CUSTOM_REMINDER, DEFAULT_RING)
-    constructor(countDownTime: Long, reminds: Boolean) {
-        this.countDownTime = countDownTime
-        this.reminds = reminds
-    }
 
     companion object {
         const val DEFAULT_COUNTDOWN_TIME = 1000L

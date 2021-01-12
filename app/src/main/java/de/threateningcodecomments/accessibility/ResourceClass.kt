@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
 import android.graphics.drawable.Drawable
-import android.provider.Settings
 import android.util.Log
 import android.util.TypedValue
 import android.view.animation.Animation
@@ -19,7 +18,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
 import com.maltaisn.icondialog.pack.IconPack
 import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
@@ -36,6 +34,15 @@ import kotlin.math.round
 
 
 internal object ResourceClass {
+
+    object Debugging {
+        fun shortenUid(uid: String): String {
+            val firstLetters = uid.substring(0..5)
+            val lastLetters = uid.substring(uid.length - 5)
+
+            return "$firstLetters ... $lastLetters"
+        }
+    }
 
     //region random vars
     fun millisToHHMMSS(millis: Long): String {
@@ -66,6 +73,8 @@ internal object ResourceClass {
         lateinit var slideUpOut: Animation
         lateinit var slideDownIn: Animation
         lateinit var slideDownOut: Animation
+        lateinit var slideLeftOut: Animation
+        lateinit var slideLeftIn: Animation
 
         lateinit var scaleDown: Animation
         lateinit var scaleUp: Animation
@@ -82,6 +91,8 @@ internal object ResourceClass {
             slideUpOut = loadAnimation(R.anim.slide_up_out)
             slideDownIn = loadAnimation(R.anim.slide_down_in)
             slideDownOut = loadAnimation(R.anim.slide_down_out)
+            slideLeftOut = loadAnimation(R.anim.slide_left_out)
+            slideLeftIn = loadAnimation(R.anim.slide_left_in)
 
             scaleDown = loadAnimation(R.anim.scale_down)
             scaleUp = loadAnimation(R.anim.scale_up)
@@ -139,7 +150,7 @@ internal object ResourceClass {
     }
 
     fun convertUidToInt(uid: String): Int {
-        var number_str = ""
+        var numberStr = ""
         var number: Long
 
         val stepSize = 10
@@ -150,10 +161,10 @@ internal object ResourceClass {
                     break
                 temp += uid.toCharArray()[i + j].toInt()
             }
-            number_str += temp.toString()
+            numberStr += temp.toString()
         }
 
-        number = number_str.toLong()
+        number = numberStr.toLong()
         while (number > Int.MAX_VALUE) {
             number /= 2
         }
@@ -187,7 +198,7 @@ internal object ResourceClass {
         return isNightMode
     }
 
-    fun updateNightMode(nightMode: Boolean) {
+    private fun updateNightMode(nightMode: Boolean) {
         isNightMode = nightMode
     }
 
@@ -195,7 +206,7 @@ internal object ResourceClass {
         updateNightMode(isNightMode(application))
     }
 
-    fun random(start: Int, end: Int): Int {
+    private fun random(start: Int, end: Int): Int {
         val randomVal = Math.random()
         return ((randomVal + start) * end).toInt()
     }
@@ -242,8 +253,8 @@ internal object ResourceClass {
 
     @JvmStatic
     fun calculateContrast(bgColor: Int): Int {
-        val bgColor_cl = Color.valueOf(bgColor)
-        val average = (bgColor_cl.red() + bgColor_cl.blue() + bgColor_cl.green()) / 3.toDouble()
+        val bgColorCl = Color.valueOf(bgColor)
+        val average = (bgColorCl.red() + bgColorCl.blue() + bgColorCl.green()) / 3.toDouble()
         val contrastColor: Int
         contrastColor = if (average > 0.6) {
             Color.BLACK
@@ -257,18 +268,18 @@ internal object ResourceClass {
 
     //region Routines
     fun updateRoutineInDb(tile: Tile) {
-        val routine = ResourceClass.getRoutineOfTile(tile)
+        val routine = getRoutineOfTile(tile)
         val index = routine.tiles.indexOf(tile)
         routine.tiles[index] = tile
 
         updateRoutineInDb(routine.uid)
     }
 
-    fun updateRoutineInDb(routineUid: String) {
-        val currentTile = ResourceClass.currentTiles[routineUid]
-                ?: ResourceClass.previousCurrentTiles[routineUid]
+    private fun updateRoutineInDb(routineUid: String) {
+        val currentTile = currentTiles[routineUid]
+                ?: previousCurrentTiles[routineUid]
 
-        val routine = ResourceClass.getRoutineFromUid(routineUid)
+        val routine = getRoutineFromUid(routineUid)
         val index = routine.tiles.indexOf(currentTile!!)
         routine.tiles[index] = currentTile
 
@@ -291,7 +302,6 @@ internal object ResourceClass {
 
     private fun handleRoutineUpdate(snapshot: DataSnapshot) {
         val routinesIterable = snapshot.children
-        MyLog.d("new value for routines in db: " + snapshot.value)
         if (snapshot.value == null) {
             routines!!.clear()
             routines!!.add(Routine.ERROR_ROUTINE)
@@ -384,7 +394,7 @@ internal object ResourceClass {
         } else {
             for (routine in routines!!) {
                 for (tile in routine.tiles) {
-                    if (uid == tile.tileUid) {
+                    if (uid == tile.uid) {
                         return tile
                     }
                 }
@@ -404,7 +414,7 @@ internal object ResourceClass {
 
     //endregion
 
-    class CurrentTileMap() : HashMap<String, Tile?>() {
+    class CurrentTileMap : HashMap<String, Tile?>() {
 
         private var lastValue: CurrentTileMap = this
 
@@ -414,7 +424,9 @@ internal object ResourceClass {
             if (oldValue == value)
                 return super.put(key, value)
 
-            previousCurrentTiles.put(key, oldValue)
+            if (oldValue != null) {
+                previousCurrentTiles[key] = oldValue
+            }
 
             val validTile = value ?: oldValue
             updateCurrentTileInDB(value, getRoutineOfTile(validTile!!))
@@ -424,12 +436,14 @@ internal object ResourceClass {
                 oldValue == null -> /*hier haben wir ein problem*/ MyLog.d("hey")
                 else -> stopEvent(oldValue)
             }
-            MainActivity.currentFragment.updateUI()
 
             if (value != null || oldValue != null)
                 lastValue = this
 
-            return super.put(key, value)
+            val returnVal = super.put(key, value)
+
+            MainActivity.currentFragment.updateUI()
+            return returnVal
         }
 
         val runningTiles: ArrayList<Tile>
@@ -447,8 +461,8 @@ internal object ResourceClass {
     }
 
     //region currentTile
-    var currentTiles: CurrentTileMap = ResourceClass.CurrentTileMap()
-    var previousCurrentTiles = HashMap<String, Tile?>()
+    var currentTiles: CurrentTileMap = CurrentTileMap()
+    var previousCurrentTiles = HashMap<String, Tile>()
 
     private fun startEvent(tile: Tile) {
         val user = FirebaseAuth.getInstance().currentUser
@@ -489,7 +503,7 @@ internal object ResourceClass {
             val path = basePath + eventStart
 
             var key = "tile"
-            var value = tile.tileUid
+            var value = tile.uid
             saveToDb(path, key, value)
 
             key = "duration"
@@ -499,7 +513,7 @@ internal object ResourceClass {
     }
 
     private fun cancelEvent(tile: Tile) {
-        val eventStart = tile.countingStart
+        val eventStart = abs(tile.countingStart)
 
         if (eventStart == 0L || tile.mode == Tile.MODE_COUNT_UP)
             return
@@ -527,7 +541,7 @@ internal object ResourceClass {
             val path = "/users/${user.uid}/currentTiles/${routine.uid}"
             val key = "currentTile"
 
-            val value = tile?.tileUid
+            val value = tile?.uid
 
             saveToDb(path, key, value)
         }

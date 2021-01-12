@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.widget.RemoteViews
@@ -15,15 +14,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import de.threateningcodecomments.accessibility.MyLog
 import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.routinetimer.App
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
+import de.threateningcodecomments.routinetimer.RunSequentialRoutine
 import kotlin.math.abs
 
 
 class CountingService : Service() {
-    private lateinit var notificationCountdownTimer: CountDownTimer
 
     fun remind(tile: Tile) {
         val settings = tile.countDownSettings
@@ -34,6 +34,7 @@ class CountingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val routineUid = intent!!.getStringExtra(ROUTINE_UID_KEY)
         if (routineUid == null) {
+            MyLog.d("RoutineUid is null in CountingService!")
             stopService()
             return super.onStartCommand(intent, flags, startId)
         }
@@ -43,7 +44,11 @@ class CountingService : Service() {
             Notifications.initNotification(routineUid)
         }
 
-        Timers.startCounting(currentTile!!)
+        if (currentTile == null)
+            MyLog.d("currentTile in onStartCommand CountingService is null")
+        else {
+            Timers.startCounting(currentTile)
+        }
 
         return super.onStartCommand(intent, flags, startId)
     }
@@ -148,7 +153,12 @@ class CountingService : Service() {
         }
 
         private fun updateGroupNotification() {
-            val title = "Running ${notificationIds.size} tiles"
+            val title =
+                    if (notificationIds.size == 1)
+                        "Running ${notificationIds.size} tile!"
+                    else
+                        "Running ${notificationIds.size} tiles!"
+
             val inboxStyle = NotificationCompat.InboxStyle()
                     .setBigContentTitle(title)
                     .setSummaryText("Running tiles")
@@ -156,7 +166,7 @@ class CountingService : Service() {
             val summaryNotification = NotificationCompat.Builder(instance, App.TIMING_CHANNEL_ID)
                     .setContentTitle(title)
                     //set content text to support devices running API level < 24
-                    .setContentText("Legacy content!")
+                    .setContentText(title)
                     .setSmallIcon(R.drawable.ic_logo)
                     //build summary info into InboxStyle template
                     .setStyle(inboxStyle)
@@ -172,7 +182,7 @@ class CountingService : Service() {
 
         val notifications = object : HashMap<String, Notification>() {
             override fun put(key: String, value: Notification): Notification? {
-                notificationIds.put(key, ResourceClass.convertUidToInt(key))
+                notificationIds[key] = ResourceClass.convertUidToInt(key)
                 return super.put(key, value)
             }
 
@@ -209,7 +219,7 @@ class CountingService : Service() {
             }
         }
 
-        fun sendNotification(id: Int, notification: Notification) {
+        private fun sendNotification(id: Int, notification: Notification) {
             val notificationManager = instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(id, notification)
         }
@@ -249,6 +259,15 @@ class CountingService : Service() {
                             val remainingTime = currentTile.countDownSettings.countDownTime - currentTime
                             if (remainingTime < 30) {
                                 stopCounting(routineUid)
+
+                                val routine = ResourceClass.getRoutineOfTile(currentTile)
+
+                                if (routine.mode == Routine.MODE_SEQUENTIAL) {
+                                    if (MainActivity.currentFragment is RunSequentialRoutine)
+                                        (MainActivity.currentFragment as RunSequentialRoutine).cycleForward()
+
+                                    App.instance.cycleForward(routine)
+                                }
                             }
                         }
                     }
@@ -256,8 +275,6 @@ class CountingService : Service() {
                     //while this tile is supposed to be running, keep it running
                     if (ResourceClass.currentTiles[routineUid] == currentTile)
                         Handler().postDelayed(this, 300)
-                    else
-                        MyLog.d("stopping")
                 }
             }
             counter.run()
@@ -270,9 +287,11 @@ class CountingService : Service() {
 
         fun stopCounting(routineUid: String) {
             //buffers tile and routine
+            //last elvis operator is so that if routine this is trying to stop is already stopped
             val currentTile = ResourceClass.currentTiles[routineUid]
-                    ?: ResourceClass.previousCurrentTiles[routineUid]
-            val routine = ResourceClass.getRoutineOfTile(currentTile!!)
+                    ?: ResourceClass.previousCurrentTiles[routineUid] ?: return
+
+            val routine = ResourceClass.getRoutineOfTile(currentTile)
 
             //if tile was already stopped, don't try to stop it again
             if (currentTile.countingStart < 0)
@@ -307,7 +326,6 @@ class CountingService : Service() {
     companion object {
         lateinit var instance: CountingService
 
-        const val CANCEL_RQ_CODE = 420
         const val ROUTINE_UID_KEY = "routine_uid"
 
         const val STATIC_NOTIFICATION_ID = 69420

@@ -3,7 +3,7 @@ package de.threateningcodecomments.adapters
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-class ItemMoveCallbackListener(val adapter: OrganizeRoutineAdapter) : ItemTouchHelper.Callback() {
+class ItemMoveCallbackListener(private val adapter: OrganizeRoutineAdapter) : ItemTouchHelper.Callback() {
 
 
     override fun getMovementFlags(

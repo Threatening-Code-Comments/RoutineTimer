@@ -81,7 +81,6 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         ResourceClass.errorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
     }
 
-    private var serviceRunning = false
     override fun onClick(v: View) {
         when (v.id) {
             R.id.cv_StartFragment_name -> toggleSignIn()

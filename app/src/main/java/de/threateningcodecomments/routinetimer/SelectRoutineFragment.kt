@@ -29,7 +29,10 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
-import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.Routine
+import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.accessibility.UIContainer
 import de.threateningcodecomments.adapters.SelectRoutineRVAdapter
 import java.util.*
 import kotlin.collections.ArrayList
@@ -223,7 +226,6 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
             routines!!.add(Routine.ERROR_ROUTINE)
         }
 
-        MyLog.d(routines)
         mAdapter = SelectRoutineRVAdapter(routines!!)
         recyclerView.adapter = mAdapter
         //mAdapter.notifyDataSetChanged()
@@ -295,10 +297,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     //region handle form
 
     private fun updateForm() {
-        val name: String? = createNameField.text.toString()
-        val mode: String? = createModeDropdown.text.toString()
+        val name: String = createNameField.text.toString()
+        val mode: String = createModeDropdown.text.toString()
 
-        createSaveButton.isEnabled = !(name?.length == 0 || mode?.length == 0)
+        createSaveButton.isEnabled = !(name.length == 0 || mode.length == 0)
     }
 
     private fun minimizeForm() {
@@ -360,9 +362,9 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
         if (v == null || iv == null || routineNameView == null) {
             val directions: NavDirections = if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
-                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid!!)
+                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid)
             } else {
-                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid!!)
+                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid)
             }
 
             findNavController().navigate(directions)
@@ -371,20 +373,13 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
             val editRoutineFragment = EditSequentialRoutineFragment()
             editRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
 
-            var index = 0
-            for ((currentIndex, routine) in routines!!.withIndex()) {
-                if (routine.uid == tmpRoutine.uid) {
-                    index = currentIndex
-                }
-            }
-
             val directions: NavDirections
             val extras: FragmentNavigator.Extras
             if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
-                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid!!)
+                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid)
                 extras = FragmentNavigatorExtras(v to "editRoutineRoot", iv to "editRoutineIcon", routineNameView to "editRoutineRoutineName")
             } else {
-                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid!!)
+                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid)
                 extras = FragmentNavigatorExtras(v to "editCRoutineRoot", routineNameView to "editCRoutineName")
             }
 
@@ -393,12 +388,12 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     fun goToRunRoutine(layout: LinearLayout?, iv: ShapeableImageView?, nameView: TextView?, tmpRoutine: Routine) {
-        /*val directions =
+        val directions =
                 if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
-                    SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid!!)
-        else
-            SelectRoutineFragmentDirections.action*/
-        val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToRunSequentialRoutine(tmpRoutine.uid)
+                    SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid)
+                else
+                    SelectRoutineFragmentDirections.actionSelectRoutineFragmentToRunSequentialRoutine(tmpRoutine.uid)
+
 
         findNavController().navigate(directions)
     }

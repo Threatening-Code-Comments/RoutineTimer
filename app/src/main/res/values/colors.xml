@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#6200EE</color>
+    <color name="colorSecondary">#03DAC5</color>
+
+    <color name="colorAcceptLight">#69FF69</color>
+    <color name="colorAcceptDark">#99FF99</color>
+
+    <color name="colorCancelLight">#FF5060</color>
+    <color name="colorCancelDark">#FF7080</color>
 </resources>
