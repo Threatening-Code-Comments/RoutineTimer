@@ -149,8 +149,9 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_RunRoutine_sequential_restart"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/str_btn_RunRoutine_sequential_restartButton"
-            android:layout_height="wrap_content" />
+            app:cornerRadius="@dimen/dimen_btnCorners" />
 
     </LinearLayout>
 

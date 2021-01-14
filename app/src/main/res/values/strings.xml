@@ -59,4 +59,5 @@
     <string name="str_RunRoutine_sequential_pauseButtonPause">pause</string>
     <string name="str_RunRoutine_sequential_currentTimeInfo_notRunning">Not running!</string>
     <string name="str_btn_RunRoutine_sequential_restartButton">restart routine</string>
+    <string name="str_btn_EditRoutine_sequential_tileSettings">tile settings</string>
 </resources>

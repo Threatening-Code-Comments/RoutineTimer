@@ -126,11 +126,11 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_EditRoutine_sequential_cycle_delete"
+            android:id="@+id/btn_EditRoutine_sequential_tileSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/str_btn_EditRoutine_sequential_cycle_delete"
+            android:text="@string/str_btn_EditRoutine_sequential_tileSettings"
             app:cornerRadius="@dimen/dimen_btnCorners" />
 
         <LinearLayout
@@ -164,6 +164,15 @@
                 app:cornerRadius="@dimen/dimen_btnCorners" />
 
         </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_EditRoutine_sequential_cycle_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/colorCancelDark"
+            android:text="@string/str_btn_EditRoutine_sequential_cycle_delete"
+            app:cornerRadius="@dimen/dimen_btnCorners" />
 
     </LinearLayout>
 

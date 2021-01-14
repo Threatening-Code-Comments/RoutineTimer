@@ -42,6 +42,7 @@ import de.threateningcodecomments.adapters.ItemMoveCallbackListener
 import de.threateningcodecomments.adapters.MyViewHolder
 import de.threateningcodecomments.adapters.OnStartDragListener
 import de.threateningcodecomments.adapters.OrganizeRoutineAdapter
+import kotlinx.android.synthetic.main.fragment_edit_sequential_routine.*
 
 
 class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener, UIContainer {
@@ -67,6 +68,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     private lateinit var tileCyclePrevBtn: MaterialButton
     private lateinit var tileCycleNextBtn: MaterialButton
 
+    private lateinit var tileSettingsButton: MaterialButton
+
     private lateinit var organizeRoutineRoot: LinearLayout
     private lateinit var organizeRoutineRV: RecyclerView
     private lateinit var organizeRoutineBackBtn: MaterialButton
@@ -84,6 +87,11 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
         fragment = this
         MainActivity.currentFragment = this
+
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         initBufferViews()
 
@@ -232,6 +240,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileCyclePrevBtn.setOnClickListener(this)
         tileCycleNextBtn.setOnClickListener(this)
 
+        tileSettingsButton.setOnClickListener(this)
+
         organizeRoutineBackBtn.setOnClickListener(this)
     }
 
@@ -256,6 +266,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileCycleDeleteBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_delete)
         tileCyclePrevBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_prev)
         tileCycleNextBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_next)
+
+        tileSettingsButton = btn_EditRoutine_sequential_tileSettings
 
         organizeRoutineRoot = v.findViewById(R.id.ll_EditRoutine_sequential_organize_root)
         organizeRoutineRV = v.findViewById(R.id.rv_EditRoutine_sequential_organize_recyclerview)
@@ -294,6 +306,18 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         updateRoutine()
         updateCard()
         updateColorSliderHue()
+        updateButtonColor()
+    }
+
+    private fun updateButtonColor() {
+        val isNightMode = ResourceClass.isNightMode(requireActivity().application)
+
+        val colorId =
+                if (isNightMode)
+                    R.color.colorCancelDark
+                else
+                    R.color.colorCancelLight
+        
     }
 
     private fun updateCard() {
