@@ -159,7 +159,7 @@
                     android:id="@+id/ll__TileSettings_timing_cdTime_editLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="visible">
+                    android:visibility="gone">
 
                     <androidx.coordinatorlayout.widget.CoordinatorLayout
                         android:layout_width="match_parent"

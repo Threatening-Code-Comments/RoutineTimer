@@ -23,7 +23,6 @@ import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.UIContainer
 import kotlinx.android.synthetic.main.fragment_edit_continuous_routine.*
 
-
 class EditContinuousRoutineFragment : Fragment(), UIContainer {
     private var isNightMode: Boolean = false
     private lateinit var currentRoutine: Routine
