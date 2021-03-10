@@ -4,18 +4,17 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
-import android.text.InputType
-import android.text.TextWatcher
-import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -27,9 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.slider.Slider
-import com.google.android.material.transition.platform.MaterialArcMotion
-import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.textview.MaterialTextView
 import de.threateningcodecomments.accessibility.*
 import de.threateningcodecomments.accessibility.ResourceClass.Anim.scaleDown
 import de.threateningcodecomments.accessibility.ResourceClass.Anim.scaleUpSlow
@@ -37,7 +34,6 @@ import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideDownIn
 import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideDownOut
 import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideUpIn
 import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideUpOut
-import de.threateningcodecomments.accessibility.ResourceClass.isNightMode
 import de.threateningcodecomments.adapters.ItemMoveCallbackListener
 import de.threateningcodecomments.adapters.MyViewHolder
 import de.threateningcodecomments.adapters.OnStartDragListener
@@ -47,7 +43,7 @@ import kotlinx.android.synthetic.main.fragment_edit_sequential_routine.*
 
 class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener, UIContainer {
     private val isNightMode: Boolean
-        get() = isNightMode(requireActivity().application)
+        get() = MainActivity.isNightMode
 
     private lateinit var root: ConstraintLayout
     private lateinit var closeIcon: ShapeableImageView
@@ -56,17 +52,23 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     private lateinit var routineNameEditText: EditText
     private lateinit var routineOrganizeBtn: MaterialButton
 
-    private lateinit var colorCard: MaterialCardView
-    private lateinit var colorSlider: Slider
-
     private lateinit var tileCardView: MaterialCardView
     private lateinit var tileIconView: ShapeableImageView
-    private lateinit var tileNameView: EditText
+    private lateinit var tileNameView: MaterialTextView
+
+    private lateinit var settingsPreviewCard: MaterialCardView
+    private lateinit var settingsPreviewModeIcon: ImageView
+    private lateinit var settingsPreviewModeSummary: MaterialTextView
+    private lateinit var settingsPreviewCdTimeInfo: MaterialTextView
+    private lateinit var settingsPreviewCdTimeValue: MaterialTextView
 
     private lateinit var tileCycleLayout: LinearLayout
-    private lateinit var tileCycleDeleteBtn: MaterialButton
-    private lateinit var tileCyclePrevBtn: MaterialButton
-    private lateinit var tileCycleNextBtn: MaterialButton
+    private lateinit var tileCycleDeleteBtn: MaterialCardView
+    private lateinit var tileCycleDeleteBtnIcon: ImageView
+    private lateinit var tileCyclePrevBtn: MaterialCardView
+    private lateinit var tileCyclePrevBtnIcon: ImageView
+    private lateinit var tileCycleNextBtn: MaterialCardView
+    private lateinit var tileCycleNextBtnIcon: ImageView
 
     private lateinit var tileSettingsButton: MaterialButton
 
@@ -74,7 +76,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     private lateinit var organizeRoutineRV: RecyclerView
     private lateinit var organizeRoutineBackBtn: MaterialButton
 
-    private var routines: ArrayList<Routine>? = null
     private lateinit var currentRoutine: Routine
     private var position: Int = 0
 
@@ -103,7 +104,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
         initUI()
 
-        ResourceClass.updateNightMode(requireActivity().application)
+        ResourceClass.updateNightMode(requireActivity())
         initOrganizeRV()
     }
 
@@ -111,20 +112,19 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         when (v!!.id) {
             R.id.iv_EditRoutine_sequential_close ->
                 navigateBack()
-            R.id.iv_EditRoutine_sequential_tile_icon ->
-                MainActivity.instance.openIconDialog(currentRoutine.tiles[position])
-            R.id.cv_EditRoutine_sequential_tile_card ->
-                handleColorModeToggle()
-            R.id.btn_EditRoutine_sequential_cycle_delete ->
+            R.id.cv_EditRoutine_sequential_cycle_delete ->
                 handleDeleteButton()
-            R.id.btn_EditRoutine_sequential_cycle_next ->
+            R.id.cv_EditRoutine_sequential_cycle_next ->
                 cycleToNextTile()
-            R.id.btn_EditRoutine_sequential_cycle_prev ->
+            R.id.cv_EditRoutine_sequential_cycle_prev ->
                 cycleToPrevTile()
             R.id.btn_EditRoutine_sequential_routines_organize ->
                 goIntoOrganizeMode()
             R.id.btn_EditRoutine_sequential_organize_back ->
                 leaveOrganizeMode()
+            R.id.btn_EditRoutine_sequential_tileSettings -> {
+                navigateToTileSettings()
+            }
             else ->
                 Toast.makeText(context, "Wrong onClickListener, wtf did you do?", Toast.LENGTH_LONG).show()
         }
@@ -204,41 +204,26 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         }
         routineOrganizeBtn.setOnClickListener(this)
 
-        colorSlider.addOnChangeListener(Slider.OnChangeListener { _, value, _ ->
-            updateColor(value)
-        })
-
-        tileIconView.setOnClickListener(this)
-        tileNameView.imeOptions = EditorInfo.IME_ACTION_DONE
-        tileNameView.setRawInputType(InputType.TYPE_CLASS_TEXT)
-        tileNameView.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                routineNameEditText.clearFocus()
-                (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
-            }
-            false
-        }
-        tileNameView.setOnFocusChangeListener { v, hasFocus ->
-
-            //TODO make tile name editing prettier
-            if (!hasFocus)
-                updateRoutine()
-        }
-        tileNameView.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(text: Editable?) {
-                if (text.toString() != "Tile name")
-                    editTileName(text.toString())
-            }
-        })
-        tileCardView.setOnClickListener(this)
-
         tileCycleDeleteBtn.setOnClickListener(this)
         tileCyclePrevBtn.setOnClickListener(this)
         tileCycleNextBtn.setOnClickListener(this)
+
+        val settingsExpandListener = View.OnClickListener {
+            val isExpanded = settingsPreviewModeSummary.isVisible
+
+            settingsPreviewModeSummary.isVisible = !isExpanded
+
+            if (currentRoutine.tiles[position].mode == Tile.MODE_COUNT_UP) {
+                settingsPreviewCdTimeInfo.isVisible = false
+                settingsPreviewCdTimeValue.isVisible = false
+            } else {
+                settingsPreviewCdTimeInfo.isVisible = !isExpanded
+                settingsPreviewCdTimeValue.isVisible = true
+            }
+
+            updateUI()
+        }
+        settingsPreviewCard.setOnClickListener(settingsExpandListener)
 
         tileSettingsButton.setOnClickListener(this)
 
@@ -255,17 +240,23 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         routineNameEditText = v.findViewById(R.id.et_EditRoutine_sequential_routine_name)
         routineOrganizeBtn = v.findViewById(R.id.btn_EditRoutine_sequential_routines_organize)
 
-        colorCard = v.findViewById(R.id.cv_EditRoutine_sequential_color_cardView)
-        colorSlider = v.findViewById(R.id.sl_EditRoutine_sequential_color_hueSlider)
-
         tileCardView = v.findViewById(R.id.cv_EditRoutine_sequential_tile_card)
         tileIconView = v.findViewById(R.id.iv_EditRoutine_sequential_tile_icon)
-        tileNameView = v.findViewById(R.id.et_EditRoutine_sequential_tile_name)
+        tileNameView = v.findViewById(R.id.tv_EditRoutine_sequential_tile_name)
+
+        settingsPreviewCard = cv_EditRoutine_sequential_tile_settingsDisplay_card
+        settingsPreviewModeIcon = iv_EditRoutine_sequential_tile_settingsDisplay_modeIcon
+        settingsPreviewModeSummary = tv_EditRoutine_sequential_tile_settingsDisplay_modeSummary
+        settingsPreviewCdTimeInfo = tv_EditRoutine_sequential_tile_settingsDisplay_cdTimeInfo
+        settingsPreviewCdTimeValue = tv_EditRoutine_sequential_tile_settingsDisplay_cdTimeValue
 
         tileCycleLayout = v.findViewById(R.id.ll_EditRoutine_sequential_cycle_layout)
-        tileCycleDeleteBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_delete)
-        tileCyclePrevBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_prev)
-        tileCycleNextBtn = v.findViewById(R.id.btn_EditRoutine_sequential_cycle_next)
+        tileCycleDeleteBtn = cv_EditRoutine_sequential_cycle_delete
+        tileCycleDeleteBtnIcon = iv_EditRoutine_sequential_cycle_delete_icon
+        tileCyclePrevBtn = cv_EditRoutine_sequential_cycle_prev
+        tileCyclePrevBtnIcon = iv_EditRoutine_sequential_cycle_prev_icon
+        tileCycleNextBtn = cv_EditRoutine_sequential_cycle_next
+        tileCycleNextBtnIcon = iv_EditRoutine_sequential_cycle_next_icon
 
         tileSettingsButton = btn_EditRoutine_sequential_tileSettings
 
@@ -275,13 +266,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     }
 
     private fun initRoutines() {
-        routines = ResourceClass.getRoutines()
-        if (routines == null) {
-            Toast.makeText(context, "Oh no, routines are null. Good bye.", Toast.LENGTH_LONG).show()
-        }
-
-        val position: Int = routines!!.indexOf(ResourceClass.getRoutineFromUid(args.routineUid))
-        currentRoutine = routines!![position]
+        val position: Int = ResourceClass.routines.indexOf(ResourceClass.getRoutineFromUid(args.routineUid))
+        currentRoutine = ResourceClass.routines[position]
         currentRoutine.setAccessibility(isNightMode)
         currentRoutine.lastUsed = System.currentTimeMillis()
     }
@@ -292,39 +278,74 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         currentRoutine.setAccessibility(isNightMode)
         routineNameEditText.clearFocus()
         updateCard()
-
-        updateColorSliderHue()
     }
 
     override fun updateUI() {
-        if (currentRoutine.tiles.size - 1 < position + 1) {
-            tileCycleNextBtn.text = getString(R.string.str_btn_EditRoutine_sequential_cycle_add)
+        //region visibility
+        val onSurface = ResourceClass.Resources.Colors.contrastColor
+
+        tileCyclePrevBtnIcon.setColorFilter(onSurface)
+        tileCycleNextBtnIcon.setColorFilter(onSurface)
+
+        val deleteColor = ResourceClass.Resources.Colors.cancelColor
+        val deleteContrastColor = ResourceClass.Conversions.Colors.calculateContrast(deleteColor)
+
+        tileCycleDeleteBtn.setCardBackgroundColor(deleteColor)
+        tileCycleDeleteBtnIcon.setColorFilter(deleteContrastColor)
+
+        settingsPreviewModeSummary.setTextColor(onSurface)
+        settingsPreviewModeIcon.setColorFilter(onSurface)
+        settingsPreviewCdTimeValue.setTextColor(onSurface)
+        settingsPreviewCdTimeInfo.setTextColor(onSurface)
+        //endregion
+
+        //make the cycleNextButtonIcon turn into an add icon when a new tile will be created
+        val drawableId = if (currentRoutine.tiles.size - 1 < position + 1) {
+            R.drawable.ic_add
         } else {
-            tileCycleNextBtn.text = getString(R.string.str_btn_EditRoutine_sequential_cycle_next)
+            R.drawable.ic_arrow_right
         }
-        tileCyclePrevBtn.isEnabled = position - 1 >= 0
+        val cycleDrawable = ResourceClass.Resources.getDrawable(drawableId)
+        tileCycleNextBtnIcon.setImageDrawable(cycleDrawable)
+
+        //disable prevButton if this is the first tile
+        val isNotAtFirstPosition = position - 1 >= 0
+
+        val disableOrEnableColor = if (isNotAtFirstPosition)
+            ResourceClass.Resources.Colors.contrastColor
+        else
+            ResourceClass.Resources.Colors.disabledColor
+
+        tileCyclePrevBtnIcon.setColorFilter(disableOrEnableColor)
+
+        tileCyclePrevBtn.isClickable = isNotAtFirstPosition
+
+        //set cdTimeInfo visibility to true if the currentTile mode is COUNT_DOWN
+        val currentTile = currentRoutine.tiles[position]
+
+        settingsPreviewModeSummary.text = currentTile.getModeAsString()
+
+        val modeDrawable = ResourceClass.Resources.Drawables.getModeDrawable(currentTile)
+        settingsPreviewModeIcon.setImageDrawable(modeDrawable)
+
+        settingsPreviewModeSummary.text = currentTile.getModeAsString()
+
+        settingsPreviewCdTimeValue.isVisible = (currentTile.mode != Tile.MODE_COUNT_UP)
+        if(currentTile.mode == Tile.MODE_COUNT_UP)
+            settingsPreviewCdTimeInfo.isVisible = false
+
+        val cdTimeValue = currentTile.countDownSettings.countDownTime
+        settingsPreviewCdTimeValue.text = ResourceClass.millisToHHMMSSorMMSS(cdTimeValue)
+
         updateRoutine()
         updateCard()
-        updateColorSliderHue()
-        updateButtonColor()
-    }
-
-    private fun updateButtonColor() {
-        val isNightMode = ResourceClass.isNightMode(requireActivity().application)
-
-        val colorId =
-                if (isNightMode)
-                    R.color.colorCancelDark
-                else
-                    R.color.colorCancelLight
-        
     }
 
     private fun updateCard() {
         val tile: Tile = currentRoutine.tiles[position]
 
         val tileName = tile.name
-        tileNameView.setText(tileName)
+        tileNameView.text = tileName
         tileNameView.setTextColor(tile.contrastColor)
 
         val icon = ResourceClass.getIconDrawable(tile)
@@ -349,96 +370,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         if (currentRoutine.name != routineNameEditText.text.toString())
             routineNameEditText.setText(currentRoutine.name)
     }
-    //endregion
-
-    //region update tile components
-
-    //region tile name
-    private fun editTileName(s: String?) {
-        currentRoutine.tiles[position].name = s
-        //updateRoutine()
-    }
-    //endregion
-
-    //region tile color
-
-    private var isInColorMode: Boolean = false
-    private fun handleColorModeToggle() {
-        updateColorSliderHue()
-        if (!isInColorMode) {
-            isInColorMode = true
-            goIntoColorMode()
-            updateColor(colorSlider.value)
-        } else {
-            isInColorMode = false
-            leaveColorMode()
-        }
-    }
-
-    private fun updateColor(hue: Float) {
-        val color = ResourceClass.calculateColorFromHue(hue)
-        currentRoutine.tiles[position].backgroundColor = color
-        updateUI()
-    }
-
-    private fun leaveColorMode() {
-        val transform = MaterialContainerTransform().apply {
-            startView = colorCard
-            endView = routineLayout
-
-            // Ensure the container transform only runs on a single target
-            addTarget(endView)
-
-            // Optionally add a curved path to the transform
-            pathMotion = MaterialArcMotion()
-
-            scrimColor = Color.TRANSPARENT
-        }
-
-        tileCycleLayout.startAnimation(slideUpIn)
-
-        TransitionManager.beginDelayedTransition(view as ViewGroup, transform)
-        routineLayout.visibility = View.VISIBLE
-        colorCard.visibility = View.GONE
-        tileCycleLayout.visibility = View.VISIBLE
-    }
-
-    private fun goIntoColorMode() {
-        val transform = MaterialContainerTransform().apply {
-            startView = routineLayout
-            endView = colorCard
-
-            // Ensure the container transform only runs on a single target
-            addTarget(endView)
-
-            // Optionally add a curved path to the transform
-            pathMotion = MaterialArcMotion()
-
-            scrimColor = Color.TRANSPARENT
-        }
-
-        tileCycleLayout.startAnimation(slideDownOut)
-
-        TransitionManager.beginDelayedTransition(view as ViewGroup, transform)
-        routineLayout.visibility = View.GONE
-        colorCard.visibility = View.VISIBLE
-        tileCycleLayout.visibility = View.GONE
-    }
-
-    private fun updateColorSliderHue() {
-        val tmpTile: Tile = currentRoutine.tiles[position]
-        val bgColor = tmpTile.backgroundColor
-        val hsv = FloatArray(3)
-        Color.colorToHSV(bgColor, hsv)
-        val i: Int = ResourceClass.calculateColorFromHue(hsv[0])
-        Color.colorToHSV(i, hsv)
-        colorSlider.value = hsv[0]
-    }
-
-    //endregion
-
-    //tile icon is handled in MainActivity
-
     //endregion
 
     //region cycling tiles
@@ -487,6 +418,17 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         val extras = FragmentNavigatorExtras(root as View to currentRoutine.uid, routineNameEditText to currentRoutine.name!!, tileIconView to currentRoutine.uid + "icon")
 
         findNavController().navigate(directions, extras)
+    }
+
+    private fun navigateToTileSettings() {
+        val routineUid = currentRoutine.uid
+        val tileUid = currentRoutine.tiles[position].uid
+
+        val directions = EditSequentialRoutineFragmentDirections
+                .actionEditSequentialRoutineFragmentToTileSettingsFragment(routineUid,
+                        tileUid)
+
+        findNavController().navigate(directions)
     }
 
     //endregion

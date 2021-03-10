@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">RoutineTimer</string>
 
+    <string name="constStr_tileMode_countUp">Count up mode</string>
+    <string name="constStr_tileMode_countDown">Count down mode</string>
+
     <string name="str_btn_MainActivity_routines">View Routines!</string>
     <string name="str_button_MainActivity_test">test!</string>
     <string name="str_tv_MainActivity_username">Please log in!</string>
@@ -60,4 +63,20 @@
     <string name="str_RunRoutine_sequential_currentTimeInfo_notRunning">Not running!</string>
     <string name="str_btn_RunRoutine_sequential_restartButton">restart routine</string>
     <string name="str_btn_EditRoutine_sequential_tileSettings">tile settings</string>
+
+    <string name="pref_tile_mode">tile_mode</string>
+    <string name="prefCategory_tile_countdownSettings">prefCategory_tile_countdownSettings</string>
+    <string name="str_prefCategory_tile_countdownSettings_title">Countdown Settings</string>
+    <string name="pref_countdownSettings_countdownTime">pref_countdownSettings_countdownTime</string>
+    <string name="str_pref_countdownSettings_countdownTime_title">Countdown time</string>
+
+    <string name="str_pref_countdownSettings_reminds">pref_countdownSettings_reminds</string>
+    <string name="str_pref_countdownSettings_reminds_title">Reminds</string>
+    <string name="str_pref_remindsOnSummary">Activates an alarm when a tile ends</string>
+    <string name="str_pref_remindsOffSummary">Activates no alarm when a tile ends</string>
+    <string name="str_tv_TileSettings_tile_name">Tile name!</string>
+    <string name="str_TileSettings_tabs_common">most common</string>
+    <string name="str_TileSettings_tabs_appearance">Appearance</string>
+    <string name="str_TileSettings_tabs_timing">Timing</string>
+    <string name="constStr_noTextChangedChar">↕</string>
 </resources>

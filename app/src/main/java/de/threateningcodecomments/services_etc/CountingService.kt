@@ -38,6 +38,7 @@ class CountingService : Service() {
             stopService()
             return super.onStartCommand(intent, flags, startId)
         }
+
         val currentTile = ResourceClass.currentTiles[routineUid]
 
         if (Notifications.notifications.keys.size == 0) {
@@ -55,6 +56,7 @@ class CountingService : Service() {
 
     fun stopService() {
         if (Notifications.notifications.size == 1) {
+            Notifications.notifications.remove(Notifications.notifications.keys.first())
             MainActivity.countdownServiceRunning = false
 
             val notificationManager = instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -97,9 +99,9 @@ class CountingService : Service() {
             val nameStr = "${tile.name}"
             val timeStr =
                     if (tile.mode == Tile.MODE_COUNT_DOWN)
-                        "Time remaining: ${ResourceClass.millisToHHMMSS(tile.countDownSettings.countDownTime - currentTime)}"
+                        "Time remaining: ${ResourceClass.millisToHHMMSSorMMSS(tile.countDownSettings.countDownTime - currentTime)}"
                     else
-                        "Counted ${ResourceClass.millisToHHMMSS(currentTime)}"
+                        "Counted ${ResourceClass.millisToHHMMSSorMMSS(currentTime)}"
 
             //TODO update PendingIntent for routine
             val tileIcon = ResourceClass.getIconDrawable(tile)!!.toBitmap(200, 200, null)
@@ -119,7 +121,7 @@ class CountingService : Service() {
 
             val notification: Notification = Notification.Builder(instance, App.TIMING_CHANNEL_ID)
                     .setContentTitle(nameStr)
-                    .setContentText(ResourceClass.millisToHHMMSS(
+                    .setContentText(ResourceClass.millisToHHMMSSorMMSS(
                             if (tile.mode == Tile.MODE_COUNT_UP)
                                 currentTime
                             else
@@ -247,10 +249,10 @@ class CountingService : Service() {
                 override fun run() {
                     //calculates time elapsed since start
                     currentTime = System.currentTimeMillis() - abs(currentTile.countingStart)
-                    val curTimeStr = ResourceClass.millisToHHMMSS(currentTime)
+                    val curTimeStr = ResourceClass.millisToHHMMSSorMMSS(currentTime)
 
                     //updates the notification if the value has changed, this prevents spam and unnecessary battery drainage
-                    if (lastTimeValue != curTimeStr) {
+                    if (lastTimeValue != curTimeStr && ResourceClass.currentTiles[routineUid] == currentTile) {
                         lastTimeValue = curTimeStr
                         Notifications.updateTileNotification(currentTile, currentTime)
 

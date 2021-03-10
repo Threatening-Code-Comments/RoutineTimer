@@ -12,14 +12,15 @@ public class MyLog {
 
 
     public static void d(String message) {
-        if (SettingsFragment.Companion.getPreferences().getDev().getDebug()) {
+        //nice idea, but it doesn't work
+        /*if (SettingsFragment.Companion.getPreferences().getDev().getDebug()) {*/
             if (message == null) {
                 Log.d(DEFAULT_TAG, "null value");
             } else {
 
                 Log.d(DEFAULT_TAG, message);
             }
-        }
+        /*}*/
     }
 
     public static void t(String message) {

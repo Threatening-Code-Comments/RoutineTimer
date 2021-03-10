@@ -25,6 +25,12 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         ResourceClass.Anim.initAnimations(this)
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        isNightMode
+    }
+
     override val iconDialogIconPack: IconPack
         get() = ResourceClass.getIconPack()
 
@@ -45,6 +51,7 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
     fun startCountingService(routineUid: String) {
         val intent = Intent(this, CountingService::class.java)
         intent.putExtra(CountingService.ROUTINE_UID_KEY, routineUid)
+
         startService(intent)
     }
 
@@ -58,5 +65,13 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
 
         val sharedPreferences: SharedPreferences
             get() = instance.getPreferences(Context.MODE_PRIVATE)
+
+        val isNightMode: Boolean
+            get() {
+                val isNightMode = ResourceClass.isNightMode(instance)
+                ResourceClass.updateNightMode(instance)
+                return isNightMode
+            }
+
     }
 }

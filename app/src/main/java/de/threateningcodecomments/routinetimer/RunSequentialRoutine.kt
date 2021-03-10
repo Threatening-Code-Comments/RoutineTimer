@@ -122,7 +122,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         //if the currentTile is null, set isRunning to false
         isRunning = (currentTile != null)
 
-        val isNightMode = ResourceClass.isNightMode(requireActivity().application)
+        val isNightMode = MainActivity.isNightMode
 
         //handle text and color of pause button, functionality is in onClick
         //handle starting of tileUpdatingHandler with startTile
@@ -153,7 +153,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         val bgColor =
                 tile?.backgroundColor ?: Color.GRAY
         val contrastColor =
-                ResourceClass.calculateContrast(bgColor)
+                ResourceClass.Conversions.Colors.calculateContrast(bgColor)
 
         tileCardView.setCardBackgroundColor(bgColor)
 
@@ -177,7 +177,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
             currentTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_currentTimeInfo_countup)
 
             totalTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_totalTimeInfo_countup)
-            totalTimeValueView.text = ResourceClass.millisToHHMMSS(validTile.totalCountedTime)
+            totalTimeValueView.text = ResourceClass.millisToHHMMSSorMMSS(validTile.totalCountedTime)
         }
 
         //if the tile isn't running, change the text on the time displays to "not running"
@@ -215,13 +215,13 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
                     //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
                     // is the remaining time
-                    val currentTimeStr = ResourceClass.millisToHHMMSSmm(currentTime)
+                    val currentTimeStr = ResourceClass.millisToHHMMSSmmOrMMSSmm(currentTime)
                     currentTimeValueView.text = currentTimeStr
 
                     //updates the totalTimeField, only needs to be done with countUpTiles
                     if (tile.mode == Tile.MODE_COUNT_UP) {
                         val totalTime = tile.totalCountedTime + currentTime
-                        val totalTimeStr = ResourceClass.millisToHHMMSS(totalTime)
+                        val totalTimeStr = ResourceClass.millisToHHMMSSorMMSS(totalTime)
                         totalTimeValueView.text = totalTimeStr
                     }
 

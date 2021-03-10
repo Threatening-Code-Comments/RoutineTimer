@@ -51,7 +51,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
+        <!--<LinearLayout
             android:id="@+id/ll_EditRoutine_continuous_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -62,23 +62,28 @@
             <LinearLayout
                 android:id="@+id/ll_EditRoutine_continuous_firstRow"
                 android:layout_width="match_parent"
-                android:layout_height="0sp"
+                android:layout_height="0dp"
                 android:layout_weight="1"
                 android:animateLayoutChanges="true"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:visibility="visible">
 
                 <include
-                    layout="@layout/viewholder_edit_tile"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <include
+                    android:id="@+id/tile_EditRoutine_continuous_0"
                     layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_1"
+                    layout="@layout/viewholder_edit_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
 
             </LinearLayout>
 
@@ -88,20 +93,25 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:animateLayoutChanges="true"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:visibility="visible">
 
                 <include
-                    layout="@layout/viewholder_edit_tile"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <include
+                    android:id="@+id/tile_EditRoutine_continuous_2"
                     layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_3"
+                    layout="@layout/viewholder_edit_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
 
             </LinearLayout>
 
@@ -111,20 +121,25 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:animateLayoutChanges="true"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:visibility="visible">
 
                 <include
-                    layout="@layout/viewholder_edit_tile"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <include
+                    android:id="@+id/tile_EditRoutine_continuous_4"
                     layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_5"
+                    layout="@layout/viewholder_edit_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
 
             </LinearLayout>
 
@@ -134,23 +149,112 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:animateLayoutChanges="true"
-                android:orientation="horizontal">
+                android:visibility="visible">
 
                 <include
-                    layout="@layout/viewholder_edit_tile"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <include
+                    android:id="@+id/tile_EditRoutine_continuous_6"
                     layout="@layout/viewholder_edit_tile"
                     android:layout_width="0sp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
+
+                <include
+                    android:id="@+id/tile_EditRoutine_continuous_7"
+                    layout="@layout/viewholder_edit_tile"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10sp"
+                    android:layout_weight="1"
+                    android:visibility="visible" />
 
             </LinearLayout>
 
-        </LinearLayout>
+        </LinearLayout>-->
+
+        <GridLayout
+            android:id="@+id/gl_EditRoutine_continuous_tileLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:columnCount="2"
+            android:orientation="horizontal"
+            android:rowCount="4">
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_0"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_1"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_2"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_3"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_4"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_5"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_6"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+            <include
+                android:id="@+id/tile_EditRoutine_continuous_7"
+                layout="@layout/viewholder_edit_tile"
+                android:layout_width="0sp"
+                android:layout_height="0sp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="10sp" />
+
+        </GridLayout>
 
 
     </LinearLayout>

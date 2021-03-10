@@ -1,18 +1,16 @@
 package de.threateningcodecomments.accessibility
 
 import android.graphics.Color
-import de.threateningcodecomments.accessibility.ResourceClass.calculateContrast
-import de.threateningcodecomments.accessibility.ResourceClass.convertColorDayNight
-import de.threateningcodecomments.accessibility.ResourceClass.wasNightMode
+import de.threateningcodecomments.routinetimer.MainActivity
+import de.threateningcodecomments.routinetimer.R
 import java.util.*
 
-class Tile//region Constructor
-{
+class Tile {
     var name: String?
     var iconID: Int
     private var isNightMode: Boolean = false
         set(value) {
-            backgroundColor = convertColorDayNight(isNightMode, backgroundColor)
+            backgroundColor = ResourceClass.Conversions.Colors.convertColorDayNight(isNightMode, backgroundColor)
             field = value
         }
     var mode: Int
@@ -50,16 +48,18 @@ class Tile//region Constructor
 
     var backgroundColor: Int
         get() {
-            field = convertColorDayNight(wasNightMode(), field)
+            val wasNightMode = ResourceClass.wasNightMode()
+            field = ResourceClass.Conversions.Colors.convertColorDayNight(wasNightMode, field)
             return field
         }
         set(value) {
-            field = convertColorDayNight(wasNightMode(), field)
+            val wasNightMode = ResourceClass.wasNightMode()
+            field = ResourceClass.Conversions.Colors.convertColorDayNight(wasNightMode, field)
             field = value
         }
     var contrastColor: Int = Color.WHITE
         get() {
-            field = calculateContrast(backgroundColor)
+            field = ResourceClass.Conversions.Colors.calculateContrast(backgroundColor)
             return field
         }
 
@@ -82,11 +82,9 @@ class Tile//region Constructor
         this.totalCountedTime = tile.totalCountedTime
     }
 
-    //endregion
-
     fun setAccessibility(isNightMode: Boolean) {
         this.isNightMode = isNightMode
-        contrastColor = calculateContrast(backgroundColor)
+        contrastColor = ResourceClass.Conversions.Colors.calculateContrast(backgroundColor)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -99,7 +97,6 @@ class Tile//region Constructor
         }
         return true
     }
-    //endregion
 
     override fun toString(): String {
         var stingray = ""
@@ -112,10 +109,13 @@ class Tile//region Constructor
     }
 
     fun getModeAsString(): String {
+        val countdownValue = MainActivity.instance.getString(R.string.constStr_tileMode_countDown)
+        val countUpValue = MainActivity.instance.getString(R.string.constStr_tileMode_countUp)
+
         return if (this.mode == MODE_COUNT_DOWN)
-            "Countdown mode"
+            countdownValue
         else
-            "Count up mode"
+            countUpValue
     }
 
     companion object {

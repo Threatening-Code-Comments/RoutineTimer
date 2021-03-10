@@ -29,10 +29,7 @@ import com.google.android.material.transition.platform.MaterialContainerTransfor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import de.threateningcodecomments.accessibility.MyLog
-import de.threateningcodecomments.accessibility.ResourceClass
-import de.threateningcodecomments.accessibility.Tile
-import de.threateningcodecomments.accessibility.UIContainer
+import de.threateningcodecomments.accessibility.*
 import kotlinx.android.synthetic.main.fragment_start.*
 
 class StartFragment : Fragment(), View.OnClickListener, UIContainer {
@@ -94,9 +91,47 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                 findNavController().navigate(directions, extras)
             }
             R.id.btn_mainActivity_test -> {
-                val debugActivated = MainActivity.sharedPreferences.getBoolean(getString(R.string.pref_dev_debug_key),
+                /*val debugActivated = MainActivity.sharedPreferences.getBoolean(getString(R.string.pref_dev_debug_key),
                         false)
-                Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()*/
+
+
+                /*if (ResourceClass.routines.size > 0) {
+                    val routine = ResourceClass.routines[0]
+                    val tile = routine.tiles[0]
+
+                    val directions = StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile
+                            .uid)
+
+                    findNavController().navigate(directions)
+                }*/
+
+                for (i in 0..8) {
+                    MyLog.d("hey haha this is the $i")
+                    val routine = ResourceClass.generateRandomRoutine()
+                    val tile = routine.tiles[0]
+
+                    routine.mode =
+                            if (Math.random() < 0.5)
+                                Routine.MODE_CONTINUOUS
+                            else
+                                Routine.MODE_SEQUENTIAL
+                    ResourceClass.routines.add(routine)
+                }
+
+                val routine = ResourceClass.generateRandomRoutine()
+                val tile = routine.tiles[0]
+
+                routine.mode = Routine.MODE_CONTINUOUS
+                ResourceClass.routines.add(routine)
+
+                val directions =
+                        //StartFragmentDirections.actionStartFragmentToRunContinuousRoutine(routine.uid)
+                        StartFragmentDirections.actionStartFragmentToEditContinuousRoutineFragment(routine.uid)
+                //StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile.uid)
+
+                //TODO fix this janky ass hardcode
+                //findNavController().navigate(directions)
 
                 /*val routine = ResourceClass.generateRandomRoutine()
                 ResourceClass.saveRoutine(routine)*/
@@ -113,7 +148,6 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     override fun onStart() {
         super.onStart()
         updateUI()
-        ResourceClass.updateNightMode(activity.application)
     }
 
     private fun initBufferViews() {
@@ -173,7 +207,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun setGreetTextColor(bgColor: Int) {
-        val textColor = ResourceClass.calculateContrast(bgColor)
+        val textColor = ResourceClass.Conversions.Colors.calculateContrast(bgColor)
         usernameView.setTextColor(textColor)
         if (!isLoggedIn) {
             profilepicView.setColorFilter(textColor)
@@ -201,7 +235,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         val errorDrawable = ContextCompat.getDrawable(activity, R.drawable.ic_defaultdrawable)
         profilepicView.setImageDrawable(errorDrawable)
         usernameView.text = getString(R.string.str_tv_MainActivity_login)
-        val bgColor: Int = if (ResourceClass.isNightMode(activity.application)) {
+        val bgColor: Int = if (MainActivity.isNightMode) {
             Tile.DEFAULT_COLOR_DARK
         } else {
             Tile.DEFAULT_COLOR

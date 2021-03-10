@@ -90,7 +90,6 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
         //ResourceClass.loadDatabaseRes()
         ResourceClass.loadDatabaseRes()
         updateRoutines()
-        ResourceClass.updateNightMode(SelectRoutineFragment.activity.application)
         updateUI()
         updateForm()
     }
@@ -177,7 +176,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun initRoutines() {
-        routines = ResourceClass.getRoutines()
+        routines = ResourceClass.routines
 
         if (routines?.size == 0) {
             routines!!.add(Routine.ERROR_ROUTINE)
@@ -187,7 +186,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     private fun initRecyclerView() {
         if (routines?.size == 0) {
             ResourceClass.loadDatabaseRes()
-            routines = ResourceClass.getRoutines()
+            routines = ResourceClass.routines
         }
         mAdapter = SelectRoutineRVAdapter(routines!!)
         recyclerView.adapter = mAdapter
@@ -232,7 +231,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun updateRoutines() {
-        routines = ResourceClass.getRoutines()
+        routines = ResourceClass.routines
     }
 
     private fun createRoutine() {
@@ -261,7 +260,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun removeRoutine(routine: Routine) {
         if (routines == null) {
-            routines = ResourceClass.getRoutines()
+            routines = ResourceClass.routines
         }
 
         ResourceClass.removeRoutine(routine)
@@ -282,7 +281,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun addRoutine(routine: Routine) {
         if (routines == null) {
-            routines = ResourceClass.getRoutines()
+            routines = ResourceClass.routines
         }
 
         ResourceClass.saveRoutine(routine)

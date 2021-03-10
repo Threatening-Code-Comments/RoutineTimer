@@ -1,15 +1,18 @@
 package de.threateningcodecomments.accessibility
 
 import android.annotation.SuppressLint
-import android.app.Application
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.util.Log
-import android.util.TypedValue
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
@@ -44,13 +47,277 @@ internal object ResourceClass {
         }
     }
 
+    object Resources {
+        private val resources = MainActivity.instance.resources
+
+        object Colors {
+            /**
+             * Green color for selecting. Handles Night mode automatically.
+             */
+            val acceptColor: Int
+                get() = getColorWithNightMode(R.color.colorAcceptLight, R.color.colorAcceptDark)
+
+
+            /**
+             * Green color for selecting. Handles Night mode automatically.
+             */
+            val cancelColor: Int
+                get() = getColorWithNightMode(R.color.colorCancelLight, R.color.colorCancelDark)
+
+
+            val onSurfaceColor: Int
+                get() {
+                    return if (MainActivity.isNightMode)
+                        0x1E1E1E
+                    else
+                        0xFFFFF
+                }
+
+            /**
+             * Adaptive Color, either #111111 (Light mode) or #b8b8b8 (dark mode)
+             */
+            val contrastColor: Int
+                get() = getColorWithNightMode(R.color.contrastLightMode, R.color.contrastDarkMode)
+
+
+            val primaryColor: Int
+                get() = getColorWithNightMode(R.color.colorPrimary, R.color.colorPrimaryDark)
+
+            val secondaryColor: Int
+                get() = getColor(R.color.colorSecondary)
+
+            val disabledColor: Int
+                get() = getColorWithNightMode(R.color.disabledColor, R.color.disabledColorDark)
+
+            /**
+             * Takes two ids as input and returns the appropriate color for the night mode.
+             *
+             * @param idLight desired color for light mode
+             * @param idDark desired color for dark mode
+             */
+            private fun getColorWithNightMode(idLight: Int, idDark: Int): Int {
+                val nightMode = MainActivity.isNightMode
+
+                val colorId =
+                        if (isNightMode)
+                            idDark
+                        else
+                            idLight
+
+                return getColor(colorId)
+            }
+        }
+
+        object Text {
+            val NO_TEXT_CHANGED_CHAR = resources.getString(R.string.constStr_noTextChangedChar).toCharArray()[0]
+        }
+
+        object Drawables {
+
+            fun getModeDrawable(tile: Tile): Drawable {
+                val id =
+                        if (tile.mode == Tile.MODE_COUNT_UP)
+                            R.drawable.ic_mode_count_up
+                        else
+                            R.drawable.ic_mode_count_down
+                return getDrawable(id)
+            }
+        }
+
+        fun getDrawable(id: Int): Drawable = ResourcesCompat.getDrawable(resources, id, null)!!
+
+        fun getColor(id: Int): Int = ResourcesCompat.getColor(resources, id, null)
+    }
+
+    object Conversions {
+        object Time {
+            fun millisToHHMMSS(millis: Long): String {
+                val time = millisToHHMMSSorMMSS(millis)
+
+                val HHMMSSArray = ArrayList<String>()
+
+                val split = time.split(':')
+                when {
+                    split.size == 3 -> {
+                        HHMMSSArray.add(split[0])
+                        HHMMSSArray.add(split[1])
+                        HHMMSSArray.add(split[2])
+                    }
+                    split.isEmpty() -> {
+                        HHMMSSArray.add("00")
+                        HHMMSSArray.add("00")
+                        HHMMSSArray.add("00")
+                    }
+                    split.size == 2 -> {
+                        HHMMSSArray.add("00")
+                        HHMMSSArray.add(split[0])
+                        HHMMSSArray.add(split[1])
+                    }
+                }
+
+                var text = ""
+                for ((index, str) in HHMMSSArray.withIndex()) {
+                    var textToEdit = ""
+
+                    textToEdit = when {
+                        str.length > 2 ->
+                            throw IllegalStateException("String length of $str in $HHMMSSArray is invalid")
+                        str.length == 1 ->
+                            "0$str"
+                        str.isEmpty() ->
+                            "00"
+                        else ->
+                            str
+                    }
+                }
+
+
+                text = "${HHMMSSArray[0]}:${HHMMSSArray[1]}:${HHMMSSArray[2]}"
+
+                return text
+            }
+
+            fun convertReadableToMillis(str: String): Long {
+                val timeStrValues = str.split(':')
+
+                val timeValues = ArrayList<Int>()
+                for (timeStr in timeStrValues)
+                    timeValues.add(timeStr.toInt())
+
+                var seconds = 0
+                var minutes = 0
+                var hours = 0
+
+                when (timeValues.size) {
+                    //ss
+                    1 -> {
+                        hours = 0
+                        minutes = 0
+                        seconds = timeValues[0]
+                    }
+                    //mm:ss
+                    2 -> {
+                        hours = 0
+                        minutes = timeValues[0]
+                        seconds = timeValues[1]
+                    }
+                    3 -> {
+                        hours = timeValues[0]
+                        minutes = timeValues[1]
+                        seconds = timeValues[2]
+                    }
+                }
+
+                minutes += hours * 60
+                seconds += minutes * 60
+
+                return (seconds * 1000).toLong()
+            }
+
+            fun addDigitToTimeString(timeStr: String, charToAdd: Char): String {
+                val timeCharArrayList = ArrayList<Char>(timeStr.toMutableList())
+
+                //make hours HHMMSS and not HHHMMSS
+                if (timeCharArrayList.indexOf(':') == 2 && charToAdd != TIME_CHANGE_BACKSPACE_CHAR)
+                //if the format currently would be HHH:MM:SS and the first H can be removed (eg. 012:02:45),
+                // remove it
+                    if (timeCharArrayList[0] == '0')
+                        timeCharArrayList.removeAt(0)
+                    //if it can't be removed, the string is "full"
+                    else
+                        return timeCharArrayList.toCharArray().concatToString()
+
+                //remove : chars to convert from timeStr = [h, h, :, m, m, :, s, s, x] to [h, h, m, m, s, s, x]
+                timeCharArrayList.removeAll(arrayOf(':'))
+
+                if (charToAdd == TIME_CHANGE_BACKSPACE_CHAR) {
+                    timeCharArrayList.removeLast()
+                    timeCharArrayList.add(0, '0')
+                } else
+                    timeCharArrayList.add(charToAdd)
+
+                //formats hhmmsss to hhh:mm:ss -> places : at best indices
+                val firstIndexAdd = timeCharArrayList.lastIndex - 1
+                timeCharArrayList.add(firstIndexAdd, ':')
+
+                val secondIndexAdd = timeCharArrayList.lastIndex - 4
+                timeCharArrayList.add(secondIndexAdd, ':')
+
+                return timeCharArrayList.toCharArray().concatToString()
+            }
+
+
+            const val TIME_CHANGE_BACKSPACE_CHAR = 'b'
+        }
+
+        object Colors {
+            fun calculateColorFromHue(hue: Float): Int {
+                val hsv = floatArrayOf(hue, 1.0f, 1.0f)
+                var color = Color.HSVToColor(hsv)
+                if (hue < 0.1) {
+                    color = Tile.DEFAULT_COLOR_DARK
+                }
+                color = convertColorDayNight(wasNightMode(), color)
+                return color
+            }
+
+            fun getHueOfColor(color: Int): Float {
+                if (color == Tile.DEFAULT_COLOR_DARK || color == Tile.DEFAULT_COLOR)
+                    return 0f
+
+                val hsv = floatArrayOf(0f, 0f, 0f)
+
+                Color.colorToHSV(color, hsv)
+
+                return hsv[0]
+            }
+
+
+            @JvmStatic
+            fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
+                val hsvValues = FloatArray(3)
+                val red = Color.red(oldColor)
+                val green = Color.green(oldColor)
+                val blue = Color.blue(oldColor)
+                Color.RGBToHSV(red, green, blue, hsvValues)
+                if (hsvValues[0] == 0F) {
+                    return if (isNightMode) {
+                        Tile.DEFAULT_COLOR_DARK
+                    } else {
+                        Tile.DEFAULT_COLOR
+                    }
+                }
+                if (isNightMode) {
+                    hsvValues[1] = 0.5f
+                } else {
+                    hsvValues[1] = 1f
+                }
+                return Color.HSVToColor(hsvValues)
+            }
+
+            @JvmStatic
+            fun calculateContrast(bgColor: Int): Int {
+                val bgColorCl = Color.valueOf(bgColor)
+                val average = (bgColorCl.red() + bgColorCl.blue() + bgColorCl.green()) / 3.toDouble()
+                val contrastColor: Int
+                contrastColor = if (average > 0.6) {
+                    ResourcesCompat.getColor(MainActivity.instance.resources, R.color.contrastLightMode, null)
+                } else {
+                    Color.WHITE
+                }
+                return contrastColor
+            }
+        }
+    }
+
+
     //region random vars
-    fun millisToHHMMSS(millis: Long): String {
-        val timeHHMMSSmm = millisToHHMMSSmm(millis)
+    fun millisToHHMMSSorMMSS(millis: Long): String {
+        val timeHHMMSSmm = millisToHHMMSSmmOrMMSSmm(millis)
         return timeHHMMSSmm.substringBefore('.')
     }
 
-    fun millisToHHMMSSmm(millis: Long): String {
+    fun millisToHHMMSSmmOrMMSSmm(millis: Long): String {
         val hours = (millis / (1000 * 60 * 60)).toInt()
         val minutes = ((millis / (1000 * 60)) - (hours * 60)).toInt()
         val secs = (millis / 1000 - hours * 3600 - minutes * 60).toInt()
@@ -122,32 +389,9 @@ internal object ResourceClass {
         scrimColor = Color.TRANSPARENT
     }
 
-    //endregion
+//endregion
 
     //region random
-    /**
-     * A one color image.
-     * @param width
-     * @param height
-     * @param color
-     * @return A one color image with the given width and height.
-     */
-    fun createImage(width: Int, height: Int, color: Int): Bitmap {
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val paint = Paint()
-        paint.color = color
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
-        return bitmap
-    }
-
-    fun overlayBmp(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
-        val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height, bmp1.config)
-        val canvas = Canvas(bmOverlay)
-        canvas.drawBitmap(bmp1, Matrix(), null)
-        canvas.drawBitmap(bmp2, Matrix(), null)
-        return bmOverlay
-    }
 
     fun convertUidToInt(uid: String): Int {
         var numberStr = ""
@@ -172,7 +416,9 @@ internal object ResourceClass {
     }
 
     @JvmStatic
-    fun isNightMode(application: Application): Boolean {
+    fun isNightMode(activity: Activity): Boolean {
+        val application = activity.application
+
         val nightModeFlags = application.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK
         return when (nightModeFlags) {
@@ -202,8 +448,8 @@ internal object ResourceClass {
         isNightMode = nightMode
     }
 
-    fun updateNightMode(application: Application) {
-        updateNightMode(isNightMode(application))
+    fun updateNightMode(activity: Activity) {
+        updateNightMode(isNightMode(activity))
     }
 
     private fun random(start: Int, end: Int): Int {
@@ -211,78 +457,24 @@ internal object ResourceClass {
         return ((randomVal + start) * end).toInt()
     }
 
-    fun spToPx(sp: Float, context: Context): Int {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.resources.displayMetrics).toInt()
-    }
-
-    //endregion
-
-    //region colors
-
-    fun calculateColorFromHue(hue: Float): Int {
-        val hsv = floatArrayOf(hue, 1.0f, 1.0f)
-        var color = Color.HSVToColor(hsv)
-        if (hue < 0.1) {
-            color = Tile.DEFAULT_COLOR_DARK
-        }
-        color = convertColorDayNight(wasNightMode(), color)
-        return color
-    }
-
-    @JvmStatic
-    fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
-        val hsvValues = FloatArray(3)
-        val red = Color.red(oldColor)
-        val green = Color.green(oldColor)
-        val blue = Color.blue(oldColor)
-        Color.RGBToHSV(red, green, blue, hsvValues)
-        if (hsvValues[0] == 0F) {
-            return if (isNightMode) {
-                Tile.DEFAULT_COLOR_DARK
-            } else {
-                Tile.DEFAULT_COLOR
-            }
-        }
-        if (isNightMode) {
-            hsvValues[1] = 0.5f
-        } else {
-            hsvValues[1] = 1f
-        }
-        return Color.HSVToColor(hsvValues)
-    }
-
-    @JvmStatic
-    fun calculateContrast(bgColor: Int): Int {
-        val bgColorCl = Color.valueOf(bgColor)
-        val average = (bgColorCl.red() + bgColorCl.blue() + bgColorCl.green()) / 3.toDouble()
-        val contrastColor: Int
-        contrastColor = if (average > 0.6) {
-            Color.BLACK
-        } else {
-            Color.WHITE
-        }
-        return contrastColor
-    }
-
-    //endregion
+//endregion
 
     //region Routines
     fun updateRoutineInDb(tile: Tile) {
         val routine = getRoutineOfTile(tile)
-        val index = routine.tiles.indexOf(tile)
+        var index = 0
+
+        for ((i, forTile) in routine.tiles.withIndex()) {
+            if (forTile.uid == tile.uid)
+                index = i
+        }
+
         routine.tiles[index] = tile
 
-        updateRoutineInDb(routine.uid)
+        updateRoutineInDb(routine)
     }
 
-    private fun updateRoutineInDb(routineUid: String) {
-        val currentTile = currentTiles[routineUid]
-                ?: previousCurrentTiles[routineUid]
-
-        val routine = getRoutineFromUid(routineUid)
-        val index = routine.tiles.indexOf(currentTile!!)
-        routine.tiles[index] = currentTile
-
+    private fun updateRoutineInDb(routine: Routine) {
         saveRoutine(routine)
     }
 
@@ -298,20 +490,20 @@ internal object ResourceClass {
         }
     }
 
-    private var routines: ArrayList<Routine>? = ArrayList()
+    var routines: ArrayList<Routine> = ArrayList()
 
     private fun handleRoutineUpdate(snapshot: DataSnapshot) {
         val routinesIterable = snapshot.children
         if (snapshot.value == null) {
-            routines!!.clear()
-            routines!!.add(Routine.ERROR_ROUTINE)
+            routines.clear()
+            routines.add(Routine.ERROR_ROUTINE)
             return
         }
-        routines!!.clear()
+        routines.clear()
         //iterates through all routines
         for (routineDataSnapshot in routinesIterable) {
             val routine = routineDataSnapshot.getValue(Routine::class.java)!!
-            routines!!.add(routine)
+            routines.add(routine)
         }
         if (MainActivity.currentFragment is SelectRoutineFragment) {
             MainActivity.currentFragment.updateUI()
@@ -327,7 +519,7 @@ internal object ResourceClass {
         }
 
         var returnVal: Routine = Routine.ERROR_ROUTINE
-        for (routine in getRoutines()) {
+        for (routine in routines) {
             if (uid == routine.uid) {
                 returnVal = routine
             }
@@ -336,20 +528,10 @@ internal object ResourceClass {
         return returnVal
     }
 
-    fun getRoutines(): ArrayList<Routine> = this.routines ?: ArrayList()
-
 
     fun sortRoutines(routines: ArrayList<Routine>): ArrayList<Routine> {
-        routines.sortWith(java.util.Comparator { a, b -> (b.lastUsed!! - a.lastUsed!!).toInt() })
+        routines.sortWith({ a, b -> (b.lastUsed!! - a.lastUsed!!).toInt() })
         return routines
-    }
-
-    fun setRoutines(routines: ArrayList<Routine>?) {
-        if (routines == null) {
-            ResourceClass.routines = ArrayList()
-            return
-        }
-        ResourceClass.routines = routines
     }
 
     fun saveRoutine(routine: Routine) {
@@ -385,14 +567,14 @@ internal object ResourceClass {
         }
         return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
     }
-    //endregion
+//endregion
 
     //region tiles
-    fun getTileFromUid(uid: String?): Tile? {
+    fun getTileFromUid(uid: String?): Tile {
         if (uid == null) {
-            return null
+            return Tile.ERROR_TILE
         } else {
-            for (routine in routines!!) {
+            for (routine in routines) {
                 for (tile in routine.tiles) {
                     if (uid == tile.uid) {
                         return tile
@@ -400,11 +582,11 @@ internal object ResourceClass {
                 }
             }
         }
-        return null
+        return Tile.ERROR_TILE
     }
 
     fun getRoutineOfTile(tile: Tile): Routine {
-        for (routine in routines!!) {
+        for (routine in routines) {
             if (routine.tiles.contains(tile)) {
                 return routine
             }
@@ -412,7 +594,7 @@ internal object ResourceClass {
         return Routine.ERROR_ROUTINE
     }
 
-    //endregion
+//endregion
 
     class CurrentTileMap : HashMap<String, Tile?>() {
 
@@ -445,18 +627,6 @@ internal object ResourceClass {
             MainActivity.currentFragment.updateUI()
             return returnVal
         }
-
-        val runningTiles: ArrayList<Tile>
-            get() {
-                this.values.remove(null)
-
-                val returnList = ArrayList<Tile>()
-                for (value in this.values) {
-                    returnList.add(value!!)
-                }
-
-                return returnList
-            }
 
     }
 
@@ -552,7 +722,7 @@ internal object ResourceClass {
             currentTiles[routineUid] = tile
         }
     }
-    //endregion
+//endregion
 
     //region Preferences
     @SuppressLint("DefaultLocale")
@@ -568,10 +738,10 @@ internal object ResourceClass {
     }
 
     fun handlePrefUpdate(snapshot: DataSnapshot) {
-        val generalChild = snapshot.child("general").value ?: initPreferenceValues(SettingsFragment.Preferences
+        snapshot.child("general").value ?: initPreferenceValues(SettingsFragment.Preferences
                 .General())
 
-        val devChild = snapshot.child("dev").value ?: initPreferenceValues(SettingsFragment.Preferences.Dev())
+        snapshot.child("dev").value ?: initPreferenceValues(SettingsFragment.Preferences.Dev())
 
         val preferences = snapshot.getValue(SettingsFragment.Preferences::class.java)
 
@@ -591,7 +761,7 @@ internal object ResourceClass {
         saveToDb(path, key, value)
     }
 
-    //endregion
+//endregion
 
     //region Database handling
 
@@ -641,7 +811,7 @@ internal object ResourceClass {
 
         Log.d("database tag", "$key was set to $value in $path")
     }
-    //endregion
+//endregion
 
     //region Icon Pack
     private var iconPack: IconPack? = null

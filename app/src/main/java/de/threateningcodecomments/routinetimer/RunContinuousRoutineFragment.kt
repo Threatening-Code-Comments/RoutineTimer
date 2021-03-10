@@ -130,7 +130,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
                 animateColor(totalTimeMainView, oldColor, newColor)
                 if (tile.mode == Tile.MODE_COUNT_UP) {
-                    val totalTileTimeStr = ResourceClass.millisToHHMMSSmm(tile.totalCountedTime)
+                    val totalTileTimeStr = ResourceClass.millisToHHMMSSmmOrMMSSmm(tile.totalCountedTime)
                     totalTimeMainView.text = totalTileTimeStr.substring(0, totalTileTimeStr.length - 3)
                 } else {
                     val timesPressed = (tile.totalCountedTime / tile.countDownSettings.countDownTime).toInt()
@@ -157,10 +157,10 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     private fun animateColor(view: View, p_oldColor: Int, p_newColor: Int) {
         val oldColor =
-                if (view !is MaterialCardView) ResourceClass.calculateContrast(p_oldColor)
+                if (view !is MaterialCardView) ResourceClass.Conversions.Colors.calculateContrast(p_oldColor)
                 else p_oldColor
         val newColor =
-                if (view !is MaterialCardView) ResourceClass.calculateContrast(p_newColor)
+                if (view !is MaterialCardView) ResourceClass.Conversions.Colors.calculateContrast(p_newColor)
                 else p_newColor
 
         val colorAnimation =
@@ -211,7 +211,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         totalTimeMainView.visibility = View.VISIBLE
 
         //updates total time main view in compacted tile view
-        totalTimeMainView.text = ResourceClass.millisToHHMMSS(currentTile.totalCountedTime)
+        totalTimeMainView.text = ResourceClass.millisToHHMMSSorMMSS(currentTile.totalCountedTime)
     }
 
     private var startingTime: Long? = null
@@ -271,13 +271,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
                 //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
                 // is the remaining time
-                val currentTimeStr = ResourceClass.millisToHHMMSSmm(currentTime)
+                val currentTimeStr = ResourceClass.millisToHHMMSSmmOrMMSSmm(currentTime)
                 currentTimeField.text = currentTimeStr
 
                 //updates the totalTimeField, only needs to be done with countUpTiles
                 if (currentTile.mode == Tile.MODE_COUNT_UP) {
                     val totalTime = currentTile.totalCountedTime + currentTime
-                    val totalTimeStr = ResourceClass.millisToHHMMSS(totalTime)
+                    val totalTimeStr = ResourceClass.millisToHHMMSSorMMSS(totalTime)
                     totalTimeField.text = totalTimeStr
                 }
 
@@ -382,7 +382,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     override fun onStart() {
         super.onStart()
         ResourceClass.removeRoutineListener()
-        routine.setAccessibility(ResourceClass.isNightMode(requireActivity().application))
+        routine.setAccessibility(MainActivity.isNightMode)
         updateUI(false)
     }
 

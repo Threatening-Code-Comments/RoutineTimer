@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <!--Mode-->
+        <LinearLayout
+            android:id="@+id/ll_TileSettings_timing_mode_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:background="@drawable/border_bottom"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12sp">
+
+                <ImageView
+                    android:id="@+id/iv_TileSettings_timing_mode_icon"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    android:src="@drawable/ic_mode_icon" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_TileSettings_timing_mode_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Mode"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_TileSettings_timing_mode_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="summary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_TileSettings_timing_mode_editLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_TileSettings_timing_mode_cut"
+                    android:layout_width="0sp"
+                    android:layout_height="50sp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="0sp"
+                    app:cardElevation="0sp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Count up"
+                        android:textAlignment="center" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_TileSettings_timing_mode_cdt"
+                    android:layout_width="0sp"
+                    android:layout_height="50sp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="0sp"
+                    app:cardElevation="0sp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Count down"
+                        android:textAlignment="center" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <!--Countdown settings-->
+        <LinearLayout
+            android:id="@+id/ll_TileSettings_timing_countdownSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--Countdown time-->
+            <LinearLayout
+                android:id="@+id/ll_TileSettings_timing_cdTime_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/border_bottom"
+                android:orientation="vertical">
+
+                <!--Info-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12sp">
+
+                    <ImageView
+                        android:id="@+id/iv_TileSettings_timing_cdTime_icon"
+                        android:layout_width="50sp"
+                        android:layout_height="50sp"
+                        android:src="@drawable/ic_timer" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="10sp"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tv_TileSettings_timing_cdTime_info"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Countdown time"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tv_TileSettings_timing_cdTime_summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="summary" />
+
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!--Edit-->
+                <LinearLayout
+                    android:id="@+id/ll__TileSettings_timing_cdTime_editLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible">
+
+                    <androidx.coordinatorlayout.widget.CoordinatorLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40sp">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:id="@+id/tv_TileSettings_timing_cdTime_inputDisplay"
+                            android:layout_height="match_parent"
+                            android:layout_margin="5sp"
+                            android:text="00:00"
+                            android:textSize="25sp"
+                            android:layout_gravity="center"
+                            android:textAlignment="center" />
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_TileSettings_timing_cdTime_timeInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginHorizontal="30sp"
+                            android:background="@android:color/transparent"
+                            android:text="@string/constStr_noTextChangedChar"
+                            android:cursorVisible="false"
+                            android:textColor="@android:color/transparent"
+                            android:inputType="number" />
+
+                    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--Reminds-->
+            <LinearLayout
+                android:id="@+id/ll_TileSettings_timing_reminds_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/border_bottom"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12sp">
+
+                    <ImageView
+                        android:id="@+id/iv_TileSettings_timing_reminds_icon"
+                        android:layout_width="50sp"
+                        android:layout_height="50sp"
+                        android:src="@drawable/ic_alarm" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10sp"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tv_TileSettings_timing_reminds_info"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Reminds"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tv_TileSettings_timing_reminds_summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="currently does nothing lol" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_TileSettings_timing_reminds_editLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_TileSettings_timing_reminds_on"
+                        android:layout_width="0sp"
+                        android:layout_height="50sp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="0sp"
+                        app:cardElevation="0sp">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="On"
+                            android:textAlignment="center" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_TileSettings_timing_reminds_off"
+                        android:layout_width="0sp"
+                        android:layout_height="50sp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="0sp"
+                        app:cardElevation="0sp">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Off"
+                            android:textAlignment="center" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
