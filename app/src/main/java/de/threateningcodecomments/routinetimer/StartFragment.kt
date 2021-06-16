@@ -106,7 +106,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                     findNavController().navigate(directions)
                 }*/
 
-                for (i in 0..8) {
+                /*for (i in 0..8) {
                     MyLog.d("hey haha this is the $i")
                     val routine = ResourceClass.generateRandomRoutine()
                     val tile = routine.tiles[0]
@@ -117,7 +117,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                             else
                                 Routine.MODE_SEQUENTIAL
                     ResourceClass.routines.add(routine)
-                }
+                }*/
 
                 val routine = ResourceClass.generateRandomRoutine()
                 val tile = routine.tiles[0]
@@ -131,7 +131,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                 //StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile.uid)
 
                 //TODO fix this janky ass hardcode
-                //findNavController().navigate(directions)
+                findNavController().navigate(directions)
 
                 /*val routine = ResourceClass.generateRandomRoutine()
                 ResourceClass.saveRoutine(routine)*/

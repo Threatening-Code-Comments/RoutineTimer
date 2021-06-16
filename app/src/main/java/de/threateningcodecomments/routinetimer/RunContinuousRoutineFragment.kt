@@ -9,8 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -87,6 +89,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         val tiles = routine.tiles
         for ((gridTileIndex, gridTile) in gridTiles.withIndex()) {
             val tile = tiles[gridTileIndex]
+
+            if(tile == Tile.DEFAULT_TILE){
+                gridTile.isVisible = false
+                continue
+            }
+
+            gridTile.isVisible = true
 
             val nameView = gridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_name)
 
@@ -381,6 +390,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     override fun onStart() {
         super.onStart()
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val directions = RunContinuousRoutineFragmentDirections.actionRunContinuousRoutineToSelectEditRoutineFragment()
+
+            findNavController().navigate(directions)
+        }
+
         ResourceClass.removeRoutineListener()
         routine.setAccessibility(MainActivity.isNightMode)
         updateUI(false)

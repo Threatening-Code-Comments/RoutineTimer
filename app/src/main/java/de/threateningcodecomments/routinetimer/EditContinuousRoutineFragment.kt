@@ -1,35 +1,38 @@
 package de.threateningcodecomments.routinetimer
 
-import android.animation.LayoutTransition
 import android.content.ClipData
 import android.content.ClipDescription
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.GridLayout
-import androidx.core.view.children
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.core.view.*
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
-import de.threateningcodecomments.accessibility.MyLog
-import de.threateningcodecomments.accessibility.ResourceClass
-import de.threateningcodecomments.accessibility.Routine
-import de.threateningcodecomments.accessibility.UIContainer
+import de.threateningcodecomments.accessibility.*
 import kotlinx.android.synthetic.main.fragment_edit_continuous_routine.*
 
 
 class EditContinuousRoutineFragment : Fragment(), UIContainer {
+    private lateinit var routineNameField: EditText
     private var isNightMode: Boolean = false
     private lateinit var currentRoutine: Routine
 
     private lateinit var dragStartView: MaterialCardView
-    private var lastDragIndex = -1
+    private var dragStartIndex = -1
 
     private lateinit var closeView: ShapeableImageView
 
@@ -37,6 +40,9 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     private lateinit var gridLayout: GridLayout
 
     private val args: EditContinuousRoutineFragmentArgs by navArgs()
+
+    private lateinit var myShadow: View.DragShadowBuilder
+    private var animIsDone: Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sharedElementEnterTransition = ResourceClass.sharedElementTransition
@@ -52,6 +58,15 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     override fun onStart() {
         super.onStart()
 
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            currentRoutine.lastUsed = System.currentTimeMillis()
+            ResourceClass.updateRoutineInDb(currentRoutine)
+
+            val directions = EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
+
+            findNavController().navigate(directions)
+        }
+
         initBufferViews()
         initListeners()
 
@@ -59,169 +74,220 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     }
 
     private fun initListeners() {
-        val longClickListener = View.OnLongClickListener {
+        routineNameField.addTextChangedListener {
+            if (it.toString() == currentRoutine.name)
+                return@addTextChangedListener
 
+            currentRoutine.name = it.toString()
+            ResourceClass.updateRoutineInDb(currentRoutine)
+        }
+
+        val longClickListener = View.OnLongClickListener {
             val item = ClipData.Item(it.id.toString())
             val dragData = ClipData(
                     it.id.toString(),
                     arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
                     item)
 
-            val myShadow = View.DragShadowBuilder(it)
-
-            MyLog.d("starting drag at ${gridTiles.indexOf(it)}!")
+            myShadow = View.DragShadowBuilder(it)
 
             dragStartView = it as MaterialCardView
+            dragStartIndex = gridLayout.indexOfChild(it)
             it.visibility = View.INVISIBLE
 
             val returnVal = it.startDragAndDrop(dragData, myShadow, null, 0)
 
-            (dragStartView.parent as GridLayout).removeView(dragStartView)
+            if (!returnVal)
+                Toast.makeText(context, "Something went wrong! (#0024)", Toast.LENGTH_SHORT).show()
 
             returnVal
         }
+
         val dragListener = View.OnDragListener { v: View?, event: DragEvent? ->
+            if (v !is MaterialCardView)
+                return@OnDragListener true
 
-            gridLayout.removeView(dragStartView)
-            gridLayout.clearAnimation()
+            val end = gridLayout.children.indexOf(v)
+            val start = gridLayout.children.indexOf(dragStartView)
 
-            val index = gridLayout.children.indexOf(v)
-
-            if (event != null) {
+            if (event != null && dragStartIndex != -1) {
                 when (event.action) {
                     DragEvent.ACTION_DRAG_LOCATION -> {
-                        if (index != lastDragIndex) {
-                            MyLog.d("Location on $index")
-                            lastDragIndex = index
-
-                            val dropAtIndex =
-                                    if (index - 1 == -1)
-                                        index - 1
-                                    //0
-                                    else if (index <= 3)
-                                        index - 1
-                                    else
-                                        index
-
-                            val listener = object : LayoutTransition.TransitionListener {
-                                override fun startTransition(transition: LayoutTransition?, container: ViewGroup?, view: View?, transitionType: Int) {
-                                    MyLog.d("start transition")
-                                }
-
-                                override fun endTransition(transition: LayoutTransition?, container: ViewGroup?, view: View?, transitionType: Int) {
-
-                                    gridLayout.addView(dragStartView, dropAtIndex)
-                                    MyLog.d("adding view to $dropAtIndex")
-
-                                    gridLayout.layoutTransition.removeTransitionListener(this)
-                                }
-                            }
-
-                            if (!gridLayout.layoutTransition.transitionListeners.contains(listener)) {
-                                MyLog.d("adding listener at $lastDragIndex")
-                                Handler().postDelayed({
-
-                                    for (transitionListener in gridLayout.layoutTransition.transitionListeners) {
-                                        gridLayout.layoutTransition.removeTransitionListener(transitionListener)
-                                    }
-
-                                    gridLayout.layoutTransition.addTransitionListener(listener)
-                                }, 1000)
-                            }
-
-                            /*gridLayout.addView(dragStartView, dropAtIndex)*/
-                        }
+                        rearrangeTiles(start, end)
                     }
-                    DragEvent.ACTION_DROP -> {
-                        MyLog.d("       Dropped on $index")
-                        dragStartView.visibility = View.VISIBLE
-                        lastDragIndex = -1
+                    DragEvent.ACTION_DRAG_ENDED -> {
+                        Handler().postDelayed({ dragStartView.isVisible = true }, 50)
+
+                        val updatedDragIndex = gridTiles.indexOf(dragStartView)
+
+                        val tileToMove = currentRoutine.tiles[dragStartIndex]
+
+                        currentRoutine.tiles.remove(tileToMove)
+                        currentRoutine.tiles.add(updatedDragIndex, tileToMove)
+
+                        ResourceClass.updateRoutineInDb(currentRoutine)
+
+                        dragStartIndex = -1
                     }
                 }
             }
 
-            event != null
+            //return value for listener
+            if (event?.action == DragEvent.ACTION_DRAG_ENDED)
+                false
+            else
+                (event?.action == DragEvent.ACTION_DRAG_STARTED) or (event?.action == DragEvent.ACTION_DRAG_LOCATION)
         }
 
-        for (gridTile in gridTiles) {
-            gridTile.setOnLongClickListener(longClickListener)
-            gridTile.setOnDragListener(dragListener)
+        val onEditClickListener = View.OnClickListener {
+            val index = gridTiles.indexOf(it)
+            val tile = currentRoutine.tiles[index]
+
+            val directions = EditContinuousRoutineFragmentDirections
+                    .actionEditContinuousRoutineFragmentToTileSettingsFragment(currentRoutine.uid, tile.uid)
+
+            findNavController().navigate(directions)
+        }
+
+        gridLayout.setOnDragListener(dragListener)
+        for (tile in gridTiles) {
+            tile.setOnLongClickListener(longClickListener)
+            tile.setOnDragListener(dragListener)
+            tile.setOnClickListener(onEditClickListener)
         }
     }
 
-    /*Legacy reflowing
-
-    private fun reflow(end: Int) {
-        val start = gridTiles.indexOf(dragStartView)
-
-
-        var text = "reflow: $start to $end| "
-        if (start < end)
-            for (i in start + 1..end - 1) {
-                text += ", $i"
-                reflowElement(i, REFLOW_DIR_DOWN)
-            }
-        else
-            for (i in start - 1 downTo end - 1) {
-                text += "; $i"
-
-                reflowElement(i, REFLOW_DIR_UP)
-            }
-        MyLog.d(text)
-
-    }
-    private fun reflowElement(i: Int, direction: Int) {
-        val element = gridTiles[i]
-        val parent = element.parent
-
-        val elementRow = gridTileRows.indexOf(parent)
-
-        //if the entity doesn't have a parent, disregard
-        parent ?: return
-        parent as LinearLayout
-
-        //if the element is alone in its parent container, ignore
-        if (parent.childCount == 1)
+    private fun rearrangeTiles(startIndex: Int, endIndex: Int) {
+        if (!animIsDone)
             return
-        //else reflow element
-        val newRowIndex = if (direction == REFLOW_DIR_DOWN) {
-            elementRow - 1
-        } else {
-            elementRow + 1
-        }
 
-        val newRow = gridTileRows[newRowIndex]
+        animIsDone = false
 
-        MyLog.d("reflowing $i from $elementRow to $newRowIndex")
+        val range = startIndex..endIndex
 
-        //removing view from parent
-        parent.removeView(element)
+        //cards need to move left -> -1; right -> 1
+        val dir =
+                if (range.first < range.last)
+                    -1
+                else
+                    1
 
-        //waiting for layout animation to finish and then adding the view
-        val transitionListener = object : LayoutTransition.TransitionListener {
-            override fun startTransition(transition: LayoutTransition?, container: ViewGroup?, view: View?, transitionType: Int) {}
-            override fun endTransition(transition: LayoutTransition?, container: ViewGroup?, view: View?, transitionType: Int) {
-                MyLog.d("removing $i")
-                // now you can add the same view to another parent
-                newRow.addView(view)
+        val newGridTiles = ArrayList<MaterialCardView>()
+        for ((index, card) in gridLayout.children.withIndex()) {
+            //the dragStartView doesn't get added where it was
+            card as MaterialCardView
 
-                parent.layoutTransition.removeTransitionListener(this)
+            if (index == range.first)
+                continue
+
+            if (dir < 0)
+                newGridTiles.add(card)
+
+            //dragStartView gets added where it's supposed to go
+            if (index == range.last)
+                newGridTiles.add(dragStartView)
+
+            if (dir > 0)
+                newGridTiles.add(card)
+
+            if (index in range || index in range.last..range.first) {
+                val xVal = getXValue(index, dir, card).toFloat()
+                val yVal = getYValue(index, dir, card).toFloat()
+
+                card.animate().translationX(xVal).translationY(yVal).setDuration(300).start()
             }
         }
 
-        val layoutTransition = parent.layoutTransition
-        layoutTransition.addTransitionListener(transitionListener)
-    }*/
+        Handler().postDelayed({
+            gridTiles = newGridTiles
+
+            gridLayout.removeAllViews()
+            for (card in newGridTiles)
+                card.animate().translationX(0f).translationY(0f).setDuration(0).start()
+
+            for (card in newGridTiles) {
+                if (card.parent != null) {
+                    (card.parent as ViewGroup).removeView(card)
+                    MyLog.d("huh, oh oh")
+                }
+
+                gridLayout.addView(card)
+            }
+
+            animIsDone = true
+        }, 350)
+    }
+
+    private fun getYValue(index: Int, dir: Int, card: View) =
+            if (dir < 0)
+                if (index % 2 == 0)
+                    -card.height - card.marginTop * 2
+                else
+                    0
+            else
+                if (index % 2 == 0)
+                    0
+                else
+                    card.height + card.marginBottom * 2
+
+    private fun getXValue(index: Int, dir: Int, card: View) =
+            if (dir < 0)
+                if (index % 2 == 0)
+                    card.width + card.marginLeft * 2
+                else
+                    -card.width - card.marginLeft * 2
+            else
+                if (index % 2 == 0)
+                    card.width + card.marginLeft * 2
+                else
+                    -card.width - card.marginLeft * 2
 
     override fun updateUI() {
         for ((index, grTile) in gridTiles.withIndex()) {
             val tile = currentRoutine.tiles[index]
-            grTile.setCardBackgroundColor(tile.backgroundColor)
+
+            grTile.cardElevation =
+                    if (tile != Tile.DEFAULT_TILE)
+                        5f
+                    else
+                        0f
+
+            val bgColor =
+                    if (tile != Tile.DEFAULT_TILE)
+                        tile.backgroundColor
+                    else
+                        Color.TRANSPARENT
+            val contrastColor =
+                    if (tile != Tile.DEFAULT_TILE)
+                        ResourceClass.Conversions.Colors.calculateContrast(bgColor)
+                    else
+                        ResourceClass.Resources.Colors.contrastColor
+
+            grTile.setCardBackgroundColor(bgColor)
+
+            val nameView = grTile.findViewById<TextView>(R.id.tv_viewholder_smallTile_name)
+            nameView.text =
+                    if (tile != Tile.DEFAULT_TILE)
+                        tile.name
+                    else
+                        "Add Tile"
+            nameView.setTextColor(contrastColor)
+
+            val iconView = grTile.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon)
+            val drawable =
+                    if (tile != Tile.DEFAULT_TILE)
+                        ResourceClass.getIconDrawable(tile)
+                    else
+                        ResourceClass.Resources.getDrawable(R.drawable.ic_add)
+
+            iconView.setImageDrawable(drawable)
+            iconView.setColorFilter(contrastColor)
         }
     }
 
     private fun initBufferViews() {
-        closeView = iv_EditRoutine_continuous_close
+        routineNameField = et_EditRoutine_continuous_routineName
+        routineNameField.setText(currentRoutine.name)
 
         gridTiles.add(tile_EditRoutine_continuous_0 as MaterialCardView)
         gridTiles.add(tile_EditRoutine_continuous_1 as MaterialCardView)

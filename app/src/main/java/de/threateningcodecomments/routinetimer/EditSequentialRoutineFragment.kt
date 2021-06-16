@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
@@ -93,6 +94,15 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     override fun onStart() {
         super.onStart()
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            currentRoutine.lastUsed = System.currentTimeMillis()
+            ResourceClass.updateRoutineInDb(currentRoutine)
+
+            val directions = EditSequentialRoutineFragmentDirections.actionEditSequentialRoutineFragmentToSelectRoutineFragment()
+
+            findNavController().navigate(directions)
+        }
 
         initBufferViews()
 
@@ -331,7 +341,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         settingsPreviewModeSummary.text = currentTile.getModeAsString()
 
         settingsPreviewCdTimeValue.isVisible = (currentTile.mode != Tile.MODE_COUNT_UP)
-        if(currentTile.mode == Tile.MODE_COUNT_UP)
+        if (currentTile.mode == Tile.MODE_COUNT_UP)
             settingsPreviewCdTimeInfo.isVisible = false
 
         val cdTimeValue = currentTile.countDownSettings.countDownTime

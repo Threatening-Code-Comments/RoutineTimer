@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.card.MaterialCardView
@@ -37,6 +39,19 @@ class TileSettingsFragment : Fragment(), UIContainer {
         super.onStart()
         MainActivity.currentFragment = this
         instance = this
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val routineMode = currentRoutine.mode
+            val routineUid = currentRoutine.uid
+
+            val directions =
+                    if (routineMode == Routine.MODE_SEQUENTIAL)
+                        TileSettingsFragmentDirections.actionTileSettingsFragmentToEditSequentialRoutineFragment(routineUid)
+                    else
+                        TileSettingsFragmentDirections.actionTileSettingsFragmentToEditContinuousRoutineFragment(routineUid)
+
+            findNavController().navigate(directions)
+        }
 
         currentRoutine = ResourceClass.getRoutineFromUid(args.routineUid)
         currentTile = ResourceClass.getTileFromUid(args.tileUid)

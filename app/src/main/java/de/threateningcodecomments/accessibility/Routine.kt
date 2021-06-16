@@ -1,11 +1,18 @@
 package de.threateningcodecomments.accessibility
 
+import de.threateningcodecomments.routinetimer.SettingsFragment
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 class Routine {
     var name: String? = null
+        get() =
+            if (SettingsFragment.preferences.dev.debug)
+                this.uid
+            else
+                field
+
     var uid: String = "DEFAULT"
         get() = if (field == "DEFAULT") {
             val randomUid = UUID.randomUUID().toString()

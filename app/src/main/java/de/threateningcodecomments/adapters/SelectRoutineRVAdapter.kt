@@ -15,7 +15,7 @@ import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
 
     constructor(routines: ArrayList<Routine>) : super() {
-        val tmpRoutines = routines
+        val tmpRoutines = ArrayList(routines.sortedByDescending { it.lastUsed })
         if (tmpRoutines.size == 0) {
             tmpRoutines.add(Routine.ERROR_ROUTINE)
         } else {
@@ -38,7 +38,6 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val isNightMode = ResourceClass.wasNightMode()
         val tmpRoutine = routines!![position]
-        val firstTile = tmpRoutine.tiles[0]
 
         tmpRoutine.setAccessibility(isNightMode)
 
@@ -60,12 +59,20 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
         holder.modeView.text = mode
 
         //initializes tile buffer to restore order of tiles and ErrorTiles for continuous routine
-        val tilesWithoutErrors = ArrayList<Tile>(tmpRoutine.tiles)
-        while (tilesWithoutErrors.contains(Tile.ERROR_TILE)) {
+        var tilesWithoutErrors = ArrayList<Tile>(tmpRoutine.tiles)
+        while (tilesWithoutErrors.contains(Tile.ERROR_TILE))
             tilesWithoutErrors.remove(Tile.ERROR_TILE)
-        }
+
+        val tilesWithOutDefault = ArrayList(tilesWithoutErrors)
+        while (tilesWithOutDefault.contains(Tile.DEFAULT_TILE))
+            tilesWithOutDefault.remove(Tile.DEFAULT_TILE)
+
+        if (tilesWithOutDefault.size != 0)
+            tilesWithoutErrors = tilesWithOutDefault
 
         if (tilesWithoutErrors.size < 4) {
+            val firstTile = tilesWithoutErrors.first()
+
             holder.singleImageView.transitionName = uid + "icon"
             holder.setSingleImage()
             val icon = ResourceClass.getIconDrawable(firstTile)

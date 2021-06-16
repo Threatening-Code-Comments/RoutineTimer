@@ -3,6 +3,8 @@ package de.threateningcodecomments.routinetimer
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -26,6 +28,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
     override fun onStart() {
         super.onStart()
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val directions = SettingsFragmentDirections.actionSettingsFragmentToStartFragment()
+
+            findNavController().navigate(directions)
+        }
 
         dataSavingPref.isChecked = preferences.general.dataSaving
 

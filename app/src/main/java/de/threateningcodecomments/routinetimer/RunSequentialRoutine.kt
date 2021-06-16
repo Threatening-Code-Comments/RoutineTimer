@@ -6,6 +6,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -51,6 +52,12 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val directions = RunSequentialRoutineDirections.actionRunSequentialRoutineToSelectRoutineFragment()
+
+            findNavController().navigate(directions)
+        }
 
         routineUid = args.routineUid
         currentRoutine = ResourceClass.getRoutineFromUid(routineUid)

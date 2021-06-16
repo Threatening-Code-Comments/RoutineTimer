@@ -43,6 +43,7 @@
             app:shapeAppearance="@style/textInputShape">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_EditRoutine_continuous_routineName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
@@ -177,7 +178,7 @@
             android:id="@+id/gl_EditRoutine_continuous_tileLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
+            android:animateLayoutChanges="false"
             android:columnCount="2"
             android:orientation="horizontal"
             android:rowCount="4">

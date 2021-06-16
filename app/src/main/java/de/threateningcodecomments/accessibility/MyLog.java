@@ -13,13 +13,15 @@ public class MyLog {
 
     public static void d(String message) {
         //nice idea, but it doesn't work
-        /*if (SettingsFragment.Companion.getPreferences().getDev().getDebug()) {*/
-            if (message == null) {
-                Log.d(DEFAULT_TAG, "null value");
-            } else {
+        if (SettingsFragment.Companion.getPreferences().getDev().getDebug()) {
+            Toast.makeText(MainActivity.instance, message, Toast.LENGTH_SHORT).show();
+        }
+        if (message == null) {
+            Log.d(DEFAULT_TAG, "null value");
+        } else {
 
-                Log.d(DEFAULT_TAG, message);
-            }
+            Log.d(DEFAULT_TAG, message);
+        }
         /*}*/
     }
 

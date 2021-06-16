@@ -474,7 +474,7 @@ internal object ResourceClass {
         updateRoutineInDb(routine)
     }
 
-    private fun updateRoutineInDb(routine: Routine) {
+    fun updateRoutineInDb(routine: Routine) {
         saveRoutine(routine)
     }
 

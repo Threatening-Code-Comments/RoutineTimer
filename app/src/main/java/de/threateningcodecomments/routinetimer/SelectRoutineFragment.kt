@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -86,6 +87,12 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     override fun onStart() {
         super.onStart()
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
+
+            findNavController().navigate(directions)
+        }
 
         //ResourceClass.loadDatabaseRes()
         ResourceClass.loadDatabaseRes()
@@ -247,6 +254,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
         }
 
         val tiles: ArrayList<Tile> = arrayListOf(Tile.DEFAULT_TILE)
+
+        if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
+            for(i in 1..7)
+                tiles.add(Tile.DEFAULT_TILE)
+
         tmpRoutine.tiles = tiles
 
         tmpRoutine.uid

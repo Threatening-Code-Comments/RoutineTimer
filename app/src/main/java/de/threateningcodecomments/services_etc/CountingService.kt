@@ -231,7 +231,11 @@ class CountingService : Service() {
         private var tileTimers: HashMap<String, Runnable> = HashMap()
 
         fun startCounting(currentTile: Tile) {
-            val routineUid = ResourceClass.getRoutineOfTile(currentTile).uid
+            val routine = ResourceClass.getRoutineOfTile(currentTile)
+            val routineUid = routine.uid
+
+            routine.lastUsed = System.currentTimeMillis()
+            ResourceClass.updateRoutineInDb(routine)
 
             //if there already is a timer running, don't create another one
             if (tileTimers[routineUid] != null && !tileTimers.containsKey(routineUid)) {
