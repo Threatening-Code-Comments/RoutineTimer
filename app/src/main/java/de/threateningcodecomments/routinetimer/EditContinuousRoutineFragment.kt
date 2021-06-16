@@ -33,8 +33,6 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     private lateinit var dragStartView: MaterialCardView
     private var dragStartIndex = -1
 
-    private lateinit var closeView: ShapeableImageView
-
     private var gridTiles = ArrayList<MaterialCardView>()
     private lateinit var gridLayout: GridLayout
 

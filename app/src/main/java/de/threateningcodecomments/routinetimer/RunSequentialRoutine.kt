@@ -29,8 +29,6 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     private lateinit var currentRoutine: Routine
     private lateinit var routineUid: String
 
-    private lateinit var closeView: ShapeableImageView
-
     private lateinit var tileCardView: MaterialCardView
     private lateinit var tileIconView: ShapeableImageView
     private lateinit var tileNameView: MaterialTextView
@@ -54,9 +52,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         super.onStart()
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
-            val directions = RunSequentialRoutineDirections.actionRunSequentialRoutineToSelectRoutineFragment()
-
-            findNavController().navigate(directions)
+            navigateBack()
         }
 
         routineUid = args.routineUid
@@ -70,7 +66,6 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.iv_RunRoutine_sequential_close -> navigateBack()
             R.id.cv_RunRoutine_sequential_tileMain -> {
                 App.instance.cycleForward(currentRoutine)
                 cycleForward()
@@ -93,7 +88,6 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
     //region init
     private fun initListeners() {
-        closeView.setOnClickListener(this)
 
         tileCardView.setOnClickListener(this)
 
@@ -102,7 +96,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     }
 
     private fun initBufferViews() {
-        closeView = iv_RunRoutine_sequential_close
+
 
         tileCardView = cv_RunRoutine_sequential_tileMain
         tileIconView = iv_RunRoutine_sequential_tileIcon

@@ -1,7 +1,6 @@
 package de.threateningcodecomments.routinetimer
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -47,7 +46,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         get() = MainActivity.isNightMode
 
     private lateinit var root: ConstraintLayout
-    private lateinit var closeIcon: ShapeableImageView
 
     private lateinit var routineLayout: LinearLayout
     private lateinit var routineNameEditText: EditText
@@ -99,9 +97,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
             currentRoutine.lastUsed = System.currentTimeMillis()
             ResourceClass.updateRoutineInDb(currentRoutine)
 
-            val directions = EditSequentialRoutineFragmentDirections.actionEditSequentialRoutineFragmentToSelectRoutineFragment()
-
-            findNavController().navigate(directions)
+            navigateBack()
         }
 
         initBufferViews()
@@ -120,8 +116,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     override fun onClick(v: View?) {
         when (v!!.id) {
-            R.id.iv_EditRoutine_sequential_close ->
-                navigateBack()
             R.id.cv_EditRoutine_sequential_cycle_delete ->
                 handleDeleteButton()
             R.id.cv_EditRoutine_sequential_cycle_next ->
@@ -183,9 +177,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     //region init
     private fun initListeners() {
-        closeIcon.setOnClickListener(this)
-        closeIcon.setColorFilter(if (isNightMode) Color.WHITE else Color.BLACK)
-
         routineNameEditText.addTextChangedListener(afterTextChanged = { text: Editable? ->
             if (text.toString().isNotEmpty()) {
                 currentRoutine.name = text.toString()
@@ -244,7 +235,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         val v = requireView()
 
         root = v.findViewById(R.id.cl_EditRoutine_sequential_root)
-        closeIcon = v.findViewById(R.id.iv_EditRoutine_sequential_close)
 
         routineLayout = v.findViewById(R.id.ll_EditRoutine_sequential_routine_layout)
         routineNameEditText = v.findViewById(R.id.et_EditRoutine_sequential_routine_name)

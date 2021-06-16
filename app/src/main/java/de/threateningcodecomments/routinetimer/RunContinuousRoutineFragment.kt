@@ -30,7 +30,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     private var gridTiles: ArrayList<MaterialCardView> = ArrayList()
     private var gridRows: ArrayList<ConstraintLayout> = ArrayList()
 
-    private lateinit var closeView: ShapeableImageView
     private lateinit var routineNameView: MaterialTextView
 
     private var currentTile: Tile? = null
@@ -62,11 +61,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         if (v is MaterialCardView) {
             if (gridTiles.contains(v)) {
                 toggleTileSize(gridTiles.indexOf(v))
-            }
-        }
-        when (v!!.id) {
-            R.id.iv_RunRoutine_continuous_close -> {
-                navigateToSelectRoutine()
             }
         }
     }
@@ -376,7 +370,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 gridTiles.add(card)
             }
         }
-        closeView = v.findViewById(R.id.iv_RunRoutine_continuous_close)
         routineNameView = v.findViewById(R.id.tv_RunRoutine_continuous_routine_name)
     }
 
@@ -384,7 +377,6 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         for (card in gridTiles) {
             card.setOnClickListener(this)
         }
-        closeView.setOnClickListener(this)
     }
     //endregion
 

@@ -8,19 +8,6 @@
     android:paddingVertical="12sp"
     tools:context=".RunSequentialRoutine">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_RunRoutine_sequential_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="15sp"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_close"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/circleImageView" />
-
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_RunRoutine_sequential_tileMain"
         android:layout_width="match_parent"
