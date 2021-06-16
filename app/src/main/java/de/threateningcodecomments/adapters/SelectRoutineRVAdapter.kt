@@ -71,7 +71,11 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
             tilesWithoutErrors = tilesWithOutDefault
 
         if (tilesWithoutErrors.size < 4) {
-            val firstTile = tilesWithoutErrors.first()
+            val firstTile =
+                    if (tilesWithoutErrors.size != 0)
+                        tilesWithoutErrors.first()
+                    else
+                        tmpRoutine.tiles.first()
 
             holder.singleImageView.transitionName = uid + "icon"
             holder.setSingleImage()
