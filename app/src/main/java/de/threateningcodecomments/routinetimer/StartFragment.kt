@@ -95,30 +95,6 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                         false)
                 Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()*/
 
-
-                /*if (ResourceClass.routines.size > 0) {
-                    val routine = ResourceClass.routines[0]
-                    val tile = routine.tiles[0]
-
-                    val directions = StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile
-                            .uid)
-
-                    findNavController().navigate(directions)
-                }*/
-
-                /*for (i in 0..8) {
-                    MyLog.d("hey haha this is the $i")
-                    val routine = ResourceClass.generateRandomRoutine()
-                    val tile = routine.tiles[0]
-
-                    routine.mode =
-                            if (Math.random() < 0.5)
-                                Routine.MODE_CONTINUOUS
-                            else
-                                Routine.MODE_SEQUENTIAL
-                    ResourceClass.routines.add(routine)
-                }*/
-
                 val routine = ResourceClass.generateRandomRoutine()
                 val tile = routine.tiles[0]
 
@@ -130,11 +106,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                         StartFragmentDirections.actionStartFragmentToEditContinuousRoutineFragment(routine.uid)
                 //StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile.uid)
 
-                //TODO fix this janky ass hardcode
                 findNavController().navigate(directions)
-
-                /*val routine = ResourceClass.generateRandomRoutine()
-                ResourceClass.saveRoutine(routine)*/
             }
             R.id.btn_StartFragment_settings -> {
                 val directions = StartFragmentDirections.actionStartFragmentToSettingsFragment()

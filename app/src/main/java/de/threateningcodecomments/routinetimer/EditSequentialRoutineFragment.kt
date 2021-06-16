@@ -345,7 +345,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
             settingsPreviewCdTimeInfo.isVisible = false
 
         val cdTimeValue = currentTile.countDownSettings.countDownTime
-        settingsPreviewCdTimeValue.text = ResourceClass.millisToHHMMSSorMMSS(cdTimeValue)
+        settingsPreviewCdTimeValue.text = currentTile.countDownSettings.countDownTimeString
 
         updateRoutine()
         updateCard()

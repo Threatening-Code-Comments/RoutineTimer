@@ -25,7 +25,6 @@ import com.google.android.material.imageview.ShapeableImageView
 import de.threateningcodecomments.accessibility.*
 import kotlinx.android.synthetic.main.fragment_edit_continuous_routine.*
 
-
 class EditContinuousRoutineFragment : Fragment(), UIContainer {
     private lateinit var routineNameField: EditText
     private var isNightMode: Boolean = false
