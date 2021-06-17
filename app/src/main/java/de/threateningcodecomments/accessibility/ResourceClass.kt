@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -34,9 +35,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 
-internal object ResourceClass {
+@SuppressLint("StaticFieldLeak")
+object ResourceClass {
 
     object Debugging {
         fun shortenUid(uid: String): String {
@@ -78,6 +81,9 @@ internal object ResourceClass {
              */
             val contrastColor: Int
                 get() = getColorWithNightMode(R.color.contrastLightMode, R.color.contrastDarkMode)
+
+            val extremeContrastColor: Int
+                get() = getColorWithNightMode(R.color.extremeContrastLightMode, R.color.extremeContrastDarkMode)
 
 
             val primaryColor: Int
@@ -272,9 +278,7 @@ internal object ResourceClass {
                 return hsv[0]
             }
 
-
-            @JvmStatic
-            fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
+            public fun convertColorDayNight(isNightMode: Boolean, oldColor: Int): Int {
                 val hsvValues = FloatArray(3)
                 val red = Color.red(oldColor)
                 val green = Color.green(oldColor)
@@ -306,6 +310,13 @@ internal object ResourceClass {
                     Color.WHITE
                 }
                 return contrastColor
+            }
+        }
+
+        object Size {
+            fun pxToDp(px: Int): Int {
+                val displayMetrics: DisplayMetrics = MainActivity.instance.resources.displayMetrics
+                return (px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
             }
         }
     }

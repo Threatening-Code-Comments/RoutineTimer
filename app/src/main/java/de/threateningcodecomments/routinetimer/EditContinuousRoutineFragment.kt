@@ -1,19 +1,20 @@
 package de.threateningcodecomments.routinetimer
 
+import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipDescription
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.util.TypedValue
 import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.GridLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.addCallback
+import androidx.core.animation.doOnEnd
 import androidx.core.view.*
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -22,19 +23,27 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textfield.TextInputLayout
 import de.threateningcodecomments.accessibility.*
 import kotlinx.android.synthetic.main.fragment_edit_continuous_routine.*
 
 class EditContinuousRoutineFragment : Fragment(), UIContainer {
-    private lateinit var routineNameField: EditText
     private var isNightMode: Boolean = false
     private lateinit var currentRoutine: Routine
 
     private lateinit var dragStartView: MaterialCardView
     private var dragStartIndex = -1
 
+    private lateinit var routineNameField: EditText
+    private lateinit var routineNameLayout: TextInputLayout
+
     private var gridTiles = ArrayList<MaterialCardView>()
     private lateinit var gridLayout: GridLayout
+
+    private lateinit var deleteView: FrameLayout
+    private var deleteViewCanBeUpdated = true
+    private lateinit var deleteViewTextView: TextView
+    private lateinit var deleteViewImageView: ImageView
 
     private val args: EditContinuousRoutineFragmentArgs by navArgs()
 
@@ -92,6 +101,9 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
             dragStartIndex = gridLayout.indexOfChild(it)
             it.visibility = View.INVISIBLE
 
+            deleteView.isVisible = true
+            routineNameLayout.visibility = View.INVISIBLE
+
             val returnVal = it.startDragAndDrop(dragData, myShadow, null, 0)
 
             if (!returnVal)
@@ -101,7 +113,7 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         }
 
         val dragListener = View.OnDragListener { v: View?, event: DragEvent? ->
-            if (v !is MaterialCardView)
+            if (v is GridLayout)
                 return@OnDragListener true
 
             val end = gridLayout.children.indexOf(v)
@@ -110,30 +122,62 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
             if (event != null && dragStartIndex != -1) {
                 when (event.action) {
                     DragEvent.ACTION_DRAG_LOCATION -> {
-                        rearrangeTiles(start, end)
+                        if (v is MaterialCardView) {
+                            updateDeleteView(false)
+                            rearrangeTiles(start, end)
+                        } else {
+                            val newStart = gridLayout.indexOfChild(dragStartView)
+                            val newEnd = dragStartIndex
+
+                            if (newStart != dragStartIndex)
+                                rearrangeTiles(newStart, newEnd)
+                            updateDeleteView(true)
+                        }
                     }
                     DragEvent.ACTION_DRAG_ENDED -> {
-                        Handler().postDelayed({ dragStartView.isVisible = true }, 50)
+                        deleteView.isVisible = false
+                        routineNameLayout.visibility = View.VISIBLE
 
                         val updatedDragIndex = gridTiles.indexOf(dragStartView)
 
                         val tileToMove = currentRoutine.tiles[dragStartIndex]
 
                         currentRoutine.tiles.remove(tileToMove)
-                        currentRoutine.tiles.add(updatedDragIndex, tileToMove)
+
+                        //handle if this event was from the deleteView
+                        val tileToAdd =
+                                if (v is FrameLayout)
+                                    Tile.DEFAULT_TILE
+                                else
+                                    tileToMove
+                        currentRoutine.tiles.add(updatedDragIndex, tileToAdd)
 
                         ResourceClass.updateRoutineInDb(currentRoutine)
 
                         dragStartIndex = -1
+
+                        Handler().postDelayed({
+                            dragStartView.isVisible = true
+                        }, 50)
+
+                        //handle deleting of tile
+                        if (v is FrameLayout)
+                            updateUI()
                     }
                 }
             }
 
             //return value for listener
-            if (event?.action == DragEvent.ACTION_DRAG_ENDED)
-                false
-            else
-                (event?.action == DragEvent.ACTION_DRAG_STARTED) or (event?.action == DragEvent.ACTION_DRAG_LOCATION)
+            when {
+                //if it's deleteView
+                v is FrameLayout || v is TextView || v is ImageView ->
+                    true
+                //i do not know
+                event?.action == DragEvent.ACTION_DRAG_ENDED ->
+                    false
+                else ->
+                    (event?.action == DragEvent.ACTION_DRAG_STARTED) or (event?.action == DragEvent.ACTION_DRAG_LOCATION)
+            }
         }
 
         val onEditClickListener = View.OnClickListener {
@@ -152,6 +196,9 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
             tile.setOnDragListener(dragListener)
             tile.setOnClickListener(onEditClickListener)
         }
+        deleteView.setOnDragListener(dragListener)
+        deleteViewTextView.setOnDragListener(dragListener)
+        deleteViewImageView.setOnDragListener(dragListener)
     }
 
     private fun rearrangeTiles(startIndex: Int, endIndex: Int) {
@@ -240,6 +287,7 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
                     -card.width - card.marginLeft * 2
 
     override fun updateUI() {
+        //updating tiles
         for ((index, grTile) in gridTiles.withIndex()) {
             val tile = currentRoutine.tiles[index]
 
@@ -280,10 +328,62 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
             iconView.setImageDrawable(drawable)
             iconView.setColorFilter(contrastColor)
         }
+
+        updateDeleteView(false)
+    }
+
+    private fun updateDeleteView(hovered: Boolean) {
+        if (!deleteViewCanBeUpdated)
+            return
+
+        deleteViewCanBeUpdated = false
+
+        //animate view
+        val currentHeightValue = ResourceClass.Conversions.Size.pxToDp(deleteView.height)
+        val heightValue =
+                if (hovered)
+                    200f
+                else
+                    100f
+
+        ValueAnimator.ofFloat(currentHeightValue.toFloat(), heightValue).apply {
+            duration = 500
+
+            addUpdateListener {
+                deleteView.updateLayoutParams {
+                    val pixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, it.animatedValue as Float,
+                            context?.resources?.displayMetrics)
+                    height = pixels.toInt()
+                }
+            }
+            doOnEnd {
+                deleteViewCanBeUpdated = true
+            }
+
+            start()
+        }
+
+        //updating deleteView
+        val deleteColor = ResourceClass.Resources.Colors.cancelColor
+
+        val gradientDrawable = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(deleteColor,
+                        Color.TRANSPARENT)
+        );
+        gradientDrawable.cornerRadius = 0f;
+
+        deleteView.background = gradientDrawable;
+
+        val contrastColor = ResourceClass.Resources.Colors.extremeContrastColor
+
+        deleteViewTextView.setTextColor(contrastColor)
+        deleteViewImageView.setColorFilter(contrastColor)
     }
 
     private fun initBufferViews() {
         routineNameField = et_EditRoutine_continuous_routineName
+        routineNameLayout = til_EditRoutine_continuous_routineName
         routineNameField.setText(currentRoutine.name)
 
         gridTiles.add(tile_EditRoutine_continuous_0 as MaterialCardView)
@@ -296,6 +396,10 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         gridTiles.add(tile_EditRoutine_continuous_7 as MaterialCardView)
 
         gridLayout = gl_EditRoutine_continuous_tileLayout
+
+        deleteView = fl_EditRoutine_continuous_deleteView
+        deleteViewTextView = tv_EditRoutine_continuous_deleteView_text
+        deleteViewImageView = iv_EditRoutine_continuous_deleteView_icon
     }
 
     private fun goToSelectRoutine() {

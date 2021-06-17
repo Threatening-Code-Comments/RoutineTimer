@@ -79,4 +79,5 @@
     <string name="str_TileSettings_tabs_appearance">Appearance</string>
     <string name="str_TileSettings_tabs_timing">Timing</string>
     <string name="constStr_noTextChangedChar">↕</string>
+    <string name="str_tv_EditRoutine_continuous_deleteView_text">Delete</string>
 </resources>

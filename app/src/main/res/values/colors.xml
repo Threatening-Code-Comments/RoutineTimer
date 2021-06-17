@@ -13,6 +13,9 @@
     <color name="contrastDarkMode">#b8b8b8</color>
     <color name="contrastLightMode">#111111</color>
 
+    <color name="extremeContrastDarkMode">#FFFFFF</color>
+    <color name="extremeContrastLightMode">#000000</color>
+
     <color name="disabledColor">#C5C5C5</color>
     <color name="disabledColorDark">#474747</color>
 </resources>
