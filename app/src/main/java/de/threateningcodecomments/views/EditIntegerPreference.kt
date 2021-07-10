@@ -1,4 +1,4 @@
-package de.threateningcodecomments.accessibility
+package de.threateningcodecomments.views
 
 import android.content.Context
 import android.content.SharedPreferences

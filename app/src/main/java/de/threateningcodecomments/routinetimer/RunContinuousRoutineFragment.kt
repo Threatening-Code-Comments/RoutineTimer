@@ -19,7 +19,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
@@ -40,16 +40,14 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     private lateinit var routineUid: String
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = ResourceClass.sharedElementTransition
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
         super.onViewCreated(view, savedInstanceState)
-
-        MainActivity.currentFragment = this
 
         initBufferViews()
 
         initListeners()
 
-        routine = ResourceClass.getRoutineFromUid(args.routineUid)
+        routine = RC.RoutinesAndTiles.getRoutineFromUid(args.routineUid)
         routineUid = routine.uid
 
         updateUI(true)
@@ -70,7 +68,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     fun updateUI(isInit: Boolean) {
-        var tileIndex: Int? = routine.tiles.indexOf(ResourceClass.currentTiles[routineUid])
+        var tileIndex: Int? = routine.tiles.indexOf(RC.currentTiles[routineUid])
         tileIndex = if (tileIndex == -1) null else tileIndex
 
         if (isInit && tileIndex != null) {
@@ -129,11 +127,11 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
                 nameView.setTextColor(contrastColor)
                 nameView.text = tile.name
                 imageView.setColorFilter(contrastColor)
-                imageView.setImageDrawable(ResourceClass.getIconDrawable(tile))
+                imageView.setImageDrawable(RC.getIconDrawable(tile))
 
                 animateColor(totalTimeMainView, oldColor, newColor)
                 if (tile.mode == Tile.MODE_COUNT_UP) {
-                    val totalTileTimeStr = ResourceClass.millisToHHMMSSmmOrMMSSmm(tile.totalCountedTime)
+                    val totalTileTimeStr = RC.Conversions.Time.millisToHHMMSSmmOrMMSSmm(tile.totalCountedTime)
                     totalTimeMainView.text = totalTileTimeStr.substring(0, totalTileTimeStr.length - 3)
                 } else {
                     val timesPressed = (tile.totalCountedTime / tile.countDownSettings.countDownTime).toInt()
@@ -160,10 +158,10 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
     private fun animateColor(view: View, p_oldColor: Int, p_newColor: Int) {
         val oldColor =
-                if (view !is MaterialCardView) ResourceClass.Conversions.Colors.calculateContrast(p_oldColor)
+                if (view !is MaterialCardView) RC.Conversions.Colors.calculateContrast(p_oldColor)
                 else p_oldColor
         val newColor =
-                if (view !is MaterialCardView) ResourceClass.Conversions.Colors.calculateContrast(p_newColor)
+                if (view !is MaterialCardView) RC.Conversions.Colors.calculateContrast(p_newColor)
                 else p_newColor
 
         val colorAnimation =
@@ -189,7 +187,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         updateUI()
 
         //if tile is running, stop it in the CountingService
-        if (ResourceClass.currentTiles.values.contains(currentTile)) {
+        if (RC.currentTiles.values.contains(currentTile)) {
             App.instance.stopTile(routine)
         }
         //indicate that the tile isn't running in the ui anymore
@@ -210,11 +208,11 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
         //handles UI visibility
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
-        totalTimeMainView.startAnimation(ResourceClass.Anim.scaleUp)
+        totalTimeMainView.startAnimation(RC.Anim.scaleUp)
         totalTimeMainView.visibility = View.VISIBLE
 
         //updates total time main view in compacted tile view
-        totalTimeMainView.text = ResourceClass.millisToHHMMSSorMMSS(currentTile.totalCountedTime)
+        totalTimeMainView.text = RC.Conversions.Time.millisToHHMMSSorMMSS(currentTile.totalCountedTime)
     }
 
     private var startingTime: Long? = null
@@ -255,7 +253,7 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
         //hide the totalTimeMainView in the UI
         val totalTimeMainView = currentGridTile.findViewById<MaterialTextView>(R.id.tv_viewholder_runTile_totalTimeMain)
-        totalTimeMainView.startAnimation(ResourceClass.Anim.scaleDown)
+        totalTimeMainView.startAnimation(RC.Anim.scaleDown)
         totalTimeMainView.visibility = View.GONE
 
         //update time values in a loop
@@ -274,17 +272,17 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
 
                 //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
                 // is the remaining time
-                val currentTimeStr = ResourceClass.millisToHHMMSSmmOrMMSSmm(currentTime)
+                val currentTimeStr = RC.Conversions.Time.millisToHHMMSSmmOrMMSSmm(currentTime)
                 currentTimeField.text = currentTimeStr
 
                 //updates the totalTimeField, only needs to be done with countUpTiles
                 if (currentTile.mode == Tile.MODE_COUNT_UP) {
                     val totalTime = currentTile.totalCountedTime + currentTime
-                    val totalTimeStr = ResourceClass.millisToHHMMSSorMMSS(totalTime)
+                    val totalTimeStr = RC.Conversions.Time.millisToHHMMSSorMMSS(totalTime)
                     totalTimeField.text = totalTimeStr
                 }
 
-                if (ResourceClass.currentTiles[routineUid] != null) {
+                if (RC.currentTiles[routineUid] != null) {
                     Handler().postDelayed(this, 10)
                 } else {
                     if (expandedTile == tileIndex) {
@@ -298,13 +296,13 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
     }
 
     override fun updateCurrentTile() {
-        currentTile = ResourceClass.currentTiles[routineUid]
+        currentTile = RC.currentTiles[routineUid]
 
         if (currentTile != null) {
             val indexOf = routine.tiles.indexOf(currentTile!!)
             startCountingTile(indexOf)
         } else {
-            val indexOf = routine.tiles.indexOf(ResourceClass.previousCurrentTiles[routineUid])
+            val indexOf = routine.tiles.indexOf(RC.previousCurrentTiles[routineUid])
             if (indexOf != -1)
                 stopCountingTile(indexOf)
         }
@@ -333,8 +331,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         Handler().postDelayed({
             (hideCard.parent as View).visibility = View.GONE
             firstCard.findViewById<ConstraintLayout>(R.id.cl_viewholder_runTile_timeLayout).visibility = View.VISIBLE
-        }, ResourceClass.Anim.scaleDown.duration * (2 / 3))
-        hideCard.startAnimation(ResourceClass.Anim.scaleDown)
+        }, RC.Anim.scaleDown.duration * (2 / 3))
+        hideCard.startAnimation(RC.Anim.scaleDown)
 
         startCountingTile(indexOf)
     }
@@ -346,8 +344,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
         Handler().postDelayed({
             (showCard.parent as View).visibility = View.VISIBLE
             firstCard.findViewById<ConstraintLayout>(R.id.cl_viewholder_runTile_timeLayout).visibility = View.GONE
-        }, ResourceClass.Anim.scaleUp.duration * (2 / 3))
-        showCard.startAnimation(ResourceClass.Anim.scaleUp)
+        }, RC.Anim.scaleUp.duration * (2 / 3))
+        showCard.startAnimation(RC.Anim.scaleUp)
 
         stopCountingTile(indexOf)
     }
@@ -389,8 +387,8 @@ class RunContinuousRoutineFragment : Fragment(), View.OnClickListener, UIContain
             findNavController().navigate(directions)
         }
 
-        ResourceClass.removeRoutineListener()
-        routine.setAccessibility(MainActivity.isNightMode)
+        RC.Db.removeRoutineListener()
+        routine.setAccessibility(RC.isNightMode)
         updateUI(false)
     }
 

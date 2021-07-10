@@ -28,12 +28,12 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import de.threateningcodecomments.accessibility.*
-import de.threateningcodecomments.accessibility.ResourceClass.Anim.scaleDown
-import de.threateningcodecomments.accessibility.ResourceClass.Anim.scaleUpSlow
-import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideDownIn
-import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideDownOut
-import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideUpIn
-import de.threateningcodecomments.accessibility.ResourceClass.Anim.slideUpOut
+import de.threateningcodecomments.accessibility.RC.Anim.scaleDown
+import de.threateningcodecomments.accessibility.RC.Anim.scaleUpSlow
+import de.threateningcodecomments.accessibility.RC.Anim.slideDownIn
+import de.threateningcodecomments.accessibility.RC.Anim.slideDownOut
+import de.threateningcodecomments.accessibility.RC.Anim.slideUpIn
+import de.threateningcodecomments.accessibility.RC.Anim.slideUpOut
 import de.threateningcodecomments.adapters.ItemMoveCallbackListener
 import de.threateningcodecomments.adapters.MyViewHolder
 import de.threateningcodecomments.adapters.OnStartDragListener
@@ -43,7 +43,7 @@ import kotlinx.android.synthetic.main.fragment_edit_sequential_routine.*
 
 class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener, UIContainer {
     private val isNightMode: Boolean
-        get() = MainActivity.isNightMode
+        get() = RC.isNightMode
 
     private lateinit var root: ConstraintLayout
 
@@ -81,13 +81,11 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     private val args: EditSequentialRoutineFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = ResourceClass.sharedElementTransition
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
 
         super.onViewCreated(view, savedInstanceState)
 
         fragment = this
-        MainActivity.currentFragment = this
-
     }
 
     override fun onStart() {
@@ -95,7 +93,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             currentRoutine.lastUsed = System.currentTimeMillis()
-            ResourceClass.updateRoutineInDb(currentRoutine)
+            RC.Db.updateRoutineInDb(currentRoutine)
 
             navigateBack()
         }
@@ -110,7 +108,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
         initUI()
 
-        ResourceClass.updateNightMode(requireActivity())
         initOrganizeRV()
     }
 
@@ -266,8 +263,8 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     }
 
     private fun initRoutines() {
-        val position: Int = ResourceClass.routines.indexOf(ResourceClass.getRoutineFromUid(args.routineUid))
-        currentRoutine = ResourceClass.routines[position]
+        val position: Int = RC.routines.indexOf(RC.RoutinesAndTiles.getRoutineFromUid(args.routineUid))
+        currentRoutine = RC.routines[position]
         currentRoutine.setAccessibility(isNightMode)
         currentRoutine.lastUsed = System.currentTimeMillis()
     }
@@ -282,13 +279,13 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     override fun updateUI() {
         //region visibility
-        val onSurface = ResourceClass.Resources.Colors.contrastColor
+        val onSurface = RC.Resources.Colors.contrastColor
 
         tileCyclePrevBtnIcon.setColorFilter(onSurface)
         tileCycleNextBtnIcon.setColorFilter(onSurface)
 
-        val deleteColor = ResourceClass.Resources.Colors.cancelColor
-        val deleteContrastColor = ResourceClass.Conversions.Colors.calculateContrast(deleteColor)
+        val deleteColor = RC.Resources.Colors.cancelColor
+        val deleteContrastColor = RC.Conversions.Colors.calculateContrast(deleteColor)
 
         tileCycleDeleteBtn.setCardBackgroundColor(deleteColor)
         tileCycleDeleteBtnIcon.setColorFilter(deleteContrastColor)
@@ -305,16 +302,16 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         } else {
             R.drawable.ic_arrow_right
         }
-        val cycleDrawable = ResourceClass.Resources.getDrawable(drawableId)
+        val cycleDrawable = RC.Resources.getDrawable(drawableId)
         tileCycleNextBtnIcon.setImageDrawable(cycleDrawable)
 
         //disable prevButton if this is the first tile
         val isNotAtFirstPosition = position - 1 >= 0
 
         val disableOrEnableColor = if (isNotAtFirstPosition)
-            ResourceClass.Resources.Colors.contrastColor
+            RC.Resources.Colors.contrastColor
         else
-            ResourceClass.Resources.Colors.disabledColor
+            RC.Resources.Colors.disabledColor
 
         tileCyclePrevBtnIcon.setColorFilter(disableOrEnableColor)
 
@@ -325,7 +322,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
         settingsPreviewModeSummary.text = currentTile.getModeAsString()
 
-        val modeDrawable = ResourceClass.Resources.Drawables.getModeDrawable(currentTile)
+        val modeDrawable = RC.Resources.Drawables.getModeDrawable(currentTile)
         settingsPreviewModeIcon.setImageDrawable(modeDrawable)
 
         settingsPreviewModeSummary.text = currentTile.getModeAsString()
@@ -348,7 +345,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileNameView.text = tileName
         tileNameView.setTextColor(tile.contrastColor)
 
-        val icon = ResourceClass.getIconDrawable(tile)
+        val icon = RC.getIconDrawable(tile)
         tileIconView.setImageDrawable(icon)
         tileIconView.setColorFilter(tile.contrastColor)
 
@@ -366,7 +363,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
     }
 
     private fun updateRoutine() {
-        ResourceClass.saveRoutine(currentRoutine)
+        RC.Db.saveRoutine(currentRoutine)
         if (currentRoutine.name != routineNameEditText.text.toString())
             routineNameEditText.setText(currentRoutine.name)
     }

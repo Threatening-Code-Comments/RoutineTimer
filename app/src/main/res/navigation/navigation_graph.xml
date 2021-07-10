@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_startFragment_to_runContinuousRoutine"
             app:destination="@id/runContinuousRoutine" />
+        <action
+            android:id="@+id/action_startFragment_to_tileSettingsFragment"
+            app:destination="@id/tileSettingsFragment" />
     </fragment>
 
     <fragment

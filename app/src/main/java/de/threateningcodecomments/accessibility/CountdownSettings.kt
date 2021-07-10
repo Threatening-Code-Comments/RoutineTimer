@@ -6,9 +6,9 @@ class CountdownSettings {
             field = value
 
             if (field != DEFAULT_COUNTDOWN_TIME) {
-                val cdTimeStringAsLong = ResourceClass.Conversions.Time.convertReadableToMillis(countDownTimeString)
+                val cdTimeStringAsLong = RC.Conversions.Time.convertReadableToMillis(countDownTimeString)
                 if (cdTimeStringAsLong != field) {
-                    val valueAsString = ResourceClass.Conversions.Time.millisToHHMMSS(field)
+                    val valueAsString = RC.Conversions.Time.millisToHHMMSS(field)
                     countDownTimeString = valueAsString
                 }
             }
@@ -18,7 +18,7 @@ class CountdownSettings {
             field = value
 
             if (field != DEFAULT_COUNTDOWN_TIME_STRING) {
-                val valueAsLong = ResourceClass.Conversions.Time.convertReadableToMillis(field)
+                val valueAsLong = RC.Conversions.Time.convertReadableToMillis(field)
                 if (countDownTime != valueAsLong) {
                     countDownTime = valueAsLong
                 }

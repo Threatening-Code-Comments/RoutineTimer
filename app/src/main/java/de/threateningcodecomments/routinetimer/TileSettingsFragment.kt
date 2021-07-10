@@ -14,7 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
@@ -37,7 +37,6 @@ class TileSettingsFragment : Fragment(), UIContainer {
 
     override fun onStart() {
         super.onStart()
-        MainActivity.currentFragment = this
         instance = this
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -53,9 +52,9 @@ class TileSettingsFragment : Fragment(), UIContainer {
             findNavController().navigate(directions)
         }
 
-        currentRoutine = ResourceClass.getRoutineFromUid(args.routineUid)
-        currentTile = ResourceClass.getTileFromUid(args.tileUid)
-        currentRoutine.setAccessibility(MainActivity.isNightMode)
+        currentRoutine = RC.RoutinesAndTiles.getRoutineFromUid(args.routineUid)
+        currentTile = RC.RoutinesAndTiles.getTileFromUid(args.tileUid)
+        currentRoutine.setAccessibility(RC.isNightMode)
 
         initBuffers()
 
@@ -66,13 +65,13 @@ class TileSettingsFragment : Fragment(), UIContainer {
 
     override fun onStop() {
         super.onStop()
-        ResourceClass.updateRoutineInDb(currentTile)
+        RC.Db.updateRoutineInDb(currentTile)
     }
 
     override fun updateUI() {
         tileCard.setCardBackgroundColor(currentTile.backgroundColor)
 
-        tileIcon.setImageDrawable(ResourceClass.getIconDrawable(currentTile))
+        tileIcon.setImageDrawable(RC.getIconDrawable(currentTile))
         tileIcon.setColorFilter(currentTile.contrastColor)
 
         tileName.text = currentTile.name
@@ -95,7 +94,7 @@ class TileSettingsFragment : Fragment(), UIContainer {
                     when (position) {
                         0 -> TileSettingsViewpagerAdapter.CommonElement(currentTile)
                         1 -> TileSettingsViewpagerAdapter.AppearanceElement()
-                        2 -> TileSettingsViewpagerAdapter.TimingElement()
+                        2 -> TileSettingsViewpagerAdapter.ModeElement()
                         else -> TileSettingsViewpagerAdapter.CommonElement(currentTile)
                     }
 

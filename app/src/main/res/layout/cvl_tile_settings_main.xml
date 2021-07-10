@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cl_cvl_TileSettingsMain_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="false"
+    android:padding="12dp">
+
+    <ImageView
+        android:id="@+id/iv_cvl_TileSettingsMain_infoIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_reset_on"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_cvl_TileSettingsMain_infoName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/tv_cvl_TileSettingsMain_infoSummary"
+        app:layout_constraintStart_toEndOf="@id/iv_cvl_TileSettingsMain_infoIcon"
+        app:layout_constraintTop_toTopOf="@id/iv_cvl_TileSettingsMain_infoIcon" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_cvl_TileSettingsMain_infoSummary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="summary"
+        app:layout_constraintBottom_toBottomOf="@id/iv_cvl_TileSettingsMain_infoIcon"
+        app:layout_constraintStart_toEndOf="@id/iv_cvl_TileSettingsMain_infoIcon"
+        app:layout_constraintTop_toBottomOf="@id/tv_cvl_TileSettingsMain_infoName" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

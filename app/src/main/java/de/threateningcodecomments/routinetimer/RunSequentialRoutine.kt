@@ -15,7 +15,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
@@ -43,9 +43,8 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     private lateinit var restartButton: MaterialButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = ResourceClass.sharedElementTransition
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
         super.onViewCreated(view, savedInstanceState)
-        MainActivity.currentFragment = this
     }
 
     override fun onStart() {
@@ -56,7 +55,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         }
 
         routineUid = args.routineUid
-        currentRoutine = ResourceClass.getRoutineFromUid(routineUid)
+        currentRoutine = RC.RoutinesAndTiles.getRoutineFromUid(routineUid)
 
         initBufferViews()
         initListeners()
@@ -71,7 +70,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
                 cycleForward()
             }
             R.id.btn_RunRoutine_sequential_pause -> {
-                val currentTile = ResourceClass.currentTiles[routineUid] ?: ResourceClass
+                val currentTile = RC.currentTiles[routineUid] ?: RC
                         .previousCurrentTiles[routineUid] ?: currentRoutine.tiles[0]
 
                 if (!isRunning) {
@@ -118,12 +117,12 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
         routineNameView.text = currentRoutine.name
 
-        val currentTile = ResourceClass.currentTiles[routineUid]
+        val currentTile = RC.currentTiles[routineUid]
 
         //if the currentTile is null, set isRunning to false
         isRunning = (currentTile != null)
 
-        val isNightMode = MainActivity.isNightMode
+        val isNightMode = RC.isNightMode
 
         //handle text and color of pause button, functionality is in onClick
         //handle starting of tileUpdatingHandler with startTile
@@ -147,25 +146,25 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     }
 
     private fun updateTileInUI(tile: Tile?) {
-        val previousTile = ResourceClass.previousCurrentTiles[routineUid]
+        val previousTile = RC.previousCurrentTiles[routineUid]
         //hardcode of tile position, might want to change that
         val validTile = tile ?: previousTile ?: currentRoutine.tiles[0]
 
         val bgColor =
                 tile?.backgroundColor ?: Color.GRAY
         val contrastColor =
-                ResourceClass.Conversions.Colors.calculateContrast(bgColor)
+                RC.Conversions.Colors.calculateContrast(bgColor)
 
         tileCardView.setCardBackgroundColor(bgColor)
 
         tileNameView.text =
                 if (SettingsFragment.preferences.dev.debug)
-                    ResourceClass.Debugging.shortenUid(validTile.uid)
+                    RC.Debugging.shortenUid(validTile.uid)
                 else
                     validTile.name
         tileNameView.setTextColor(contrastColor)
 
-        tileIconView.setImageDrawable(ResourceClass.getIconDrawable(validTile))
+        tileIconView.setImageDrawable(RC.getIconDrawable(validTile))
         tileIconView.setColorFilter(contrastColor)
 
         if (validTile.mode == Tile.MODE_COUNT_DOWN) {
@@ -178,7 +177,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
             currentTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_currentTimeInfo_countup)
 
             totalTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_totalTimeInfo_countup)
-            totalTimeValueView.text = ResourceClass.millisToHHMMSSorMMSS(validTile.totalCountedTime)
+            totalTimeValueView.text = RC.Conversions.Time.millisToHHMMSSorMMSS(validTile.totalCountedTime)
         }
 
         //if the tile isn't running, change the text on the time displays to "not running"
@@ -216,17 +215,17 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
                     //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
                     // is the remaining time
-                    val currentTimeStr = ResourceClass.millisToHHMMSSmmOrMMSSmm(currentTime)
+                    val currentTimeStr = RC.Conversions.Time.millisToHHMMSSmmOrMMSSmm(currentTime)
                     currentTimeValueView.text = currentTimeStr
 
                     //updates the totalTimeField, only needs to be done with countUpTiles
                     if (tile.mode == Tile.MODE_COUNT_UP) {
                         val totalTime = tile.totalCountedTime + currentTime
-                        val totalTimeStr = ResourceClass.millisToHHMMSSorMMSS(totalTime)
+                        val totalTimeStr = RC.Conversions.Time.millisToHHMMSSorMMSS(totalTime)
                         totalTimeValueView.text = totalTimeStr
                     }
 
-                    if (ResourceClass.currentTiles[routineUid] == tile) {
+                    if (RC.currentTiles[routineUid] == tile) {
                         Handler().postDelayed(this, 10)
                     } else {
                         isRunningInUI = false
@@ -242,7 +241,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     private fun stopTile() {
         //if there is no started tile and there was none either, return (this doesn't happen, but kotlin doesn't like
         // it otherwise)
-        val currentTile = ResourceClass.currentTiles[routineUid] ?: ResourceClass.previousCurrentTiles[routineUid]
+        val currentTile = RC.currentTiles[routineUid] ?: RC.previousCurrentTiles[routineUid]
         ?: return
 
         //buffers the actual elapsed time
@@ -269,7 +268,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
     }
 
     fun cycleForward() {
-        val newTile = ResourceClass.currentTiles[routineUid]
+        val newTile = RC.currentTiles[routineUid]
         val tempIndex = currentRoutine.tiles.indexOf(newTile)
         //when the active tile is the first or last tile, cycle from / to the first tile
         val oldIndex =
@@ -281,7 +280,7 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
         updateTileInUI(oldTile)
         //sliding the card out of frame
-        tileCardView.startAnimation(ResourceClass.Anim.slideLeftOut)
+        tileCardView.startAnimation(RC.Anim.slideLeftOut)
 
         //waiting for the animation to complete, so it doesn't get overridden
         Handler().postDelayed({
@@ -291,11 +290,11 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
             //animate new entry
             updateTileInUI(newTile)
-            tileCardView.startAnimation(ResourceClass.Anim.slideLeftIn)
+            tileCardView.startAnimation(RC.Anim.slideLeftIn)
 
             /*//the currentTile is automatically correctly, look in the getter
             startTile(currentTile)*/
-        }, ResourceClass.Anim.slideLeftIn.duration)
+        }, RC.Anim.slideLeftIn.duration)
     }
 
     override fun updateCurrentTile() {}

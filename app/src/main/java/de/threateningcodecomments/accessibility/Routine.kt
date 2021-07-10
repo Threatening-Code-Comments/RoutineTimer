@@ -45,7 +45,7 @@ class Routine {
     var mode = 0
     var tiles: ArrayList<Tile> by Delegates.observable(initialValue = ArrayList(), onChange = { _, _, newValue ->
         for (tile in newValue) {
-            tile.setAccessibility(ResourceClass.wasNightMode())
+            tile.setAccessibility(RC.isNightMode)
         }
     })
 

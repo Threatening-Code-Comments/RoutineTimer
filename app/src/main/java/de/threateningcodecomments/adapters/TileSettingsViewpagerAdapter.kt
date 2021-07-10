@@ -7,33 +7,39 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
+import com.google.android.material.timepicker.MaterialTimePicker
 import com.maltaisn.icondialog.data.Category
 import com.maltaisn.icondialog.data.Icon
 import com.maltaisn.icondialog.data.IconTag
-import de.threateningcodecomments.accessibility.MyLog
-import de.threateningcodecomments.accessibility.ResourceClass
-import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.accessibility.*
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.TileSettingsFragment
+import de.threateningcodecomments.views.TileSettingsMain
+import de.threateningcodecomments.views.WeekdayPicker
+import kotlinx.android.synthetic.main.cvl_tile_settings_main.*
 import kotlinx.android.synthetic.main.layout_tile_settings_common.*
 import kotlinx.android.synthetic.main.layout_tile_settings_timing.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
@@ -55,8 +61,8 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                         appearanceElement
                     }
                     2 -> {
-                        timingElement = TimingElement(currentTile)
-                        timingElement
+                        modeElement = ModeElement(currentTile)
+                        modeElement
                     }
                     else -> AppearanceElement(currentTile)
                 }
@@ -68,17 +74,20 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         return fragment
     }
 
-    fun updateUI() {
+    fun updateUI(excludeElement: Element? = null) {
         try {
-            commonElement.updateUI()
+            if (excludeElement != commonElement as Element)
+                commonElement.updateUI()
         } catch (e: Exception) {
         }
         try {
-            appearanceElement.updateUI()
+            if (excludeElement != appearanceElement as Element)
+                appearanceElement.updateUI()
         } catch (e: Exception) {
         }
         try {
-            timingElement.updateUI()
+            if (excludeElement != appearanceElement as Element)
+                modeElement.updateUI()
         } catch (e: Exception) {
         }
     }
@@ -118,8 +127,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var modeSummary: MaterialTextView
         private lateinit var modeIcon: ImageView
         private lateinit var modeEditLayout: LinearLayout
-        private lateinit var modeEditCutButton: MaterialCardView
-        private lateinit var modeEditCdtButton: MaterialCardView
+        private lateinit var modeDropDown: AutoCompleteTextView
 
         private lateinit var colorLayout: LinearLayout
         private lateinit var colorInfo: MaterialTextView
@@ -129,6 +137,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var colorHueInfo: MaterialTextView
         private lateinit var colorHueSlider: Slider
         //endregion
+
+        override fun onResume() {
+            super.onResume()
+            updateUI()
+        }
 
         override fun onStart() {
             super.onStart()
@@ -143,7 +156,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             v ?: return
 
             //if one of the main layouts is clicked, expand the editLayout
-            if (v.id == nameLayout.id || v.id == iconLayout.id || v.id == modeLayout.id || v.id == colorLayout.id) {
+            if (v == nameLayout || v == iconLayout || v == modeLayout || v == colorLayout) {
                 val editView =
                         when (v.id) {
                             R.id.ll_TileSettings_common_name_main ->
@@ -152,13 +165,14 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                             R.id.ll_TileSettings_common_icon_main ->
                                 iconEditLayout
 
-                            R.id.ll_TileSettings_common_mode_main ->
+                            R.id.ll_TileSettings_common_mode_main -> {
                                 modeEditLayout
+                            }
 
                             R.id.ll_TileSettings_common_color_main ->
                                 colorEditLayout
                             else -> {
-                                Toast.makeText(MainActivity.instance, "Something went wrong.", Toast.LENGTH_SHORT).show()
+                                MyLog.t("Something went wrong.")
                                 nameEditLayout
                             }
 
@@ -166,15 +180,6 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
                 val viewIsVisible = editView.isVisible
                 editView.isVisible = !viewIsVisible
-            }
-
-            when (v.id) {
-                R.id.cv_TileSettings_common_mode_cdt -> {
-                    currentTile.mode = Tile.MODE_COUNT_DOWN
-                }
-                R.id.cv_TileSettings_common_mode_cut -> {
-                    currentTile.mode = Tile.MODE_COUNT_UP
-                }
             }
 
             updateUI()
@@ -186,30 +191,21 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             if (currentTile.name != nameEditField.text.toString())
                 nameEditField.setText(currentTile.name)
 
-            val dr = ResourceClass.getIconDrawable(currentTile)
+            val dr = RC.getIconDrawable(currentTile)
             iconIcon.setImageDrawable(dr)
 
             modeSummary.text = currentTile.getModeAsString()
-            val modeButtonToSelect =
-                    if (currentTile.mode == Tile.MODE_COUNT_DOWN)
-                        modeEditCdtButton
-                    else
-                        modeEditCutButton
-            val modeButtonToDeselect =
-                    if (modeButtonToSelect == modeEditCutButton)
-                        modeEditCdtButton
-                    else
-                        modeEditCutButton
-            val selectColor = ResourceClass.Resources.Colors.primaryColor
-            val deselectColor = ResourceClass.Resources.Colors.onSurfaceColor
-            modeButtonToSelect.setCardBackgroundColor(selectColor)
-            modeButtonToDeselect.setCardBackgroundColor(deselectColor)
+            if (modeDropDown.text.toString() != currentTile.getModeAsString())
+                modeDropDown.setText(currentTile.getModeAsString(), false)
+
+            val selectColor = RC.Resources.Colors.primaryColor
+            val deselectColor = RC.Resources.Colors.onSurfaceColor
 
             colorSummary.background = currentTile.backgroundColor.toDrawable()
-            colorHueSlider.value = ResourceClass.Conversions.Colors.getHueOfColor(currentTile.backgroundColor)
+            colorHueSlider.value = RC.Conversions.Colors.getHueOfColor(currentTile.backgroundColor)
 
             //handle visibility
-            val contrastCol = ResourceClass.Resources.Colors.contrastColor
+            val contrastCol = RC.Resources.Colors.contrastColor
 
             nameInfo.setTextColor(contrastCol)
             nameIcon.setColorFilter(contrastCol)
@@ -221,15 +217,6 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             modeInfo.setTextColor(contrastCol)
             modeSummary.setTextColor(contrastCol)
             modeIcon.setColorFilter(contrastCol)
-
-            //handle visibility on buttons
-            val selectedModeButton = modeButtonToSelect.getChildAt(0)
-            var contrastColor = ResourceClass.Conversions.Colors.calculateContrast(selectColor)
-            (selectedModeButton as MaterialTextView).setTextColor(contrastColor)
-
-            val modeButtonText = modeButtonToDeselect.getChildAt(0)
-            contrastColor = ResourceClass.Conversions.Colors.calculateContrast(deselectColor)
-            (modeButtonText as MaterialTextView).setTextColor(contrastColor)
 
             colorInfo.setTextColor(contrastCol)
             colorIcon.setColorFilter(contrastCol)
@@ -265,13 +252,30 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                     }
             )
 
-            // set a GridLayoutManager with default vertical orientation and 3 number of columns
-            val gridLayoutManager = GridLayoutManager(MainActivity.instance.applicationContext, 5)
-            iconRecyclerView.layoutManager = gridLayoutManager // set LayoutManager to RecyclerView
-            var iconList = ArrayList<Icon>(ResourceClass.getIconPack().icons.values)
-            iconRecyclerView.adapter = IconRVAdapter(MainActivity.instance, iconList)
+            val options = listOf(
+                    Tile.COUNT_UP_MESSAGE, Tile.COUNT_DOWN_MESSAGE, Tile.TAP_MESSAGE, Tile.DATA_MESSAGE, Tile.ALARM_MESSAGE
+            )
+            val adapter: ArrayAdapter<String> = DropdownArrayAdapter(
+                    requireContext(),
+                    R.layout.routine_popup_item,
+                    options)
 
-            for (category in MainActivity.instance.iconDialogIconPack.categories.values) {
+            modeDropDown.setAdapter(adapter)
+            modeDropDown.doOnTextChanged { text, _, _, _ ->
+                if (text.toString() != currentTile.getModeAsString()) {
+                    currentTile.setModeFromString(text.toString())
+                    updateUI()
+                }
+            }
+
+            // set a GridLayoutManager with default vertical orientation and 3 number of columns
+            val gridLayoutManager = GridLayoutManager(context, 5)
+            iconRecyclerView.layoutManager = gridLayoutManager // set LayoutManager to RecyclerView
+            var iconList = ArrayList<Icon>(RC.getIconPack().icons.values)
+            iconRecyclerView.adapter = IconRVAdapter(requireContext(), iconList)
+
+            val categories = (requireActivity() as MainActivity).iconDialogIconPack.categories.values
+            for (category in categories) {
                 iconCategoryTabLayout.addTab(iconCategoryTabLayout.newTab().setText(category.name))
             }
 
@@ -282,7 +286,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
                     var category: Any = "All"
 
-                    for (forCategory in MainActivity.instance.iconDialogIconPack.categories.values) {
+                    for (forCategory in categories) {
                         if (text == forCategory.name) {
                             category = forCategory
                             break
@@ -295,9 +299,9 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                             if (icon.categoryId == category.id)
                                 foundIcons.add(icon)
 
-                        iconRecyclerView.adapter = IconRVAdapter(MainActivity.instance, foundIcons)
+                        iconRecyclerView.adapter = IconRVAdapter(requireContext(), foundIcons)
                     } else {
-                        iconRecyclerView.adapter = IconRVAdapter(MainActivity.instance, iconList)
+                        iconRecyclerView.adapter = IconRVAdapter(requireContext(), iconList)
                     }
                 }
 
@@ -314,7 +318,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                 //i'm pretty sure this is incredibly suboptimal, but it works, so too bad!
 
                 val text = it.toString().replace("_", " ")
-                val tags = MainActivity.instance.iconDialogIconPack.tags
+                val tags = (requireActivity() as MainActivity).iconDialogIconPack.tags
                 val foundTagKeys = ArrayList<String>()
                 val foundTags = ArrayList<IconTag>()
                 val foundIcons = ArrayList<Icon>()
@@ -335,16 +339,12 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                         }
                     }
 
-                iconRecyclerView.adapter = IconRVAdapter(MainActivity.instance, foundIcons)
+                iconRecyclerView.adapter = IconRVAdapter(requireContext(), foundIcons)
             }
-
-
-            modeEditCutButton.setOnClickListener(this)
-            modeEditCdtButton.setOnClickListener(this)
 
             colorHueSlider.addOnChangeListener { _, value, fromUser ->
                 if (fromUser) {
-                    val color = ResourceClass.Conversions.Colors.calculateColorFromHue(value)
+                    val color = RC.Conversions.Colors.calculateColorFromHue(value)
                     currentTile.backgroundColor = color
 
                     updateUI()
@@ -373,8 +373,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             modeSummary = tv_TileSettings_common_mode_summary
             modeIcon = iv_TileSettings_common_mode_icon
             modeEditLayout = ll_TileSettings_common_mode_editLayout
-            modeEditCdtButton = cv_TileSettings_common_mode_cdt
-            modeEditCutButton = cv_TileSettings_common_mode_cut
+            modeDropDown = dd_TileSettings_common_mode_editDropDown
 
             colorLayout = ll_TileSettings_common_color_main
             colorInfo = tv_TileSettings_common_color_info
@@ -415,19 +414,16 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         }
     }
 
-    class TimingElement(val currentTile: Tile) : Fragment(), Element {
-        override val name: String = "Timing"
+    class ModeElement(val currentTile: Tile) : Fragment(), Element {
+        override val name: String = "Mode"
 
         constructor() : this(TileSettingsFragment.instance.currentTile)
 
         //region vars
-        private lateinit var modeLayout: LinearLayout
-        private lateinit var modeInfo: MaterialTextView
+        private lateinit var modeLayout: TileSettingsMain
         private lateinit var modeSummary: MaterialTextView
-        private lateinit var modeIcon: ImageView
         private lateinit var modeEditLayout: LinearLayout
-        private lateinit var modeEditCutButton: MaterialCardView
-        private lateinit var modeEditCdtButton: MaterialCardView
+        private lateinit var modeDropDown: AutoCompleteTextView
 
         private lateinit var countdownSettingsLayout: LinearLayout
 
@@ -439,6 +435,21 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var cdTimeInputEdit: EditText
         private lateinit var cdTimeInputDisplay: MaterialTextView
 
+        private lateinit var resetLayout: TileSettingsMain
+        private lateinit var resetEditLayout: LinearLayout
+        private lateinit var resetEditInfo: TextView
+        private lateinit var resetOnButton: MaterialCardView
+        private lateinit var resetOnButtonText: MaterialTextView
+        private lateinit var resetOffButton: MaterialCardView
+        private lateinit var resetOffButtonText: MaterialTextView
+        private lateinit var resetAdjustLayout: LinearLayout
+        private lateinit var resetEditAmount: AutoCompleteTextView
+        private lateinit var resetUnitDropDown: AutoCompleteTextView
+        private lateinit var resetDatePicker: MaterialDatePicker<Long>
+        private lateinit var resetWeekdayPicker: WeekdayPicker
+        private lateinit var resetDateAndTimeButton: MaterialButton
+        private lateinit var resetWeekOfMonthUnitDropdown: AutoCompleteTextView
+
         private lateinit var remindsLayout: LinearLayout
         private lateinit var remindsInfo: MaterialTextView
         private lateinit var remindsSummary: MaterialTextView
@@ -448,6 +459,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var remindsOffButton: MaterialCardView
         //endregion
 
+        override fun onResume() {
+            super.onResume()
+            updateUI()
+        }
+
         override fun onStart() {
             super.onStart()
 
@@ -455,12 +471,26 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             initListeners()
 
             updateUI()
+            initVisibility()
+        }
+
+        private fun initVisibility() {
+            resetLayout.visibilityViewsToIgnore =
+                    setOf(
+                            resetOnButton, resetOffButton, resetWeekdayPicker
+                    )
+
+            modeLayout.visibilityTypesToIgnore =
+                    setOf(
+                            AutoCompleteTextView::javaClass.name
+                    )
         }
 
         override fun updateUI() {
             //region content
+            val selectColor = RC.Resources.Colors.primaryColor
+            val deselectColor = RC.Resources.Colors.onSurfaceColor
 
-            //visibility
             //makes the layout visible only if the tile mode is cd, else collapses all editLayouts beneath
             if (currentTile.mode == Tile.MODE_COUNT_DOWN)
                 countdownSettingsLayout.isVisible = true
@@ -471,28 +501,83 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             }
 
             //mode
-            modeSummary.text = currentTile.getModeAsString()
+            modeLayout.doOnUIUpdate {
+                modeLayout.summary = currentTile.getModeAsString()
+                if (modeDropDown.text.toString() != currentTile.getModeAsString())
+                    modeDropDown.setText(currentTile.getModeAsString(), false)
+            }
+            modeLayout.updateUI()
 
-            val selectColor = ResourceClass.Resources.Colors.primaryColor
-            val deselectColor = ResourceClass.Resources.Colors.onSurfaceColor
-
-            val modeButtonToSelect =
-                    if (currentTile.mode == Tile.MODE_COUNT_DOWN)
-                        modeEditCdtButton
+            //resets
+            val buttonToSelect =
+                    if (currentTile.resetSettings.resets)
+                        resetOnButton
                     else
-                        modeEditCutButton
-            val modeButtonToDeselect =
-                    if (modeButtonToSelect == modeEditCutButton)
-                        modeEditCdtButton
+                        resetOffButton
+            val buttonToDeselect =
+                    if (buttonToSelect == resetOnButton)
+                        resetOffButton
                     else
-                        modeEditCutButton
+                        resetOnButton
 
-            modeButtonToSelect.setCardBackgroundColor(selectColor)
-            modeButtonToDeselect.setCardBackgroundColor(deselectColor)
+            buttonToSelect.setCardBackgroundColor(selectColor)
+            buttonToDeselect.setCardBackgroundColor(deselectColor)
+
+            (buttonToSelect.getChildAt(0) as MaterialTextView)
+                    .setTextColor(RC.Conversions.Colors.calculateContrast(selectColor))
+            (buttonToDeselect.getChildAt(0) as MaterialTextView)
+                    .setTextColor(RC.Conversions.Colors.calculateContrast(deselectColor))
+
+            resetAdjustLayout.isVisible = currentTile.resetSettings.resets
+            resetLayout.icon =
+                    RC.Resources.getDrawable(
+                            if (currentTile.resetSettings.resets)
+                                R.drawable.ic_reset_on
+                            else
+                                R.drawable.ic_reset_off)
+
+            (resetUnitDropDown.parent.parent as TextInputLayout).error =
+                    if (resetUnitDropDown.text.toString() == "")
+                        "Unit must be selected!"
+                    else
+                        null
+            val resetUnit = currentTile.resetSettings.resetUnit
+            resetUnitDropDown.setText(
+                    if (currentTile.resetSettings.resetUnit != ResetSettings.Unit.DEFAULT)
+                        if (currentTile.resetSettings.amount == 1)
+                            ResetSettings.Unit.STRINGS_SINGULAR[resetUnit]
+                        else
+                            ResetSettings.Unit.STRINGS_PLURAL[resetUnit]
+                    else
+                        null, false)
+            val resetStringVal = currentTile.resetSettings.amount.toString()
+            if (resetStringVal != resetEditAmount.text.toString())
+                resetEditAmount.setText(resetStringVal)
+
+            resetWeekdayPicker.isVisible = false
+            if (resetUnit == ResetSettings.Unit.WEEK && currentTile.resetSettings.resets) {
+                resetWeekdayPicker.isVisible = true
+                if (currentTile.resetSettings.weekdays != null)
+                    resetWeekdayPicker.selectedDays = currentTile.resetSettings.weekdays!!
+            }
+
+            val unitIsMonthOrYear =
+                    currentTile.resetSettings.resetUnit == ResetSettings.Unit.MONTH ||
+                            currentTile.resetSettings.resetUnit == ResetSettings.Unit.YEAR
+
+            (resetWeekOfMonthUnitDropdown.parent as View).isVisible =
+                    unitIsMonthOrYear
+
+            resetDateAndTimeButton.isVisible = currentTile.resetSettings.resets
+
+            if (currentTile.resetSettings.startDate != null)
+                setAdapterForWeekOfMonthDropdown()
+
+            setSummary()
 
             //countdown time
             val cdTimeText = currentTile.countDownSettings.countDownTimeString
-            cdTimeSummary.text = currentTile.countDownSettings.countDownTime.toString()//cdTimeText TODO change here
+            cdTimeSummary.text = RC.Conversions.Time.shortenTimeString(cdTimeText)
 
             if (cdTimeInputDisplay.text.toString() != cdTimeText)
                 cdTimeInputDisplay.text = cdTimeText
@@ -519,164 +604,307 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             remindsButtonToSelect.setCardBackgroundColor(selectColor)
             remindsButtonToDeselect.setCardBackgroundColor(deselectColor)
 
-            //endregion
-
-            //region visibility
-            val contrastColor = ResourceClass.Resources.Colors.contrastColor
-
-            //mode
-            modeIcon.setColorFilter(contrastColor)
-            modeInfo.setTextColor(contrastColor)
-            modeSummary.setTextColor(contrastColor)
-
-            var selectButtonTextView = modeButtonToSelect.getChildAt(0) as MaterialTextView
-            var deselectButtonTextView = modeButtonToDeselect.getChildAt(0) as MaterialTextView
-            selectButtonTextView.setTextColor(ResourceClass.Conversions.Colors.calculateContrast(selectColor))
-            deselectButtonTextView.setTextColor(ResourceClass.Conversions.Colors.calculateContrast(deselectColor))
-
-            //cd time
-            cdTimeIcon.setColorFilter(contrastColor)
-            cdTimeInfo.setTextColor(contrastColor)
-            cdTimeSummary.setTextColor(contrastColor)
-
-
-            //reminds
-            remindsIcon.setColorFilter(contrastColor)
-            remindsInfo.setTextColor(contrastColor)
-            remindsSummary.setTextColor(contrastColor)
-
-            selectButtonTextView = remindsButtonToSelect.getChildAt(0) as MaterialTextView
-            deselectButtonTextView = remindsButtonToDeselect.getChildAt(0) as MaterialTextView
-            selectButtonTextView.setTextColor(ResourceClass.Conversions.Colors.calculateContrast(selectColor))
-            deselectButtonTextView.setTextColor(ResourceClass.Conversions.Colors.calculateContrast(deselectColor))
+            (remindsButtonToSelect.getChildAt(0) as MaterialTextView)
+                    .setTextColor(RC.Conversions.Colors.calculateContrast(selectColor))
+            (remindsButtonToDeselect.getChildAt(0) as MaterialTextView)
+                    .setTextColor(RC.Conversions.Colors.calculateContrast(deselectColor))
             //endregion
         }
 
-        override fun initListeners() {
-            //main layouts
-            val mainClickListener = object : View.OnClickListener {
-                override fun onClick(v: View?) {
-                    v ?: return
+        private fun setSummary() {
+            val settings = currentTile.resetSettings
 
-                    val viewToToggle =
-                            when (v.id) {
-                                R.id.ll_TileSettings_timing_mode_main ->
-                                    modeEditLayout
-                                R.id.ll_TileSettings_timing_cdTime_main ->
-                                    cdTimeEditLayout
-                                R.id.ll_TileSettings_timing_reminds_main ->
-                                    remindsEditLayout
-                                else ->
-                                    modeEditLayout
-                            }
-
-                    val wasVisible = viewToToggle.isVisible
-
-                    viewToToggle.isVisible = !wasVisible
-                }
+            if (!settings.resets || settings.startDate == null || settings.startTime == null) {
+                resetLayout.summary = ""
+                return
             }
 
-            modeLayout.setOnClickListener(mainClickListener)
-            cdTimeLayout.setOnClickListener(mainClickListener)
-            remindsLayout.setOnClickListener(mainClickListener)
+            val localizedDate = settings.getLocalizedDate(Locale.getDefault())
+            val localizedTime = settings.getLocalizedTime(Locale.getDefault())
 
+            val together = "$localizedDate; $localizedTime"
+            resetLayout.summary = together
+        }
 
-            //mode
+        override fun initListeners() {
             val buttonSelectingListener = object : View.OnClickListener {
                 override fun onClick(v: View?) {
                     v ?: return
 
-                    when (v.id) {
-                        R.id.cv_TileSettings_timing_mode_cdt ->
-                            currentTile.mode = Tile.MODE_COUNT_DOWN
-                        R.id.cv_TileSettings_timing_mode_cut ->
-                            currentTile.mode = Tile.MODE_COUNT_UP
-                        R.id.cv_TileSettings_timing_reminds_on ->
+                    when (v) {
+                        remindsOnButton ->
                             currentTile.countDownSettings.reminds = true
-                        R.id.cv_TileSettings_timing_reminds_off ->
+                        remindsOffButton ->
                             currentTile.countDownSettings.reminds = false
+                        resetOnButton ->
+                            currentTile.resetSettings.resets = true
+                        resetOffButton ->
+                            currentTile.resetSettings.resets = false
                         else ->
-                            Toast.makeText(MainActivity.instance, "Problem in buttonSelectingListener, please see priest", Toast.LENGTH_SHORT).show()
+                            RC.Debugging.toast("Problem in buttonSelectingListener, please see priest", Toast.LENGTH_SHORT)
                     }
 
                     updateUI()
                 }
             }
 
-            modeEditCutButton.setOnClickListener(buttonSelectingListener)
-            modeEditCdtButton.setOnClickListener(buttonSelectingListener)
+            //mode
+            initModeLayoutListeners()
+
+            //reset
+            initResetListeners(buttonSelectingListener)
+
+
+            //reminds
             remindsOnButton.setOnClickListener(buttonSelectingListener)
             remindsOffButton.setOnClickListener(buttonSelectingListener)
 
-            cdTimeInputEdit.addTextChangedListener(object : TextWatcher {
-                lateinit var textBefore: String
-
-                val NO_TEXT_CHANGED_CHAR = ResourceClass.Resources.Text.NO_TEXT_CHANGED_CHAR
-
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                    textBefore = s.toString()
-                }
-
-                override fun afterTextChanged(s: Editable) {
-                    var changedChar = NO_TEXT_CHANGED_CHAR
-                    val textBeforeChars = textBefore.toCharArray()
-                    val sCharArray = s.toString().toCharArray()
-                    val sCharArrayList = ArrayList<Char>(sCharArray.toMutableList())
-
-                    //if a char was removed from the text, the char was a backspace
-                    if (sCharArrayList.size == textBeforeChars.size - 1) {
-                        changedChar = ResourceClass.Conversions.Time.TIME_CHANGE_BACKSPACE_CHAR
-                        //if not, there is a char to extract
-                    } else {
-                        for ((index, char) in sCharArrayList.withIndex()) {
-                            if (index == textBefore.toCharArray().size) {
-                                changedChar = char
-                                break
-                            }
-
-                            if (textBeforeChars[index] != char) {
-                                changedChar = char
-                                break
-                            }
-                        }
-                    }
-
-                    //if no char was changed, don't do anything
-                    if (changedChar != NO_TEXT_CHANGED_CHAR) {
-                        //buffer the cdTime of tile in format hh:mm:ss and convert it to hhmmss
-                        val timeStr = currentTile.countDownSettings.countDownTimeString
-
-                        val newText = ResourceClass.Conversions.Time.addDigitToTimeString(timeStr, changedChar)
-
-                        currentTile.countDownSettings.countDownTimeString = newText
-
-                        cdTimeInputDisplay.text = newText
-
-                        //add a NO_TEXT_CHANGED_CHAR to the input to make unlimited backspaces possible
-                        val noTextChangedString = NO_TEXT_CHANGED_CHAR.toString()
-
-                        MyLog.d("noTextChangedString is \"$noTextChangedString\"")
-
-                        cdTimeInputEdit.inputType = InputType.TYPE_CLASS_TEXT
-                        cdTimeInputEdit.append(noTextChangedString)
-                        cdTimeInputEdit.inputType = InputType.TYPE_CLASS_NUMBER
-
-                        updateUI()
-                    }
-                }
-            })
+            //cdTime
+            initCdTimeListener()
 
         }
 
+        private fun initCdTimeListener() =
+                cdTimeInputEdit.addTextChangedListener(object : TextWatcher {
+                    lateinit var textBefore: String
+
+                    val NO_TEXT_CHANGED_CHAR = RC.Resources.Text.NO_TEXT_CHANGED_CHAR
+
+                    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+                    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                        textBefore = s.toString()
+                    }
+
+                    override fun afterTextChanged(s: Editable) {
+                        var changedChar = NO_TEXT_CHANGED_CHAR
+                        val textBeforeChars = textBefore.toCharArray()
+                        val sCharArray = s.toString().toCharArray()
+                        val sCharArrayList = ArrayList<Char>(sCharArray.toMutableList())
+
+                        //if a char was removed from the text, the char was a backspace
+                        if (sCharArrayList.size == textBeforeChars.size - 1) {
+                            changedChar = RC.Conversions.Time.TIME_CHANGE_BACKSPACE_CHAR
+                            //if not, there is a char to extract
+                        } else {
+                            for ((index, char) in sCharArrayList.withIndex()) {
+                                if (index == textBefore.toCharArray().size) {
+                                    changedChar = char
+                                    break
+                                }
+
+                                if (textBeforeChars[index] != char) {
+                                    changedChar = char
+                                    break
+                                }
+                            }
+                        }
+
+                        //if no char was changed, don't do anything
+                        if (changedChar != NO_TEXT_CHANGED_CHAR) {
+                            //buffer the cdTime of tile in format hh:mm:ss and convert it to hhmmss
+                            val timeStr = currentTile.countDownSettings.countDownTimeString
+
+                            val newText = RC.Conversions.Time.addDigitToTimeString(timeStr, changedChar)
+
+                            currentTile.countDownSettings.countDownTimeString = newText
+
+                            cdTimeInputDisplay.text = newText
+
+                            //add a NO_TEXT_CHANGED_CHAR to the input to make unlimited backspaces possible
+                            val noTextChangedString = NO_TEXT_CHANGED_CHAR.toString()
+
+                            MyLog.d("noTextChangedString is \"$noTextChangedString\"")
+
+                            cdTimeInputEdit.inputType = InputType.TYPE_CLASS_TEXT
+                            cdTimeInputEdit.append(noTextChangedString)
+                            cdTimeInputEdit.inputType = InputType.TYPE_CLASS_NUMBER
+
+                            updateUI()
+                        }
+                    }
+                })
+
+
+        private fun initResetListeners(buttonSelectingListener: View.OnClickListener) {
+            val resetUnitsSingular = ResetSettings.Unit.STRINGS_SINGULAR.values.toMutableList()
+            val resetUnitsPlural = ResetSettings.Unit.STRINGS_PLURAL.values.toMutableList()
+
+            val resetAdapterSingular = DropdownArrayAdapter<String>(
+                    requireContext(),
+                    R.layout.routine_popup_item,
+                    resetUnitsSingular)
+            val resetAdapterPlural = DropdownArrayAdapter<String>(
+                    requireContext(),
+                    R.layout.routine_popup_item,
+                    resetUnitsPlural
+            )
+
+            resetUnitDropDown.setAdapter(resetAdapterSingular)
+            resetUnitDropDown.doOnTextChanged { text_p, _, _, _ ->
+                val text = text_p.toString()
+
+                if (text == "")
+                    return@doOnTextChanged
+
+                val currentUnit = currentTile.resetSettings.resetUnit
+                val currentTileResetUnitSingular = ResetSettings.Unit.STRINGS_SINGULAR[currentUnit]
+                val currentTileResetUnitPlural = ResetSettings.Unit.STRINGS_PLURAL[currentUnit]
+
+                val isSing = text == currentTileResetUnitSingular
+                val isPlur = text == currentTileResetUnitPlural
+
+                val isDifferent = (!isSing && !isPlur)
+
+                if (isDifferent) {
+                    val isOfSingular = text in ResetSettings.Unit.STRINGS_SINGULAR.values
+
+                    //gets the unit for the message
+                    val unitInt =
+                            if (isOfSingular)
+                                ResetSettings.Unit.STRINGS_SINGULAR.filterValues {
+                                    it == text
+                                }.keys.first()
+                            else
+                                ResetSettings.Unit.STRINGS_PLURAL.filterValues {
+                                    it == text
+                                }.keys.first()
+
+                    currentTile.resetSettings.resetUnit = unitInt
+
+                    updateUI()
+                }
+            }
+
+            resetEditAmount.doOnTextChanged { text, _, _, _ ->
+                if (text == null || text.toString() == "")
+                    return@doOnTextChanged
+
+                val intVal = try {
+                    text.toString().toInt()
+                } catch (e: Exception) {
+                    resetEditAmount.setText(null, false)
+                    return@doOnTextChanged
+                }
+
+                if (intVal != currentTile.resetSettings.amount) {
+                    currentTile.resetSettings.amount = intVal
+
+                    if (intVal != 1) {
+                        if (resetUnitDropDown.adapter != resetAdapterPlural) {
+                            resetUnitDropDown.setAdapter(resetAdapterPlural)
+                        }
+                    } else {
+                        if (resetUnitDropDown.adapter != resetAdapterSingular) {
+                            resetUnitDropDown.setAdapter(resetAdapterSingular)
+                        }
+                    }
+
+
+                    updateUI()
+                }
+
+            }
+
+            resetWeekdayPicker.doOnDayChange {
+                currentTile.resetSettings.weekdays = resetWeekdayPicker.selectedDays
+            }
+
+            resetOnButton.setOnClickListener(buttonSelectingListener)
+            resetOffButton.setOnClickListener(buttonSelectingListener)
+
+            resetWeekOfMonthUnitDropdown.doAfterTextChanged {
+                val text = it.toString()
+
+                val settings = currentTile.resetSettings
+
+                settings.resetsPerDayOfMonth = (text == settings.getResetsPerDayOfMonthString(resources))
+            }
+
+            val timePicker = MaterialTimePicker.Builder()
+                    .setTitleText("Set time")
+                    .build()
+                    .apply {
+                        addOnPositiveButtonClickListener {
+                            val settings = currentTile.resetSettings
+
+                            currentTile.resetSettings.startTime = "$hour:$minute"
+
+                            setAdapterForWeekOfMonthDropdown()
+                        }
+                    }
+
+            resetDatePicker.apply {
+                addOnCancelListener { MyLog.d("Cancelled") }
+                addOnPositiveButtonClickListener {
+                    val date = Date(it)
+                    val formatter = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+                    currentTile.resetSettings.startDate = formatter.format(date)
+
+                    timePicker.show(parentFragmentManager, MaterialTimePicker::class.java.canonicalName)
+                }
+            }
+
+            resetDateAndTimeButton.setOnClickListener {
+                resetDatePicker.show(parentFragmentManager, MaterialDatePicker::class.java.canonicalName)
+            }
+        }
+
+        private fun setAdapterForWeekOfMonthDropdown() {
+            val settings = currentTile.resetSettings
+
+            val resetsPerWeekString =
+                    settings.getResetsPerWeekOfMonthString(resources)
+
+            val resetsPerDayString =
+                    settings.getResetsPerDayOfMonthString(resources)
+
+            val dropdownOptions = listOf(resetsPerDayString, resetsPerWeekString)
+            val adapter = DropdownArrayAdapter(
+                    requireContext(),
+                    R.layout.support_simple_spinner_dropdown_item,
+                    dropdownOptions
+            )
+            resetWeekOfMonthUnitDropdown.setAdapter(adapter)
+
+            val initText =
+                    if (settings.resetsPerDayOfMonth != true)
+                        resetsPerWeekString
+                    else
+                        resetsPerDayString
+
+            resetWeekOfMonthUnitDropdown.setText(initText, false)
+
+            val hasDate = settings.startDate != null
+            val unitIsMonthOrYear =
+                    (settings.resetUnit == ResetSettings.Unit.MONTH) || (settings.resetUnit == ResetSettings.Unit.YEAR)
+            val isVisible = hasDate && unitIsMonthOrYear
+
+            (resetWeekOfMonthUnitDropdown.parent.parent as View).isVisible = isVisible
+            (resetWeekOfMonthUnitDropdown.parent as View).isVisible = isVisible
+        }
+
+        private fun initModeLayoutListeners() {
+            val modeOptions = arrayListOf(
+                    Tile.COUNT_UP_MESSAGE, Tile.COUNT_DOWN_MESSAGE, Tile.TAP_MESSAGE, Tile.DATA_MESSAGE, Tile.ALARM_MESSAGE
+            )
+            val modeAdapter: ArrayAdapter<String> = DropdownArrayAdapter(
+                    requireContext(),
+                    R.layout.routine_popup_item,
+                    modeOptions)
+
+            modeDropDown.setAdapter(modeAdapter)
+            modeDropDown.doOnTextChanged { text, _, _, _ ->
+                if (text.toString() != currentTile.getModeAsString()) {
+                    currentTile.setModeFromString(text.toString())
+                    updateUI()
+                }
+            }
+        }
+
         override fun initBuffers() {
-            modeLayout = ll_TileSettings_timing_mode_main
-            modeInfo = tv_TileSettings_timing_mode_info
-            modeSummary = tv_TileSettings_timing_mode_summary
-            modeIcon = iv_TileSettings_timing_mode_icon
+            modeLayout = ml_TileSettings_timing_mode_main
             modeEditLayout = ll_TileSettings_timing_mode_editLayout
-            modeEditCutButton = cv_TileSettings_timing_mode_cut
-            modeEditCdtButton = cv_TileSettings_timing_mode_cdt
+            modeDropDown = dd_TileSettings_timing_mode_editDropDown
 
             countdownSettingsLayout = ll_TileSettings_timing_countdownSettings
 
@@ -687,6 +915,24 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             cdTimeEditLayout = ll__TileSettings_timing_cdTime_editLayout
             cdTimeInputEdit = et_TileSettings_timing_cdTime_timeInput
             cdTimeInputDisplay = tv_TileSettings_timing_cdTime_inputDisplay
+
+            resetLayout = ml_TileSettings_timing_reset_main
+            resetOnButton = cv_TileSettings_timing_resets_on
+            resetOnButtonText = tv_TileSettings_timing_resets_on
+            resetOffButton = cv_TileSettings_timing_resets_off
+            resetOffButtonText = tv_TileSettings_timing_resets_off
+            resetAdjustLayout = ll_TileSettings_timing_reset_setReset
+            resetEditLayout = ll_TileSettings_timing_reset_editLayout
+            resetEditAmount = atv_TileSettings_timing_reset_amount
+            resetEditInfo = tv_TileSettings_timing_reset_editInfo
+            resetUnitDropDown = dd_TileSettings_timing_reset_editDropDown
+            resetDatePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText(getString(R.string.str_TileSettings_timing_reset_datePicker_title))
+                    .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
+                    .build()
+            resetWeekdayPicker = wdp_TileSettings_timing_reset_my_weekdayPicker
+            resetDateAndTimeButton = btn_TileSettings_timing_datePicker_dateAndTime
+            resetWeekOfMonthUnitDropdown = dd_TileSettings_timing_reset_weekOfMonth_unitDropdown
 
             remindsLayout = ll_TileSettings_timing_reminds_main
             remindsInfo = tv_TileSettings_timing_reminds_info
@@ -713,7 +959,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
     companion object {
         var commonElement = CommonElement(Tile.ERROR_TILE)
         var appearanceElement = AppearanceElement(Tile.ERROR_TILE)
-        var timingElement = TimingElement(Tile.ERROR_TILE)
+        var modeElement = ModeElement(Tile.ERROR_TILE)
     }
 }
 

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.maltaisn.icondialog.data.Icon
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.TileSettingsFragment
 
@@ -45,7 +45,7 @@ class IconRVAdapter(var context: Context, var icons: ArrayList<Icon>) : Recycler
 
         constructor(itemView: View) : super(itemView) {
             iconView = itemView.findViewById(R.id.iv_viewholder_icon_imageView)
-            iconView.setColorFilter(ResourceClass.Resources.Colors.contrastColor)
+            iconView.setColorFilter(RC.Resources.Colors.contrastColor)
         }
 
     }

@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import de.threateningcodecomments.accessibility.MyLog
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.routinetimer.App
@@ -39,7 +39,7 @@ class CountingService : Service() {
             return super.onStartCommand(intent, flags, startId)
         }
 
-        val currentTile = ResourceClass.currentTiles[routineUid]
+        val currentTile = RC.currentTiles[routineUid]
 
         if (Notifications.notifications.keys.size == 0) {
             Notifications.initNotification(routineUid)
@@ -80,7 +80,7 @@ class CountingService : Service() {
 
         fun initNotification(routineUid: String) {
             MainActivity.countdownServiceRunning = true
-            val tile = ResourceClass.currentTiles[routineUid]!!
+            val tile = RC.currentTiles[routineUid]!!
 
             val notification: Notification = Notification.Builder(instance, App.TIMING_CHANNEL_ID)
                     .setOnlyAlertOnce(true)
@@ -88,7 +88,7 @@ class CountingService : Service() {
 
             instance.startForeground(STATIC_NOTIFICATION_ID, notification)
 
-            val routine = ResourceClass.getRoutineOfTile(tile)
+            val routine = RC.RoutinesAndTiles.getRoutineOfTile(tile)
 
             val cancelI = Intent(MyBroadcastReceiver.CANCEL_ACTION)
             cancelI.putExtra(MyBroadcastReceiver.ROUTINE_UID_KEY, routine.uid)
@@ -99,12 +99,14 @@ class CountingService : Service() {
             val nameStr = "${tile.name}"
             val timeStr =
                     if (tile.mode == Tile.MODE_COUNT_DOWN)
-                        "Time remaining: ${ResourceClass.millisToHHMMSSorMMSS(tile.countDownSettings.countDownTime - currentTime)}"
+                        "Time remaining: ${RC.Conversions.Time.millisToHHMMSSorMMSS(tile.countDownSettings
+                                .countDownTime - 
+                                currentTime)}"
                     else
-                        "Counted ${ResourceClass.millisToHHMMSSorMMSS(currentTime)}"
+                        "Counted ${RC.Conversions.Time.millisToHHMMSSorMMSS(currentTime)}"
 
             //TODO update PendingIntent for routine
-            val tileIcon = ResourceClass.getIconDrawable(tile)!!.toBitmap(200, 200, null)
+            val tileIcon = RC.getIconDrawable(tile)!!.toBitmap(200, 200, null)
 
             val view = RemoteViews(instance.packageName, R.layout.custom_noti_layout)
 
@@ -121,7 +123,7 @@ class CountingService : Service() {
 
             val notification: Notification = Notification.Builder(instance, App.TIMING_CHANNEL_ID)
                     .setContentTitle(nameStr)
-                    .setContentText(ResourceClass.millisToHHMMSSorMMSS(
+                    .setContentText(RC.Conversions.Time.millisToHHMMSSorMMSS(
                             if (tile.mode == Tile.MODE_COUNT_UP)
                                 currentTime
                             else
@@ -133,7 +135,7 @@ class CountingService : Service() {
                     .setGroup(App.TILE_GROUP)
                     .build()
 
-            val routineUid = ResourceClass.getRoutineOfTile(tile).uid
+            val routineUid = RC.RoutinesAndTiles.getRoutineOfTile(tile).uid
             if (!notifications.containsKey(routineUid)) {
                 notifications[routineUid] = notification
             }
@@ -184,7 +186,7 @@ class CountingService : Service() {
 
         val notifications = object : HashMap<String, Notification>() {
             override fun put(key: String, value: Notification): Notification? {
-                notificationIds[key] = ResourceClass.convertUidToInt(key)
+                notificationIds[key] = RC.Conversions.convertUidToInt(key)
                 return super.put(key, value)
             }
 
@@ -231,11 +233,11 @@ class CountingService : Service() {
         private var tileTimers: HashMap<String, Runnable> = HashMap()
 
         fun startCounting(currentTile: Tile) {
-            val routine = ResourceClass.getRoutineOfTile(currentTile)
+            val routine = RC.RoutinesAndTiles.getRoutineOfTile(currentTile)
             val routineUid = routine.uid
 
             routine.lastUsed = System.currentTimeMillis()
-            ResourceClass.updateRoutineInDb(routine)
+            RC.Db.updateRoutineInDb(routine)
 
             //if there already is a timer running, don't create another one
             if (tileTimers[routineUid] != null && !tileTimers.containsKey(routineUid)) {
@@ -253,10 +255,10 @@ class CountingService : Service() {
                 override fun run() {
                     //calculates time elapsed since start
                     currentTime = System.currentTimeMillis() - abs(currentTile.countingStart)
-                    val curTimeStr = ResourceClass.millisToHHMMSSorMMSS(currentTime)
+                    val curTimeStr = RC.Conversions.Time.millisToHHMMSSorMMSS(currentTime)
 
                     //updates the notification if the value has changed, this prevents spam and unnecessary battery drainage
-                    if (lastTimeValue != curTimeStr && ResourceClass.currentTiles[routineUid] == currentTile) {
+                    if (lastTimeValue != curTimeStr && RC.currentTiles[routineUid] == currentTile) {
                         lastTimeValue = curTimeStr
                         Notifications.updateTileNotification(currentTile, currentTime)
 
@@ -266,20 +268,20 @@ class CountingService : Service() {
                             if (remainingTime < 30) {
                                 stopCounting(routineUid)
 
-                                val routine = ResourceClass.getRoutineOfTile(currentTile)
+                                val tmpRoutine = RC.RoutinesAndTiles.getRoutineOfTile(currentTile)
 
-                                if (routine.mode == Routine.MODE_SEQUENTIAL) {
+                                if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
                                     if (MainActivity.currentFragment is RunSequentialRoutine)
                                         (MainActivity.currentFragment as RunSequentialRoutine).cycleForward()
 
-                                    App.instance.cycleForward(routine)
+                                    App.instance.cycleForward(tmpRoutine)
                                 }
                             }
                         }
                     }
 
                     //while this tile is supposed to be running, keep it running
-                    if (ResourceClass.currentTiles[routineUid] == currentTile)
+                    if (RC.currentTiles[routineUid] == currentTile)
                         Handler().postDelayed(this, 300)
                 }
             }
@@ -288,16 +290,16 @@ class CountingService : Service() {
             tileTimers[routineUid] = counter
 
             //updates values in db
-            ResourceClass.updateRoutineInDb(currentTile)
+            RC.Db.updateRoutineInDb(currentTile)
         }
 
         fun stopCounting(routineUid: String) {
             //buffers tile and routine
             //last elvis operator is so that if routine this is trying to stop is already stopped
-            val currentTile = ResourceClass.currentTiles[routineUid]
-                    ?: ResourceClass.previousCurrentTiles[routineUid] ?: return
+            val currentTile = RC.currentTiles[routineUid]
+                    ?: RC.previousCurrentTiles[routineUid] ?: return
 
-            val routine = ResourceClass.getRoutineOfTile(currentTile)
+            val routine = RC.RoutinesAndTiles.getRoutineOfTile(currentTile)
 
             //if tile was already stopped, don't try to stop it again
             if (currentTile.countingStart < 0)
@@ -315,7 +317,7 @@ class CountingService : Service() {
                 realElapsedTime
 
             //resets active tile of routine
-            ResourceClass.currentTiles[routineUid] = null
+            RC.currentTiles[routineUid] = null
 
             //handles notification cancelling, if the corresponding notification is the last one, the only way to remove it is to cancel the service
             if (Notifications.notifications.size == 1) {
@@ -325,7 +327,7 @@ class CountingService : Service() {
             }
 
             //updates database values of the routine, specifically the values of currentTile
-            ResourceClass.updateRoutineInDb(currentTile)
+            RC.Db.updateRoutineInDb(currentTile)
         }
     }
 

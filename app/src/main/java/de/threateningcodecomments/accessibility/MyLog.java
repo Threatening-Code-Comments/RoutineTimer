@@ -10,11 +10,17 @@ public class MyLog {
     public static final String DEFAULT_TAG = "myLog";
     public static final String DEFAULT_FIREBASE_TAG = "myFirebase";
 
+    private void test() {
+        //kotlin
+        //RC.Resources.Colors.contrastColor
+
+        //java
+    }
 
     public static void d(String message) {
         //nice idea, but it doesn't work
         if (SettingsFragment.Companion.getPreferences().getDev().getDebug()) {
-            Toast.makeText(MainActivity.instance, message, Toast.LENGTH_SHORT).show();
+            RC.Debugging.toast(message, Toast.LENGTH_SHORT);
         }
         if (message == null) {
             Log.d(DEFAULT_TAG, "null value");
@@ -27,14 +33,13 @@ public class MyLog {
 
     public static void t(String message) {
         if (SettingsFragment.Companion.getPreferences().getDev().getDebug())
-            Toast.makeText(MainActivity.instance, message, Toast.LENGTH_SHORT).show();
+            RC.Debugging.toast(message, Toast.LENGTH_SHORT);
     }
 
     public static void d(Object o) {
         String message = String.valueOf(o);
         d(message);
     }
-
 
     public static void f(String str) {
         Log.d(DEFAULT_FIREBASE_TAG, str);

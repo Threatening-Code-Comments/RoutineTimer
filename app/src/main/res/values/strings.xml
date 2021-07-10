@@ -4,6 +4,28 @@
     <string name="constStr_tileMode_countUp">Count up mode</string>
     <string name="constStr_tileMode_countDown">Count down mode</string>
 
+    <string-array name="strarr_specialDateEndings">
+        <item>std|th</item>
+        <item>1|st</item>
+        <item>2|nd</item>
+        <item>3|rd</item>
+    </string-array>
+
+    <string-array name="strarr_months">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
     <string name="str_btn_MainActivity_routines">View Routines!</string>
     <string name="str_button_MainActivity_test">test!</string>
     <string name="str_tv_MainActivity_username">Please log in!</string>
@@ -80,4 +102,7 @@
     <string name="str_TileSettings_tabs_timing">Timing</string>
     <string name="constStr_noTextChangedChar">↕</string>
     <string name="str_tv_EditRoutine_continuous_deleteView_text">Delete</string>
+    <string name="constStr_tileMode_tap">Tap mode</string>
+    <string name="constStr_tileMode_data">Data mode</string>
+    <string name="constStr_tileMode_alarm">Alarm mode</string>
 </resources>

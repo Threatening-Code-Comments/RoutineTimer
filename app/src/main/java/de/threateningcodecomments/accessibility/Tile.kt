@@ -1,7 +1,7 @@
 package de.threateningcodecomments.accessibility
 
 import android.graphics.Color
-import de.threateningcodecomments.routinetimer.MainActivity
+import com.google.firebase.database.Exclude
 import de.threateningcodecomments.routinetimer.R
 import java.util.*
 
@@ -10,12 +10,17 @@ class Tile {
     var iconID: Int
     private var isNightMode: Boolean = false
         set(value) {
-            backgroundColor = ResourceClass.Conversions.Colors.convertColorDayNight(isNightMode, backgroundColor)
+            backgroundColor = RC.Conversions.Colors.convertColorDayNight(isNightMode, backgroundColor)
             field = value
         }
     var mode: Int
 
-    var countDownSettings: CountdownSettings = DEFAULT_COUNTDOWN_SETTINGS
+    var resetSettings: ResetSettings = ResetSettings()
+
+    var countDownSettings: CountdownSettings = CountdownSettings()
+    var tapCount: Int = 0
+    var data: TileData = TileData()
+    var alarmSettings: AlarmSettings = AlarmSettings()
 
     var totalCountedTime: Long = 0L
 
@@ -23,11 +28,11 @@ class Tile {
         set(value) {
             isRunning =
                     (value > 0L)
-            val alreadyRuns = ResourceClass.currentTiles.values.contains(this)
+            val alreadyRuns = RC.currentTiles.values.contains(this)
             if (isRunning && !alreadyRuns || !isRunning) {
                 field = value
             } else if (alreadyRuns) {
-                field = ResourceClass.currentTiles[ResourceClass.getRoutineOfTile(this).uid]!!.countingStart
+                field = RC.currentTiles[RC.RoutinesAndTiles.getRoutineOfTile(this).uid]!!.countingStart
             }
         }
     var isRunning: Boolean = countingStart > 0L
@@ -48,18 +53,18 @@ class Tile {
 
     var backgroundColor: Int
         get() {
-            val wasNightMode = ResourceClass.wasNightMode()
-            field = ResourceClass.Conversions.Colors.convertColorDayNight(wasNightMode, field)
+            val wasNightMode = RC.isNightMode
+            field = RC.Conversions.Colors.convertColorDayNight(wasNightMode, field)
             return field
         }
         set(value) {
-            val wasNightMode = ResourceClass.wasNightMode()
-            field = ResourceClass.Conversions.Colors.convertColorDayNight(wasNightMode, field)
+            val wasNightMode = RC.isNightMode
+            field = RC.Conversions.Colors.convertColorDayNight(wasNightMode, field)
             field = value
         }
     var contrastColor: Int = Color.WHITE
         get() {
-            field = ResourceClass.Conversions.Colors.calculateContrast(backgroundColor)
+            field = RC.Conversions.Colors.calculateContrast(backgroundColor)
             return field
         }
 
@@ -84,7 +89,7 @@ class Tile {
 
     fun setAccessibility(isNightMode: Boolean) {
         this.isNightMode = isNightMode
-        contrastColor = ResourceClass.Conversions.Colors.calculateContrast(backgroundColor)
+        contrastColor = RC.Conversions.Colors.calculateContrast(backgroundColor)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -108,19 +113,50 @@ class Tile {
         return super.toString()
     }
 
+    @Exclude
     fun getModeAsString(): String {
-        val countdownValue = MainActivity.instance.getString(R.string.constStr_tileMode_countDown)
-        val countUpValue = MainActivity.instance.getString(R.string.constStr_tileMode_countUp)
+        val countdownValue = RC.Resources.getString(R.string.constStr_tileMode_countDown)
+        val countUpValue = RC.Resources.getString(R.string.constStr_tileMode_countUp)
+        val tapValue = RC.Resources.getString(R.string.constStr_tileMode_tap)
+        val dataValue = RC.Resources.getString(R.string.constStr_tileMode_data)
+        val alarmValue = RC.Resources.getString(R.string.constStr_tileMode_alarm)
 
-        return if (this.mode == MODE_COUNT_DOWN)
-            countdownValue
-        else
-            countUpValue
+
+        return when (this.mode) {
+            MODE_COUNT_DOWN -> countdownValue
+            MODE_COUNT_UP -> countUpValue
+            MODE_TAP -> tapValue
+            MODE_DATA -> dataValue
+            MODE_ALARM -> alarmValue
+            else -> throw IllegalStateException("Tile mode is wrong")
+        }
+    }
+
+    fun setModeFromString(text: String) {
+        val countdownValue = RC.Resources.getString(R.string.constStr_tileMode_countDown)
+        val countUpValue = RC.Resources.getString(R.string.constStr_tileMode_countUp)
+        val tapValue = RC.Resources.getString(R.string.constStr_tileMode_tap)
+        val dataValue = RC.Resources.getString(R.string.constStr_tileMode_data)
+        val alarmValue = RC.Resources.getString(R.string.constStr_tileMode_alarm)
+
+
+        this.mode = when (text) {
+            countdownValue -> MODE_COUNT_DOWN
+            countUpValue -> MODE_COUNT_UP
+            tapValue -> MODE_TAP
+            dataValue -> MODE_DATA
+            alarmValue -> MODE_ALARM
+            else -> throw IllegalStateException("Tile mode is wrong (text is $text)")
+        }
     }
 
     companion object {
+        const val MODE_LIMBO = 0
         const val MODE_COUNT_UP = 1
-        const val MODE_COUNT_DOWN = -1
+        const val MODE_COUNT_DOWN = 2
+        const val MODE_TAP = 3
+        const val MODE_DATA = 4
+        const val MODE_ALARM = 5
 
         const val DEFAULT_NAME = ""
         const val ERROR_NAME = "HELP THIS IS ERROR AAAH"
@@ -130,8 +166,13 @@ class Tile {
         const val DEFAULT_COLOR_DARK = -0xdbdbdc
         const val DEFAULT_TILE_UID = "default tile uid"
 
-        const val COUNT_UP_MESSAGE = "Counting up"
-        const val COUNT_DOWN_MESSAGE = "Counting down"
+        const val COUNT_UP_MESSAGE = "Count up mode"
+        const val COUNT_DOWN_MESSAGE = "Count down mode"
+        const val TAP_MESSAGE = "Tap mode"
+        const val DATA_MESSAGE = "Data mode"
+        const val ALARM_MESSAGE = "Alarm mode"
+        val MODE_MESSAGES = setOf(
+                COUNT_UP_MESSAGE, COUNT_DOWN_MESSAGE, TAP_MESSAGE, DATA_MESSAGE, ALARM_MESSAGE)
 
         const val DEFAULT_COUNTED_TIME = 0L
 

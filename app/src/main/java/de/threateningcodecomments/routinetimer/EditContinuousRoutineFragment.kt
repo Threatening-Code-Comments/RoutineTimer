@@ -51,14 +51,13 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     private var animIsDone: Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = ResourceClass.sharedElementTransition
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
 
         super.onViewCreated(view, savedInstanceState)
 
-        isNightMode = MainActivity.isNightMode
-        MainActivity.currentFragment = this
+        isNightMode = RC.isNightMode
 
-        currentRoutine = ResourceClass.getRoutineFromUid(args.routineUID)
+        currentRoutine = RC.RoutinesAndTiles.getRoutineFromUid(args.routineUID)
     }
 
     override fun onStart() {
@@ -66,7 +65,7 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             currentRoutine.lastUsed = System.currentTimeMillis()
-            ResourceClass.updateRoutineInDb(currentRoutine)
+            RC.Db.updateRoutineInDb(currentRoutine)
 
             val directions = EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
 
@@ -85,7 +84,83 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
                 return@addTextChangedListener
 
             currentRoutine.name = it.toString()
-            ResourceClass.updateRoutineInDb(currentRoutine)
+            RC.Db.updateRoutineInDb(currentRoutine)
+        }
+
+        val dragListener = View.OnDragListener { v: View?, event: DragEvent? ->
+            if (v is GridLayout && event?.action != DragEvent.ACTION_DROP)
+                return@OnDragListener true
+
+            MyLog.d("Dragevent -> ${v.toString().split("app:id/")[1]} |||  ${event?.action}")
+
+            val end = gridLayout.children.indexOf(v)
+            val start = gridLayout.children.indexOf(dragStartView)
+
+            if (event != null && dragStartIndex != -1) {
+                when (event.action) {
+                    DragEvent.ACTION_DRAG_LOCATION -> {
+                        if (v is MaterialCardView) {
+                            updateDeleteView(false)
+                            rearrangeTiles(start, end)
+                        } else {
+                            val newStart = gridLayout.indexOfChild(dragStartView)
+                            val newEnd = dragStartIndex
+
+                            if (newStart != dragStartIndex)
+                                rearrangeTiles(newStart, newEnd)
+                            updateDeleteView(true)
+                        }
+                    }
+                    DragEvent.ACTION_DROP -> {
+                        deleteView.isVisible = false
+                        routineNameLayout.visibility = View.VISIBLE
+
+                        val updatedDragIndex = gridTiles.indexOf(dragStartView)
+
+                        val tileToMove = currentRoutine.tiles[dragStartIndex]
+
+                        currentRoutine.tiles.remove(tileToMove)
+
+                        val targetIsDelete =
+                                v is FrameLayout ||
+                                        v is TextView ||
+                                        v is ImageView
+
+                        //handle if this event was from the deleteView
+                        val tileToAdd =
+                                if (targetIsDelete)
+                                    Tile.DEFAULT_TILE
+                                else
+                                    tileToMove
+                        currentRoutine.tiles.add(updatedDragIndex, tileToAdd)
+
+                        RC.Db.updateRoutineInDb(currentRoutine)
+
+                        dragStartIndex = -1
+
+                        Handler().postDelayed({
+                            dragStartView.isVisible = true
+                        }, 50)
+
+                        //handle deleting of tile
+                        if (v is FrameLayout || v is TextView || v is ImageView)
+                            updateUI()
+                    }
+                }
+            }
+
+            //return value for listener
+            /*when {
+                //if it's deleteView
+                v is FrameLayout || v is TextView || v is ImageView ->
+                    true
+                //i do not know
+                event?.action == DragEvent.ACTION_DRAG_ENDED ->
+                    false
+                else ->
+                    (event?.action == DragEvent.ACTION_DRAG_STARTED) or (event?.action == DragEvent.ACTION_DRAG_LOCATION)
+            }*/
+            true
         }
 
         val longClickListener = View.OnLongClickListener {
@@ -110,74 +185,6 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
                 Toast.makeText(context, "Something went wrong! (#0024)", Toast.LENGTH_SHORT).show()
 
             returnVal
-        }
-
-        val dragListener = View.OnDragListener { v: View?, event: DragEvent? ->
-            if (v is GridLayout)
-                return@OnDragListener true
-
-            val end = gridLayout.children.indexOf(v)
-            val start = gridLayout.children.indexOf(dragStartView)
-
-            if (event != null && dragStartIndex != -1) {
-                when (event.action) {
-                    DragEvent.ACTION_DRAG_LOCATION -> {
-                        if (v is MaterialCardView) {
-                            updateDeleteView(false)
-                            rearrangeTiles(start, end)
-                        } else {
-                            val newStart = gridLayout.indexOfChild(dragStartView)
-                            val newEnd = dragStartIndex
-
-                            if (newStart != dragStartIndex)
-                                rearrangeTiles(newStart, newEnd)
-                            updateDeleteView(true)
-                        }
-                    }
-                    DragEvent.ACTION_DRAG_ENDED -> {
-                        deleteView.isVisible = false
-                        routineNameLayout.visibility = View.VISIBLE
-
-                        val updatedDragIndex = gridTiles.indexOf(dragStartView)
-
-                        val tileToMove = currentRoutine.tiles[dragStartIndex]
-
-                        currentRoutine.tiles.remove(tileToMove)
-
-                        //handle if this event was from the deleteView
-                        val tileToAdd =
-                                if (v is FrameLayout)
-                                    Tile.DEFAULT_TILE
-                                else
-                                    tileToMove
-                        currentRoutine.tiles.add(updatedDragIndex, tileToAdd)
-
-                        ResourceClass.updateRoutineInDb(currentRoutine)
-
-                        dragStartIndex = -1
-
-                        Handler().postDelayed({
-                            dragStartView.isVisible = true
-                        }, 50)
-
-                        //handle deleting of tile
-                        if (v is FrameLayout)
-                            updateUI()
-                    }
-                }
-            }
-
-            //return value for listener
-            when {
-                //if it's deleteView
-                v is FrameLayout || v is TextView || v is ImageView ->
-                    true
-                //i do not know
-                event?.action == DragEvent.ACTION_DRAG_ENDED ->
-                    false
-                else ->
-                    (event?.action == DragEvent.ACTION_DRAG_STARTED) or (event?.action == DragEvent.ACTION_DRAG_LOCATION)
-            }
         }
 
         val onEditClickListener = View.OnClickListener {
@@ -304,9 +311,9 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
                         Color.TRANSPARENT
             val contrastColor =
                     if (tile != Tile.DEFAULT_TILE)
-                        ResourceClass.Conversions.Colors.calculateContrast(bgColor)
+                        RC.Conversions.Colors.calculateContrast(bgColor)
                     else
-                        ResourceClass.Resources.Colors.contrastColor
+                        RC.Resources.Colors.contrastColor
 
             grTile.setCardBackgroundColor(bgColor)
 
@@ -321,9 +328,9 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
             val iconView = grTile.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon)
             val drawable =
                     if (tile != Tile.DEFAULT_TILE)
-                        ResourceClass.getIconDrawable(tile)
+                        RC.getIconDrawable(tile)
                     else
-                        ResourceClass.Resources.getDrawable(R.drawable.ic_add)
+                        RC.Resources.getDrawable(R.drawable.ic_add)
 
             iconView.setImageDrawable(drawable)
             iconView.setColorFilter(contrastColor)
@@ -339,7 +346,7 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         deleteViewCanBeUpdated = false
 
         //animate view
-        val currentHeightValue = ResourceClass.Conversions.Size.pxToDp(deleteView.height)
+        val currentHeightValue = RC.Conversions.Size.pxToDp(deleteView.height)
         val heightValue =
                 if (hovered)
                     200f
@@ -364,18 +371,18 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         }
 
         //updating deleteView
-        val deleteColor = ResourceClass.Resources.Colors.cancelColor
+        val deleteColor = RC.Resources.Colors.cancelColor
 
         val gradientDrawable = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(deleteColor,
                         Color.TRANSPARENT)
-        );
+        )
         gradientDrawable.cornerRadius = 0f;
 
         deleteView.background = gradientDrawable;
 
-        val contrastColor = ResourceClass.Resources.Colors.extremeContrastColor
+        val contrastColor = RC.Resources.Colors.extremeContrastColor
 
         deleteViewTextView.setTextColor(contrastColor)
         deleteViewImageView.setColorFilter(contrastColor)

@@ -5,7 +5,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment
@@ -25,13 +25,20 @@ class OrganizeRoutineAdapter(private val startDragListener: OnStartDragListener,
         val tile = routine.tiles[position]
 
         holder.setSingleImage()
-        holder.singleImageView.setImageDrawable(ResourceClass.getIconDrawable(tile))
+        holder.singleImageView.setImageDrawable(RC.getIconDrawable(tile))
         holder.singleImageView.setBackgroundColor(tile.backgroundColor)
         holder.singleImageView.setColorFilter(tile.contrastColor)
 
         holder.nameView.text = tile.name
 
-        val mode = if (tile.mode == Tile.MODE_COUNT_DOWN) Tile.COUNT_DOWN_MESSAGE else Tile.COUNT_UP_MESSAGE
+        val mode = when (tile.mode) {
+            Tile.MODE_COUNT_DOWN -> Tile.COUNT_DOWN_MESSAGE
+            Tile.MODE_COUNT_UP -> Tile.COUNT_UP_MESSAGE
+            Tile.MODE_TAP -> Tile.TAP_MESSAGE
+            Tile.MODE_DATA -> Tile.DATA_MESSAGE
+            Tile.MODE_ALARM -> Tile.ALARM_MESSAGE
+            else -> throw IllegalStateException("Tile mode is wrong")
+        }
         holder.modeView.text = mode
 
         holder.grabImage.visibility = View.VISIBLE

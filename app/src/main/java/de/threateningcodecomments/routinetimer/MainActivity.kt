@@ -9,7 +9,7 @@ import com.maltaisn.icondialog.IconDialog
 import com.maltaisn.icondialog.IconDialogSettings
 import com.maltaisn.icondialog.data.Icon
 import com.maltaisn.icondialog.pack.IconPack
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
 import de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment.Companion.ICON_DIALOG_TAG
@@ -21,18 +21,18 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         setContentView(R.layout.activity_main)
 
         instance = this
-        currentFragment = this
-        ResourceClass.Anim.initAnimations(this)
+        RC.Anim.initAnimations(this)
+        RC.updateContext(applicationContext)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        isNightMode
+    override fun onResume() {
+        super.onResume()
+        RC.updateContext(applicationContext)
+        (application as App).currentActivity = this
     }
 
     override val iconDialogIconPack: IconPack
-        get() = ResourceClass.getIconPack()
+        get() = RC.getIconPack()
 
     override fun onIconDialogIconsSelected(dialog: IconDialog, icons: List<Icon>) {
         val iconID = icons[0].id
@@ -59,19 +59,18 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
     override fun updateCurrentTile() {}
 
     companion object {
-        lateinit var instance: MainActivity
-        lateinit var currentFragment: UIContainer
+        private var instance: MainActivity = MainActivity()
+
+        @JvmStatic
+        val currentFragment: UIContainer
+            get() = instance.supportFragmentManager.fragments.first()?.childFragmentManager?.fragments?.get(0) as
+                    UIContainer
+
+        @JvmStatic
         var countdownServiceRunning = false
 
+        @JvmStatic
         val sharedPreferences: SharedPreferences
             get() = instance.getPreferences(Context.MODE_PRIVATE)
-
-        val isNightMode: Boolean
-            get() {
-                val isNightMode = ResourceClass.isNightMode(instance)
-                ResourceClass.updateNightMode(instance)
-                return isNightMode
-            }
-
     }
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="dimen_btnCorners">10sp</dimen>
-    <dimen name="dimen_textFieldCorners">10sp</dimen>
-    <dimen name="dimen_cardViewCornerRadius">20sp</dimen>
+    <dimen name="dimen_btnCorners">10dp</dimen>
+    <dimen name="dimen_textFieldCorners">10dp</dimen>
+    <dimen name="dimen_cardViewCornerRadius">20dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
-    <dimen name="recyclerview_viewholder_iv_size">60sp</dimen>
-    <dimen name="recyclerview_viewholder_smallIv_size">30sp</dimen>
-    <dimen name="relatedElementsSpacing">12sp</dimen>
-    <dimen name="unrelatedElementsSpacing">40sp</dimen>
-    <dimen name="looselyRelatedElementsSpacing">25sp</dimen>
+    <dimen name="recyclerview_viewholder_iv_size">60dp</dimen>
+    <dimen name="recyclerview_viewholder_smallIv_size">30dp</dimen>
+    <dimen name="relatedElementsSpacing">12dp</dimen>
+    <dimen name="unrelatedElementsSpacing">40dp</dimen>
+    <dimen name="looselyRelatedElementsSpacing">25dp</dimen>
 </resources>

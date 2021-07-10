@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="str_TileSettings_timing_reset_datePicker_title">Select starting date</string>
+
+    <string name="str_TileSettings_resetPerDayOfMonth_false">On the %1$d%2$s week of the month</string>
+    <string name="str_TileSettings_resetPerDayOfMonth_true">On the %1$d%2$s day of the month</string>
+
+    <string name="str_TileSettings_resetPerDayOfMonth_year_false">On the %1$d%2$s week of %3$s</string>
+    <string name="str_TileSettings_resetPerDayOfMonth_year_true">On the %1$d%2$s day of %3$s</string>
+
+    <string name="str_TileSettings_resetSummary_base">At %1$s every %2$s</string>
+    <string name="str_TileSettings_resetSummary_extra">on</string>
+
+    <plurals name="str_TileSettings_resetSummary_routine">
+        <item quantity="one">Routine</item>
+        <item quantity="other">$d Routines</item>
+    </plurals>
+
+    <plurals name="str_TileSettings_resetSummary_minute">
+        <item quantity="one">Minute</item>
+        <item quantity="other">$d Minutes</item>
+    </plurals>
+
+    <plurals name="str_TileSettings_resetSummary_hour">
+        <item quantity="one">Hour</item>
+        <item quantity="other">$d Hours</item>
+    </plurals>
+
+    <plurals name="str_TileSettings_resetSummary_day">
+        <item quantity="one">Day</item>
+        <item quantity="other">$d Days</item>
+    </plurals>
+
+    <plurals name="str_TileSettings_resetSummary_week">
+        <item quantity="one">Week</item>
+        <item quantity="other">$d Weeks</item>
+    </plurals>
+
+    <plurals name="str_TileSettings_resetSummary_month">
+        <item quantity="one">Month</item>
+        <item quantity="other">$d Months</item>
+    </plurals>
+
+    <plurals name="str_TileSettings_resetSummary_year">
+        <item quantity="one">Year</item>
+        <item quantity="other">$d Year</item>
+    </plurals>
+</resources>

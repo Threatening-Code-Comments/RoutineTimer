@@ -2,13 +2,13 @@ package de.threateningcodecomments.routinetimer
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.MyLog
+import de.threateningcodecomments.accessibility.RC
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     private lateinit var dataSavingPref: SwitchPreferenceCompat
@@ -18,6 +18,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         setPreferencesFromResource(R.xml.app_preferences, rootKey)
 
         instance = this
+
+
 
         dataSavingPref = findPreference(getString(R.string.pref_general_dataSaving_key))!!
         dataSavingPref.onPreferenceChangeListener = this
@@ -42,8 +44,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-        ResourceClass.updatePreference(preference, newValue)
-        Toast.makeText(MainActivity.instance, "value changed to $newValue", Toast.LENGTH_SHORT).show()
+        RC.Db.updatePreference(preference, newValue)
+
+        MyLog.d("preference ${preference.key} changed to $newValue")
 
         return true
     }
@@ -96,7 +99,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             }
 
             override fun isIdenticalWith(prefs: SharedPreferences): Boolean {
-                val dataSavingKey = MainActivity.instance.getString(R.string.pref_general_dataSaving_key)
+                val dataSavingKey = RC.Resources.getString(R.string.pref_general_dataSaving_key)
                 val sharedDataSaving = prefs.getBoolean(dataSavingKey, defaultDataSavingValue)
                 if (sharedDataSaving != dataSaving)
                     return false
@@ -135,7 +138,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             }
 
             override fun isIdenticalWith(prefs: SharedPreferences): Boolean {
-                val debugKey = MainActivity.instance.getString(R.string.pref_dev_debug_key)
+                val debugKey = RC.Resources.getString(R.string.pref_dev_debug_key)
                 val sharedDebug = prefs.getBoolean(debugKey, defaultDebugValue)
                 if (sharedDebug != debug)
                     return false

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
@@ -197,45 +196,30 @@
                 android:id="@+id/ll_TileSettings_common_mode_editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:orientation="horizontal"
+                android:paddingHorizontal="20sp"
+                android:paddingBottom="10sp"
                 android:visibility="gone">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cv_TileSettings_common_mode_cut"
-                    android:layout_width="0sp"
-                    android:layout_height="50sp"
-                    android:layout_weight="1"
-                    app:cardCornerRadius="0sp"
-                    app:cardElevation="0sp">
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/dropdownsStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/str_dd_SelectRoutine_createRoutine_mode"
+                    app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+                    app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
+                    app:shapeAppearance="@style/dropdownsShape">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <AutoCompleteTextView
+                        android:id="@+id/dd_TileSettings_common_mode_editDropDown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Count up"
-                        android:textAlignment="center" />
+                        android:inputType="none" />
 
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cv_TileSettings_common_mode_cdt"
-                    android:layout_width="0sp"
-                    android:layout_height="50sp"
-                    android:layout_weight="1"
-                    app:cardCornerRadius="0sp"
-                    app:cardElevation="0sp">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Count down"
-                        android:textAlignment="center" />
-
-                </com.google.android.material.card.MaterialCardView>
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
-
 
         </LinearLayout>
 

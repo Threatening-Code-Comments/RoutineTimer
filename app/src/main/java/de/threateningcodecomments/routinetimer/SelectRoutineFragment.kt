@@ -30,7 +30,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
@@ -61,16 +61,14 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     private var routines: ArrayList<Routine>? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = ResourceClass.sharedElementTransition
-        ResourceClass.loadDatabaseRes()
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
+        RC.Db.loadDatabaseRes()
 
         postponeEnterTransition()
 
         super.onViewCreated(view, savedInstanceState)
 
         super.onCreate(savedInstanceState)
-
-        MainActivity.currentFragment = this
 
         startPostponedEnterTransition()
 
@@ -94,8 +92,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
             findNavController().navigate(directions)
         }
 
-        //ResourceClass.loadDatabaseRes()
-        ResourceClass.loadDatabaseRes()
+        //ResourceClass.Db.loadDatabaseRes()
+        RC.Db.loadDatabaseRes()
         updateRoutines()
         updateUI()
         updateForm()
@@ -152,7 +150,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
             val extras = FragmentNavigatorExtras(rootLayout to "setupButton")
             val directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToStartFragment()
 
-            findNavController().navigate(directions, extras)
+            findNavController().navigate(directions)//, extras)
         }
 
         createFab.setOnClickListener(this)
@@ -183,7 +181,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun initRoutines() {
-        routines = ResourceClass.routines
+        routines = RC.routines
 
         if (routines?.size == 0) {
             routines!!.add(Routine.ERROR_ROUTINE)
@@ -192,8 +190,8 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun initRecyclerView() {
         if (routines?.size == 0) {
-            ResourceClass.loadDatabaseRes()
-            routines = ResourceClass.routines
+            RC.Db.loadDatabaseRes()
+            routines = RC.routines
         }
         mAdapter = SelectRoutineRVAdapter(routines!!)
         recyclerView.adapter = mAdapter
@@ -208,11 +206,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     //region handle context menu
 
     fun handleCMDuplicate(uid: String?) {
-        duplicateRoutine(ResourceClass.getRoutineFromUid(uid as String))
+        duplicateRoutine(RC.RoutinesAndTiles.getRoutineFromUid(uid as String))
     }
 
     fun handleCMDelete(uid: String?) {
-        removeRoutine(ResourceClass.getRoutineFromUid(uid as String))
+        removeRoutine(RC.RoutinesAndTiles.getRoutineFromUid(uid as String))
     }
 
     //endregion
@@ -225,7 +223,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
             routines = ArrayList()
         }
 
-        routines = ResourceClass.sortRoutines(routines!!)
+        routines = RC.RoutinesAndTiles.sortRoutines(routines!!)
 
         if (routines!!.contains(Routine.ERROR_ROUTINE)) {
             routines!!.clear()
@@ -238,7 +236,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun updateRoutines() {
-        routines = ResourceClass.routines
+        routines = RC.routines
     }
 
     private fun createRoutine() {
@@ -256,7 +254,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
         val tiles: ArrayList<Tile> = arrayListOf(Tile.DEFAULT_TILE)
 
         if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
-            for(i in 1..7)
+            for (i in 1..7)
                 tiles.add(Tile.DEFAULT_TILE)
 
         tmpRoutine.tiles = tiles
@@ -272,10 +270,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun removeRoutine(routine: Routine) {
         if (routines == null) {
-            routines = ResourceClass.routines
+            routines = RC.routines
         }
 
-        ResourceClass.removeRoutine(routine)
+        RC.Db.removeRoutine(routine)
         routines!!.remove(routine)
 
         if (routines!!.size == 0) {
@@ -293,10 +291,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun addRoutine(routine: Routine) {
         if (routines == null) {
-            routines = ResourceClass.routines
+            routines = RC.routines
         }
 
-        ResourceClass.saveRoutine(routine)
+        RC.Db.saveRoutine(routine)
         routines!!.add(routine)
         routines!!.remove(Routine.ERROR_ROUTINE)
 
@@ -394,7 +392,7 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
                 extras = FragmentNavigatorExtras(v to "editCRoutineRoot", routineNameView to "editCRoutineName")
             }
 
-            findNavController().navigate(directions, extras)
+            findNavController().navigate(directions)//, extras)
         }
     }
 

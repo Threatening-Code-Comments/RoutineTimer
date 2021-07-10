@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -49,12 +48,11 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedElementEnterTransition = ResourceClass.sharedElementTransition
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
 
         super.onViewCreated(view, savedInstanceState)
 
         activity = getActivity() as Activity
-        MainActivity.currentFragment = this
 
         initGSignIn()
 
@@ -67,15 +65,18 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
             toggleSignIn()
         } else {
             isLoggedIn = true
-            ResourceClass.loadDatabaseRes()
+            RC.Db.loadDatabaseRes()
         }
 
         initOnClicks()
 
-        ResourceClass.loadDatabaseRes()
+        RC.Db.loadDatabaseRes()
 
-        ResourceClass.initIconPack(activity)
-        ResourceClass.errorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
+        RC.initIconPack(activity)
+        RC.Resources.errorDrawable =
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
+
+        //doTestButton()
     }
 
     override fun onClick(v: View) {
@@ -85,28 +86,13 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                 val selectRoutineFragment = SelectRoutineFragment()
                 selectRoutineFragment.sharedElementEnterTransition = MaterialContainerTransform()
 
-                val extras = FragmentNavigatorExtras(v to "container")
+                //val extras = FragmentNavigatorExtras(v to "container")
                 val directions = StartFragmentDirections.actionStartFragmentToSelectEditRoutineFragment()
 
-                findNavController().navigate(directions, extras)
+                findNavController().navigate(directions)//, extras)
             }
             R.id.btn_mainActivity_test -> {
-                /*val debugActivated = MainActivity.sharedPreferences.getBoolean(getString(R.string.pref_dev_debug_key),
-                        false)
-                Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()*/
-
-                val routine = ResourceClass.generateRandomRoutine()
-                val tile = routine.tiles[0]
-
-                routine.mode = Routine.MODE_CONTINUOUS
-                ResourceClass.routines.add(routine)
-
-                val directions =
-                        //StartFragmentDirections.actionStartFragmentToRunContinuousRoutine(routine.uid)
-                        StartFragmentDirections.actionStartFragmentToEditContinuousRoutineFragment(routine.uid)
-                //StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile.uid)
-
-                findNavController().navigate(directions)
+                doTestButton()
             }
             R.id.btn_StartFragment_settings -> {
                 val directions = StartFragmentDirections.actionStartFragmentToSettingsFragment()
@@ -114,6 +100,26 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
             }
             else -> Toast.makeText(context, "Unknown Error, please see developer or priest", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun doTestButton() {
+        /*val debugActivated = MainActivity.sharedPreferences.getBoolean(getString(R.string.pref_dev_debug_key),
+                        false)
+                Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()*/
+
+        val routine = RC.Db.generateRandomRoutine()
+        val tile = routine.tiles[0]
+
+        routine.mode = Routine.MODE_CONTINUOUS
+        RC.routines.add(routine)
+        RC.Db.saveRoutine(routine)
+
+        val directions =
+        //StartFragmentDirections.actionStartFragmentToRunContinuousRoutine(routine.uid)
+                //StartFragmentDirections.actionStartFragmentToEditContinuousRoutineFragment(routine.uid)
+                StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile.uid)
+
+        findNavController().navigate(directions)
     }
 
     //region init
@@ -179,7 +185,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     }
 
     private fun setGreetTextColor(bgColor: Int) {
-        val textColor = ResourceClass.Conversions.Colors.calculateContrast(bgColor)
+        val textColor = RC.Conversions.Colors.calculateContrast(bgColor)
         usernameView.setTextColor(textColor)
         if (!isLoggedIn) {
             profilepicView.setColorFilter(textColor)
@@ -207,7 +213,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         val errorDrawable = ContextCompat.getDrawable(activity, R.drawable.ic_defaultdrawable)
         profilepicView.setImageDrawable(errorDrawable)
         usernameView.text = getString(R.string.str_tv_MainActivity_login)
-        val bgColor: Int = if (MainActivity.isNightMode) {
+        val bgColor: Int = if (RC.isNightMode) {
             Tile.DEFAULT_COLOR_DARK
         } else {
             Tile.DEFAULT_COLOR
@@ -251,8 +257,8 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                         val path = "/users/" + user.uid
                         val key = "displayname"
                         val value: Any? = user.displayName
-                        ResourceClass.saveToDb(path, key, value)
-                        ResourceClass.loadDatabaseRes()
+                        RC.Db.saveToDb(path, key, value)
+                        RC.Db.loadDatabaseRes()
                         isLoggedIn = true
                     } else {
                         // If sign in fails, display a message to the user.
@@ -272,7 +278,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         }
         updateUI()
         updateButtonClickable()
-        ResourceClass.loadDatabaseRes()
+        RC.Db.loadDatabaseRes()
     }
 
     private fun signIn() {

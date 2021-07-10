@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.routinetimer.R
@@ -36,7 +36,7 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val isNightMode = ResourceClass.wasNightMode()
+        val isNightMode = RC.isNightMode
         val tmpRoutine = routines!![position]
 
         tmpRoutine.setAccessibility(isNightMode)
@@ -79,7 +79,7 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
 
             holder.singleImageView.transitionName = uid + "icon"
             holder.setSingleImage()
-            val icon = ResourceClass.getIconDrawable(firstTile)
+            val icon = RC.getIconDrawable(firstTile)
             holder.singleImageView.setImageDrawable(icon)
             holder.singleImageView.setBackgroundColor(firstTile.backgroundColor)
             holder.singleImageView.setColorFilter(firstTile.contrastColor)
@@ -89,7 +89,7 @@ internal class SelectRoutineRVAdapter : RecyclerView.Adapter<MyViewHolder> {
             for (i in 0..3) {
                 val currentTile = tilesWithoutErrors[i]
                 val currentImageView = holder.fourImages[i]
-                val icon = ResourceClass.getIconDrawable(currentTile)
+                val icon = RC.getIconDrawable(currentTile)
                 currentImageView.setImageDrawable(icon)
                 currentImageView.setBackgroundColor(currentTile.backgroundColor)
                 currentImageView.setColorFilter(currentTile.contrastColor)

@@ -1,12 +1,13 @@
 package de.threateningcodecomments.routinetimer
 
+import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.IntentFilter
 import android.os.Build
 import com.google.firebase.auth.FirebaseAuth
-import de.threateningcodecomments.accessibility.ResourceClass
+import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.services_etc.CountingService
@@ -30,27 +31,29 @@ class App : Application() {
         CountingService.instance.stopService()
     }
 
+    lateinit var currentActivity: Activity
+
     fun startTile(tile: Tile) {
         val user = FirebaseAuth.getInstance().currentUser
-        val routine = ResourceClass.getRoutineOfTile(tile)
+        val routine = RC.RoutinesAndTiles.getRoutineOfTile(tile)
 
-        if (ResourceClass.currentTiles[routine.uid] == null) {
+        if (RC.currentTiles[routine.uid] == null) {
 
             tile.countingStart = System.currentTimeMillis()
-            ResourceClass.updateCurrentTile(tile, routine.uid)
+            RC.RoutinesAndTiles.updateCurrentTile(tile, routine.uid)
 
-            MainActivity.instance.startCountingService(routine.uid)
+            (currentActivity as MainActivity).startCountingService(routine.uid)
         }
     }
 
     fun stopTile(routine: Routine) {
-        ResourceClass.updateCurrentTile(null, routine.uid)
-        ResourceClass.saveRoutine(routine)
+        RC.RoutinesAndTiles.updateCurrentTile(null, routine.uid)
+        RC.Db.saveRoutine(routine)
         CountingService.Timers.stopCounting(routine.uid)
     }
 
     fun cycleForward(routine: Routine) {
-        val previousCurrentTile = ResourceClass.currentTiles[routine.uid] ?: ResourceClass
+        val previousCurrentTile = RC.currentTiles[routine.uid] ?: RC
                 .previousCurrentTiles[routine.uid]
         val previousIndex = routine.tiles.indexOf(previousCurrentTile)
         stopTile(routine)

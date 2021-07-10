@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    xmlns:tcc="http://schemas.android.com/apk/res-auto"
+
+    <attr name="src" format="reference" />
+    <attr name="name" format="string" />
+    <attr name="hasSummary" format="boolean" />
+    <attr name="editLayoutIsVisible" format="boolean" />
+
+    <declare-styleable name="TileSettingsMain">
+        <attr name="src" />
+        <attr name="name" />
+        <attr name="hasSummary" />
+        <attr name="editLayoutIsVisible" />
+    </declare-styleable>
+</resources>
