@@ -10,8 +10,7 @@ public class MyLog {
     public static final String DEFAULT_TAG = "myLog";
     public static final String DEFAULT_FIREBASE_TAG = "myFirebase";
 
-    private void test() {
-        //kotlin
+    public static void test() {        //kotlin
         //RC.Resources.Colors.contrastColor
 
         //java

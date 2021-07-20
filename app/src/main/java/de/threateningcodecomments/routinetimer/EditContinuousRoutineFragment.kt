@@ -25,7 +25,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.TextInputLayout
 import de.threateningcodecomments.accessibility.*
-import kotlinx.android.synthetic.main.fragment_edit_continuous_routine.*
+import de.threateningcodecomments.routinetimer.databinding.FragmentEditContinuousRoutineBinding
 
 class EditContinuousRoutineFragment : Fragment(), UIContainer {
     private var isNightMode: Boolean = false
@@ -388,37 +388,46 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         deleteViewImageView.setColorFilter(contrastColor)
     }
 
+    private var _binding: FragmentEditContinuousRoutineBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        _binding = FragmentEditContinuousRoutineBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
+    }
+
     private fun initBufferViews() {
-        routineNameField = et_EditRoutine_continuous_routineName
-        routineNameLayout = til_EditRoutine_continuous_routineName
+        routineNameField = binding.etEditRoutineContinuousRoutineName
+        routineNameLayout = binding.tilEditRoutineContinuousRoutineName
         routineNameField.setText(currentRoutine.name)
 
-        gridTiles.add(tile_EditRoutine_continuous_0 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_1 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_2 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_3 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_4 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_5 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_6 as MaterialCardView)
-        gridTiles.add(tile_EditRoutine_continuous_7 as MaterialCardView)
+        gridTiles.add(binding.tileEditRoutineContinuous0.root)
+        gridTiles.add(binding.tileEditRoutineContinuous1.root)
+        gridTiles.add(binding.tileEditRoutineContinuous2.root)
+        gridTiles.add(binding.tileEditRoutineContinuous3.root)
+        gridTiles.add(binding.tileEditRoutineContinuous4.root)
+        gridTiles.add(binding.tileEditRoutineContinuous5.root)
+        gridTiles.add(binding.tileEditRoutineContinuous6.root)
+        gridTiles.add(binding.tileEditRoutineContinuous7.root)
 
-        gridLayout = gl_EditRoutine_continuous_tileLayout
+        gridLayout = binding.glEditRoutineContinuousTileLayout
 
-        deleteView = fl_EditRoutine_continuous_deleteView
-        deleteViewTextView = tv_EditRoutine_continuous_deleteView_text
-        deleteViewImageView = iv_EditRoutine_continuous_deleteView_icon
+        deleteView = binding.flEditRoutineContinuousDeleteView
+        deleteViewTextView = binding.tvEditRoutineContinuousDeleteViewText
+        deleteViewImageView = binding.ivEditRoutineContinuousDeleteViewIcon
     }
 
     private fun goToSelectRoutine() {
         val directions: NavDirections = EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
 
         findNavController().navigate(directions)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_edit_continuous_routine, container, false)
     }
 
     override fun updateCurrentTile() {}

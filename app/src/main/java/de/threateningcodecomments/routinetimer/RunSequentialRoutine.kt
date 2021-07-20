@@ -19,7 +19,7 @@ import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
-import kotlinx.android.synthetic.main.fragment_run_sequential_routine.*
+import de.threateningcodecomments.routinetimer.databinding.FragmentRunSequentialRoutineBinding
 import kotlin.math.abs
 
 class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
@@ -96,20 +96,21 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
 
     private fun initBufferViews() {
 
+        binding.apply {
+            tileCardView = cvRunRoutineSequentialTileMain
+            tileIconView = ivRunRoutineSequentialTileIcon
+            tileNameView = tvRunRoutineSequentialTileName
 
-        tileCardView = cv_RunRoutine_sequential_tileMain
-        tileIconView = iv_RunRoutine_sequential_tileIcon
-        tileNameView = tv_RunRoutine_sequential_tileName
+            routineNameView = tvRunRoutineSequentialInfoRoutineName
 
-        routineNameView = tv_RunRoutine_sequential_info_routineName
+            currentTimeInfoView = tvRunRoutineSequentialInfoCurrentInfo
+            currentTimeValueView = tvRunRoutineSequentialInfoCurrentValue
+            totalTimeInfoView = tvRunRoutineSequentialInfoTotalInfo
+            totalTimeValueView = tvRunRoutineSequentialInfoTotalValue
 
-        currentTimeInfoView = tv_RunRoutine_sequential_info_currentInfo
-        currentTimeValueView = tv_RunRoutine_sequential_info_currentValue
-        totalTimeInfoView = tv_RunRoutine_sequential_info_totalInfo
-        totalTimeValueView = tv_RunRoutine_sequential_info_totalValue
-
-        pauseButton = btn_RunRoutine_sequential_pause
-        restartButton = btn_RunRoutine_sequential_restart
+            pauseButton = btnRunRoutineSequentialPause
+            restartButton = btnRunRoutineSequentialRestart
+        }
     }
     //endregion
 
@@ -305,8 +306,19 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         findNavController().navigate(directions)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_run_sequential_routine, container, false)
+    private var _binding: FragmentRunSequentialRoutineBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        _binding = FragmentRunSequentialRoutineBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     companion object

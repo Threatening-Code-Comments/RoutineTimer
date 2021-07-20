@@ -38,7 +38,7 @@ import de.threateningcodecomments.adapters.ItemMoveCallbackListener
 import de.threateningcodecomments.adapters.MyViewHolder
 import de.threateningcodecomments.adapters.OnStartDragListener
 import de.threateningcodecomments.adapters.OrganizeRoutineAdapter
-import kotlinx.android.synthetic.main.fragment_edit_sequential_routine.*
+import de.threateningcodecomments.routinetimer.databinding.FragmentEditSequentialRoutineBinding
 
 
 class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartDragListener, UIContainer {
@@ -241,25 +241,27 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         tileIconView = v.findViewById(R.id.iv_EditRoutine_sequential_tile_icon)
         tileNameView = v.findViewById(R.id.tv_EditRoutine_sequential_tile_name)
 
-        settingsPreviewCard = cv_EditRoutine_sequential_tile_settingsDisplay_card
-        settingsPreviewModeIcon = iv_EditRoutine_sequential_tile_settingsDisplay_modeIcon
-        settingsPreviewModeSummary = tv_EditRoutine_sequential_tile_settingsDisplay_modeSummary
-        settingsPreviewCdTimeInfo = tv_EditRoutine_sequential_tile_settingsDisplay_cdTimeInfo
-        settingsPreviewCdTimeValue = tv_EditRoutine_sequential_tile_settingsDisplay_cdTimeValue
+        binding.apply {
+            settingsPreviewCard = cvEditRoutineSequentialTileSettingsDisplayCard
+            settingsPreviewModeIcon = ivEditRoutineSequentialTileSettingsDisplayModeIcon
+            settingsPreviewModeSummary = tvEditRoutineSequentialTileSettingsDisplayModeSummary
+            settingsPreviewCdTimeInfo = tvEditRoutineSequentialTileSettingsDisplayCdTimeInfo
+            settingsPreviewCdTimeValue = tvEditRoutineSequentialTileSettingsDisplayCdTimeValue
 
-        tileCycleLayout = v.findViewById(R.id.ll_EditRoutine_sequential_cycle_layout)
-        tileCycleDeleteBtn = cv_EditRoutine_sequential_cycle_delete
-        tileCycleDeleteBtnIcon = iv_EditRoutine_sequential_cycle_delete_icon
-        tileCyclePrevBtn = cv_EditRoutine_sequential_cycle_prev
-        tileCyclePrevBtnIcon = iv_EditRoutine_sequential_cycle_prev_icon
-        tileCycleNextBtn = cv_EditRoutine_sequential_cycle_next
-        tileCycleNextBtnIcon = iv_EditRoutine_sequential_cycle_next_icon
+            tileCycleLayout = v.findViewById(R.id.ll_EditRoutine_sequential_cycle_layout)
+            tileCycleDeleteBtn = cvEditRoutineSequentialCycleDelete
+            tileCycleDeleteBtnIcon = ivEditRoutineSequentialCycleDeleteIcon
+            tileCyclePrevBtn = cvEditRoutineSequentialCyclePrev
+            tileCyclePrevBtnIcon = ivEditRoutineSequentialCyclePrevIcon
+            tileCycleNextBtn = cvEditRoutineSequentialCycleNext
+            tileCycleNextBtnIcon = ivEditRoutineSequentialCycleNextIcon
 
-        tileSettingsButton = btn_EditRoutine_sequential_tileSettings
+            tileSettingsButton = btnEditRoutineSequentialTileSettings
 
-        organizeRoutineRoot = v.findViewById(R.id.ll_EditRoutine_sequential_organize_root)
-        organizeRoutineRV = v.findViewById(R.id.rv_EditRoutine_sequential_organize_recyclerview)
-        organizeRoutineBackBtn = v.findViewById(R.id.btn_EditRoutine_sequential_organize_back)
+            organizeRoutineRoot = v.findViewById(R.id.ll_EditRoutine_sequential_organize_root)
+            organizeRoutineRV = v.findViewById(R.id.rv_EditRoutine_sequential_organize_recyclerview)
+            organizeRoutineBackBtn = v.findViewById(R.id.btn_EditRoutine_sequential_organize_back)
+        }
     }
 
     private fun initRoutines() {
@@ -430,9 +432,19 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     //endregion
 
+    private var _binding: FragmentEditSequentialRoutineBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_edit_sequential_routine, container, false)
+        _binding = FragmentEditSequentialRoutineBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun updateCurrentTile() {}

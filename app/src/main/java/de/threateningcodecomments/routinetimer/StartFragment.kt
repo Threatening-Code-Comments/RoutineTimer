@@ -29,7 +29,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import de.threateningcodecomments.accessibility.*
-import kotlinx.android.synthetic.main.fragment_start.*
 
 class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -76,7 +75,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         RC.Resources.errorDrawable =
                 ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
 
-        //doTestButton()
+        doTestButton()
     }
 
     override fun onClick(v: View) {
@@ -132,7 +131,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         val v = requireView()
 
         routineButton = v.findViewById(R.id.btn_StartFragment_routines)
-        settingsButton = btn_StartFragment_settings
+        settingsButton = v.findViewById(R.id.btn_StartFragment_settings)
         testButton = v.findViewById(R.id.btn_mainActivity_test)
 
         usernameView = v.findViewById(R.id.tv_StartFragment_username)

@@ -1,8 +1,8 @@
 package de.threateningcodecomments.views
 
+import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Handler
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -13,17 +13,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.res.getBooleanOrThrow
-import androidx.core.content.res.getResourceIdOrThrow
-import androidx.core.content.res.getStringOrThrow
 import androidx.core.view.*
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
-import de.threateningcodecomments.accessibility.MyLog
 import de.threateningcodecomments.accessibility.RC
 import de.threateningcodecomments.routinetimer.R
-
 
 class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
         context: Context,
@@ -66,9 +61,10 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
         //inflate layout
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.TileSettingsMain, defStyleAttr, 0)
 
-        val srcId = attributes.getResourceIdOrThrow(R.styleable.TileSettingsMain_src)
-        val name = attributes.getStringOrThrow(R.styleable.TileSettingsMain_name)
-        val hasSummary = attributes.getBooleanOrThrow(R.styleable.TileSettingsMain_hasSummary)
+        val srcId = attributes.getResourceId(R.styleable.TileSettingsMain_src, R.drawable.ic_defaultdrawable)
+        val name = attributes.getString(R.styleable.TileSettingsMain_name)
+                ?: RC.Resources.getString(R.string.str_TileSettingsMain_defaultName)
+        val hasSummary = attributes.getBoolean(R.styleable.TileSettingsMain_hasSummary, false)
         editLayoutIsVisibleDefault = attributes.getBoolean(R.styleable.TileSettingsMain_editLayoutIsVisible, false)
 
         inflateLayoutUsing(context, srcId, name, hasSummary)
@@ -80,6 +76,10 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
 
         //set padding for animation
         setPadding(0, 0, 0, dpToPx(3))
+
+        layoutTransition = LayoutTransition().apply {
+            enableTransitionType(LayoutTransition.CHANGING)
+        }
     }
 
     private var uiRunnable = {}
@@ -134,103 +134,61 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
         }
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
+    override fun onFinishInflate() {
+        super.onFinishInflate()
 
-        if (isInEditMode && editLayout != null)
-            ConstraintSet().apply {
-                clone(this@TileSettingsMain)
-
-                constrainHeight(editLayout!!.id, ConstraintSet.WRAP_CONTENT);
-                constrainWidth(editLayout!!.id, ConstraintSet.MATCH_CONSTRAINT);
-
-                connect(editLayout!!.id, ConstraintSet.TOP,
-                        infoLayout.id, ConstraintSet.BOTTOM)
-                connect(editLayout!!.id, ConstraintSet.START,
-                        infoLayout.id, ConstraintSet.START)
-                connect(editLayout!!.id, ConstraintSet.END,
-                        infoLayout.id, ConstraintSet.END)
-
-                applyTo(this@TileSettingsMain)
-            }
-
-        if (editLayout == null)
+        if (childCount > 1)
             registerEditLayout()
     }
 
-    private fun TileSettingsMain.registerEditLayout() {
-        layoutsLoop@
-        for ((index, child) in this.children.withIndex()) {
-            //keep InfoLayout
-            if (child.id == R.id.cl_cvl_TileSettingsMain_layout)
-                continue@layoutsLoop
+    private fun registerEditLayout() {
+        for (child in this)
+            if (child != infoLayout)
+                editLayout = child as ViewGroup
 
-            editLayout = child as ViewGroup
 
-            child.apply {
-                //elevation for animation
-                translationZ = -2f
+        if (editLayout == null)
+            throw IllegalStateException("editLayout must not be null!")
 
-                if (id == NO_ID)
-                    id = generateViewId()
+        editLayout!!.apply {
+            //elevation for animation
+            translationZ = -2f
 
-                for (view in child as ViewGroup)
-                    if (view.id == NO_ID)
-                        view.id = generateViewId()
+            if (id == NO_ID)
+                id = generateViewId()
 
-                if (!isInEditMode)
-                    Handler().post {
-                        ConstraintSet().apply {
-                            clone(this@TileSettingsMain)
-
-                            constrainHeight(child.id, ConstraintSet.WRAP_CONTENT);
-                            constrainWidth(child.id, ConstraintSet.MATCH_CONSTRAINT);
-
-                            connect(child.id, ConstraintSet.TOP,
-                                    this@TileSettingsMain.getChildAt(0).id, ConstraintSet.BOTTOM)
-                            connect(child.id, ConstraintSet.START,
-                                    this@TileSettingsMain.getChildAt(0).id, ConstraintSet.START)
-                            connect(child.id, ConstraintSet.END,
-                                    this@TileSettingsMain.getChildAt(0).id, ConstraintSet.END)
-
-                            applyTo(this@TileSettingsMain)
-                        }
-
-                        editLayout!!.isVisible = editLayoutIsVisibleDefault
-                    }
-
-                if (isInEditMode) {
-                    /*ConstraintSet().apply {
-                        clone(this@TileSettingsMain)
-
-                        constrainHeight(child.id, ConstraintSet.WRAP_CONTENT);
-                        constrainWidth(child.id, ConstraintSet.MATCH_CONSTRAINT);
-
-                        connect(child.id, ConstraintSet.TOP,
-                                this@TileSettingsMain.getChildAt(0).id, ConstraintSet.BOTTOM)
-                        connect(child.id, ConstraintSet.START,
-                                this@TileSettingsMain.getChildAt(0).id, ConstraintSet.START)
-                        connect(child.id, ConstraintSet.END,
-                                this@TileSettingsMain.getChildAt(0).id, ConstraintSet.END)
-
-                        applyTo(this@TileSettingsMain)
-                    }*/
-
-                    editLayout?.isVisible = true
-                    editLayoutIsVisibleDefault
-                }
-            }
-
-            setOnClickListener {
-                toggleEditLayout()
-            }
+            for (view in this)
+                if (view.id == NO_ID)
+                    view.id = generateViewId()
         }
 
-        //handle visibility on seperate thread
-        if (!isInEditMode)
-            Handler().post {
-                initVisibility()
-            }
+        ConstraintSet().apply {
+            clone(this@TileSettingsMain)
+
+            constrainHeight(editLayout!!.id, ConstraintSet.WRAP_CONTENT)
+            constrainWidth(editLayout!!.id, ConstraintSet.MATCH_CONSTRAINT)
+
+            connect(editLayout!!.id, ConstraintSet.TOP,
+                    this@TileSettingsMain.infoLayout.id, ConstraintSet.BOTTOM)
+            connect(editLayout!!.id, ConstraintSet.START,
+                    this@TileSettingsMain.infoLayout.id, ConstraintSet.START)
+            connect(editLayout!!.id, ConstraintSet.END,
+                    this@TileSettingsMain.infoLayout.id, ConstraintSet.END)
+
+            applyTo(this@TileSettingsMain)
+        }
+
+        editLayout!!.isVisible =
+                if (!isInEditMode)
+                    editLayoutIsVisibleDefault
+                else
+                    true
+
+        setOnClickListener {
+            toggleEditLayout()
+        }
+
+        initVisibility()
     }
 
     /**
@@ -246,7 +204,7 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
 
             if (value != null)
                 for (view in value)
-                    newValue.add(view as View)
+                    newValue.add(view)
 
             field =
                     if (value != null)
@@ -315,19 +273,20 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
         if (child in viewsToSkip || child::class.java.name in typesToSkip)
             return
 
-        if (child is MaterialTextView || child is TextView || child is AutoCompleteTextView) {
+        if (child is MaterialTextView || child is TextView || child is AutoCompleteTextView)
             (child as TextView).setTextColor(cc)
-            MyLog.d("setting text color on $child")
-        }
+
 
         if (child is ImageView || child is ShapeableImageView)
             (child as ImageView).setColorFilter(cc)
     }
 
+    private var animDuration: Long = 250L
+
     private fun toggleEditLayout() {
         val visible = editLayout!!.isVisible
 
-        val duration = 250L
+        animDuration = 250L
 
         editLayout!!.apply {
             setBackgroundColor(RC.Resources.Colors.onSurfaceColor)
@@ -347,7 +306,7 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
                             else
                                 0f
                     )
-                    .setDuration(duration)
+                    .setDuration(animDuration)
                     .setInterpolator(AccelerateDecelerateInterpolator())
                     .withEndAction {
                         if (visible)
@@ -355,11 +314,13 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
                     }
 
             //toggle visibility
-            if (!visible)
+            if (!visible) {
                 isVisible = true
+            }
         }
     }
 
     private fun dpToPx(dp: Int) = RC.Conversions.Size.dpToPx(dp).toInt()
 
 }
+

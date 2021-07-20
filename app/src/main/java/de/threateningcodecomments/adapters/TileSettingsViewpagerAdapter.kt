@@ -32,11 +32,10 @@ import de.threateningcodecomments.accessibility.*
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.TileSettingsFragment
+import de.threateningcodecomments.routinetimer.databinding.LayoutTileSettingsCommonBinding
+import de.threateningcodecomments.routinetimer.databinding.LayoutTileSettingsTimingBinding
 import de.threateningcodecomments.views.TileSettingsMain
 import de.threateningcodecomments.views.WeekdayPicker
-import kotlinx.android.synthetic.main.cvl_tile_settings_main.*
-import kotlinx.android.synthetic.main.layout_tile_settings_common.*
-import kotlinx.android.synthetic.main.layout_tile_settings_timing.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -353,39 +352,50 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         }
 
         override fun initBuffers() {
-            nameLayout = ll_TileSettings_common_name_main
-            nameInfo = tv_TileSettings_common_name_info
-            nameSummary = tv_TileSettings_common_name_summary
-            nameIcon = iv_TileSettings_common_name_icon
-            nameEditLayout = ll_TileSettings_common_name_editLayout
-            nameEditField = et_TileSettings_common_name_editField
+            nameLayout = binding.llTileSettingsCommonNameMain
+            nameInfo = binding.tvTileSettingsCommonNameInfo
+            nameSummary = binding.tvTileSettingsCommonNameSummary
+            nameIcon = binding.ivTileSettingsCommonNameIcon
+            nameEditLayout = binding.llTileSettingsCommonNameEditLayout
+            nameEditField = binding.etTileSettingsCommonNameEditField
 
-            iconLayout = ll_TileSettings_common_icon_main
-            iconInfo = tv_TileSettings_common_icon_info
-            iconIcon = iv_TileSettings_common_icon_icon
-            iconRecyclerView = rv_TileSettings_common_icon_recyclerview
-            iconEditLayout = ll_Tilesettings_common_icon_editLayout
-            iconSearchEditText = et_TileSettings_common_icon_search
-            iconCategoryTabLayout = tl_TileSettings_common_icon_tabLayout
+            iconLayout = binding.llTileSettingsCommonIconMain
+            iconInfo = binding.tvTileSettingsCommonIconInfo
+            iconIcon = binding.ivTileSettingsCommonIconIcon
+            iconRecyclerView = binding.rvTileSettingsCommonIconRecyclerview
+            iconEditLayout = binding.llTilesettingsCommonIconEditLayout
+            iconSearchEditText = binding.etTileSettingsCommonIconSearch
+            iconCategoryTabLayout = binding.tlTileSettingsCommonIconTabLayout
 
-            modeLayout = ll_TileSettings_common_mode_main
-            modeInfo = tv_TileSettings_common_mode_info
-            modeSummary = tv_TileSettings_common_mode_summary
-            modeIcon = iv_TileSettings_common_mode_icon
-            modeEditLayout = ll_TileSettings_common_mode_editLayout
-            modeDropDown = dd_TileSettings_common_mode_editDropDown
+            modeLayout = binding.llTileSettingsCommonModeMain
+            modeInfo = binding.tvTileSettingsCommonModeInfo
+            modeSummary = binding.tvTileSettingsCommonModeSummary
+            modeIcon = binding.ivTileSettingsCommonModeIcon
+            modeEditLayout = binding.llTileSettingsCommonModeEditLayout
+            modeDropDown = binding.ddTileSettingsCommonModeEditDropDown
 
-            colorLayout = ll_TileSettings_common_color_main
-            colorInfo = tv_TileSettings_common_color_info
-            colorSummary = v_TileSettings_common_color_summary
-            colorIcon = iv_TileSettings_common_color_icon
-            colorEditLayout = ll_TileSettings_common_color_editLayout
-            colorHueInfo = tv_TileSettings_common_color_editLayout_hueInfo
-            colorHueSlider = sl_TileSettings_common_color_editLayout_hueSlider
+            colorLayout = binding.llTileSettingsCommonColorMain
+            colorInfo = binding.tvTileSettingsCommonColorInfo
+            colorSummary = binding.vTileSettingsCommonColorSummary
+            colorIcon = binding.ivTileSettingsCommonColorIcon
+            colorEditLayout = binding.llTileSettingsCommonColorEditLayout
+            colorHueInfo = binding.tvTileSettingsCommonColorEditLayoutHueInfo
+            colorHueSlider = binding.slTileSettingsCommonColorEditLayoutHueSlider
         }
 
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            return inflater.inflate(R.layout.layout_tile_settings_common, container, false)
+        private var _binding: LayoutTileSettingsCommonBinding? = null
+        private val binding get() = _binding!!
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
+        }
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+            _binding = LayoutTileSettingsCommonBinding.inflate(inflater, container, false)
+            val view = binding.root
+            return view
         }
     }
 
@@ -425,12 +435,9 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var modeEditLayout: LinearLayout
         private lateinit var modeDropDown: AutoCompleteTextView
 
-        private lateinit var countdownSettingsLayout: LinearLayout
+        private lateinit var countdownSettingsLayouts: Set<ViewGroup>
 
-        private lateinit var cdTimeLayout: LinearLayout
-        private lateinit var cdTimeInfo: MaterialTextView
-        private lateinit var cdTimeSummary: MaterialTextView
-        private lateinit var cdTimeIcon: ImageView
+        private lateinit var cdTimeLayout: TileSettingsMain
         private lateinit var cdTimeEditLayout: LinearLayout
         private lateinit var cdTimeInputEdit: EditText
         private lateinit var cdTimeInputDisplay: MaterialTextView
@@ -450,10 +457,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var resetDateAndTimeButton: MaterialButton
         private lateinit var resetWeekOfMonthUnitDropdown: AutoCompleteTextView
 
-        private lateinit var remindsLayout: LinearLayout
-        private lateinit var remindsInfo: MaterialTextView
-        private lateinit var remindsSummary: MaterialTextView
-        private lateinit var remindsIcon: ImageView
+        private lateinit var remindsLayout: TileSettingsMain
         private lateinit var remindsEditLayout: LinearLayout
         private lateinit var remindsOnButton: MaterialCardView
         private lateinit var remindsOffButton: MaterialCardView
@@ -484,6 +488,12 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                     setOf(
                             AutoCompleteTextView::javaClass.name
                     )
+
+            cdTimeLayout.visibilityViewsToIgnore =
+                    setOf(
+                            cdTimeInputEdit
+                    )
+            cdTimeInputDisplay.setBackgroundColor(RC.Resources.Colors.onSurfaceColor)
         }
 
         override fun updateUI() {
@@ -493,11 +503,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
             //makes the layout visible only if the tile mode is cd, else collapses all editLayouts beneath
             if (currentTile.mode == Tile.MODE_COUNT_DOWN)
-                countdownSettingsLayout.isVisible = true
+                setCDLayoutsVisibility(true)
             else {
                 cdTimeEditLayout.isVisible = false
                 remindsEditLayout.isVisible = false
-                countdownSettingsLayout.isVisible = false
+                setCDLayoutsVisibility(false)
             }
 
             //mode
@@ -577,7 +587,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
             //countdown time
             val cdTimeText = currentTile.countDownSettings.countDownTimeString
-            cdTimeSummary.text = RC.Conversions.Time.shortenTimeString(cdTimeText)
+            cdTimeLayout.summary = RC.Conversions.Time.shortenTimeString(cdTimeText)
 
             if (cdTimeInputDisplay.text.toString() != cdTimeText)
                 cdTimeInputDisplay.text = cdTimeText
@@ -588,7 +598,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                         "On"
                     else
                         "Off"
-            remindsSummary.text = text
+            remindsLayout.summary = text
 
             val remindsButtonToSelect =
                     if (currentTile.countDownSettings.reminds)
@@ -610,6 +620,12 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                     .setTextColor(RC.Conversions.Colors.calculateContrast(deselectColor))
             //endregion
         }
+
+        private fun setCDLayoutsVisibility(isVisible: Boolean) {
+            for (layout in countdownSettingsLayouts)
+                layout.isVisible = isVisible
+        }
+
 
         private fun setSummary() {
             val settings = currentTile.resetSettings
@@ -902,49 +918,56 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         }
 
         override fun initBuffers() {
-            modeLayout = ml_TileSettings_timing_mode_main
-            modeEditLayout = ll_TileSettings_timing_mode_editLayout
-            modeDropDown = dd_TileSettings_timing_mode_editDropDown
+            binding.apply {
+                modeLayout = mlTileSettingsTimingModeMain
+                modeEditLayout = llTileSettingsTimingModeEditLayout
+                modeDropDown = ddTileSettingsTimingModeEditDropDown
 
-            countdownSettingsLayout = ll_TileSettings_timing_countdownSettings
+                resetLayout = mlTileSettingsTimingResetMain
+                resetOnButton = cvTileSettingsTimingResetsOn
+                resetOnButtonText = tvTileSettingsTimingResetsOn
+                resetOffButton = cvTileSettingsTimingResetsOff
+                resetOffButtonText = tvTileSettingsTimingResetsOff
+                resetAdjustLayout = llTileSettingsTimingResetSetReset
+                resetEditLayout = llTileSettingsTimingResetEditLayout
+                resetEditAmount = atvTileSettingsTimingResetAmount
+                resetEditInfo = tvTileSettingsTimingResetEditInfo
+                resetUnitDropDown = ddTileSettingsTimingResetEditDropDown
+                resetDatePicker = MaterialDatePicker.Builder.datePicker()
+                        .setTitleText(getString(R.string.str_TileSettings_timing_reset_datePicker_title))
+                        .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
+                        .build()
+                resetWeekdayPicker = wdpTileSettingsTimingResetMyWeekdayPicker
+                resetDateAndTimeButton = btnTileSettingsTimingDatePickerDateAndTime
+                resetWeekOfMonthUnitDropdown = ddTileSettingsTimingResetWeekOfMonthUnitDropdown
 
-            cdTimeLayout = ll_TileSettings_timing_cdTime_main
-            cdTimeInfo = tv_TileSettings_timing_cdTime_info
-            cdTimeSummary = tv_TileSettings_timing_cdTime_summary
-            cdTimeIcon = iv_TileSettings_timing_cdTime_icon
-            cdTimeEditLayout = ll__TileSettings_timing_cdTime_editLayout
-            cdTimeInputEdit = et_TileSettings_timing_cdTime_timeInput
-            cdTimeInputDisplay = tv_TileSettings_timing_cdTime_inputDisplay
+                cdTimeLayout = mlTileSettingsTimingCdTimeMain
+                cdTimeEditLayout = llTileSettingsTimingCdTimeEditLayout
+                cdTimeInputEdit = etTileSettingsTimingCdTimeTimeInput
+                cdTimeInputDisplay = tvTileSettingsTimingCdTimeInputDisplay
 
-            resetLayout = ml_TileSettings_timing_reset_main
-            resetOnButton = cv_TileSettings_timing_resets_on
-            resetOnButtonText = tv_TileSettings_timing_resets_on
-            resetOffButton = cv_TileSettings_timing_resets_off
-            resetOffButtonText = tv_TileSettings_timing_resets_off
-            resetAdjustLayout = ll_TileSettings_timing_reset_setReset
-            resetEditLayout = ll_TileSettings_timing_reset_editLayout
-            resetEditAmount = atv_TileSettings_timing_reset_amount
-            resetEditInfo = tv_TileSettings_timing_reset_editInfo
-            resetUnitDropDown = dd_TileSettings_timing_reset_editDropDown
-            resetDatePicker = MaterialDatePicker.Builder.datePicker()
-                    .setTitleText(getString(R.string.str_TileSettings_timing_reset_datePicker_title))
-                    .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
-                    .build()
-            resetWeekdayPicker = wdp_TileSettings_timing_reset_my_weekdayPicker
-            resetDateAndTimeButton = btn_TileSettings_timing_datePicker_dateAndTime
-            resetWeekOfMonthUnitDropdown = dd_TileSettings_timing_reset_weekOfMonth_unitDropdown
+                remindsLayout = mlTileSettingsTimingRemindsMain
+                remindsEditLayout = llTileSettingsTimingRemindsEditLayout
+                remindsOnButton = cvTileSettingsTimingRemindsOn
+                remindsOffButton = cvTileSettingsTimingRemindsOff
 
-            remindsLayout = ll_TileSettings_timing_reminds_main
-            remindsInfo = tv_TileSettings_timing_reminds_info
-            remindsSummary = tv_TileSettings_timing_reminds_summary
-            remindsIcon = iv_TileSettings_timing_reminds_icon
-            remindsEditLayout = ll_TileSettings_timing_reminds_editLayout
-            remindsOnButton = cv_TileSettings_timing_reminds_on
-            remindsOffButton = cv_TileSettings_timing_reminds_off
+                countdownSettingsLayouts = setOf(cdTimeLayout, remindsLayout)
+            }
         }
 
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            return inflater.inflate(R.layout.layout_tile_settings_timing, container, false)
+        private var _binding: LayoutTileSettingsTimingBinding? = null
+        private val binding get() = _binding!!
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
+        }
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+            _binding = LayoutTileSettingsTimingBinding.inflate(inflater, container, false)
+            val view = binding.root
+            return view
         }
     }
 

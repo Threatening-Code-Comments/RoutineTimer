@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,9 +15,9 @@
             android:id="@+id/ml_TileSettings_timing_mode_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:editLayoutIsVisible="true"
             app:hasSummary="true"
             app:name="Mode"
-            app:editLayoutIsVisible="true"
             app:src="@drawable/ic_mode_icon">
 
             <LinearLayout
@@ -27,8 +26,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingHorizontal="20sp"
-                android:paddingBottom="10sp"
-                android:visibility="gone">
+                android:paddingBottom="10sp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/dropdownsStyle"
@@ -58,7 +56,6 @@
             android:layout_height="wrap_content"
             app:hasSummary="false"
             app:name="Resets"
-            app:editLayoutIsVisible="true"
             app:src="@drawable/ic_reset_off">
 
             <!--EditLayout reset-->
@@ -67,8 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:orientation="vertical"
-                android:visibility="visible">
+                android:orientation="vertical">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -213,11 +209,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:hasSummary="true"
-            app:editLayoutIsVisible="true"
             app:name="Alarm settings"
             app:src="@drawable/ic_mode_count_down">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_TileSettingsMain_timing_alarmSettings_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -237,188 +233,104 @@
         </de.threateningcodecomments.views.TileSettingsMain>
 
         <!--Countdown settings-->
-        <LinearLayout
-            android:id="@+id/ll_TileSettings_timing_countdownSettings"
+        <de.threateningcodecomments.views.TileSettingsMain
+            android:id="@+id/ml_TileSettings_timing_cdTime_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:src="@drawable/ic_timer"
+            app:editLayoutIsVisible="false"
+            app:hasSummary="true"
+            app:name="Countdown Time">
 
-            <!--Countdown time-->
             <LinearLayout
-                android:id="@+id/ll_TileSettings_timing_cdTime_main"
+                android:id="@+id/ll__TileSettings_timing_cdTime_editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:background="@drawable/border_bottom"
-                android:orientation="vertical">
+                android:visibility="gone">
 
-                <!--Info-->
-                <LinearLayout
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp">
+                    android:layout_height="40sp">
 
-                    <ImageView
-                        android:id="@+id/iv_TileSettings_timing_cdTime_icon"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/ic_timer" />
-
-                    <LinearLayout
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_TileSettings_timing_cdTime_inputDisplay"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:orientation="vertical">
+                        android:layout_gravity="center"
+                        android:layout_margin="5sp"
+                        android:text="00:00"
+                        android:textAlignment="center"
+                        android:textSize="25sp" />
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_cdTime_info"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Countdown time"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_cdTime_summary"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="summary" />
-
-
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!--Edit-->
-                <LinearLayout
-                    android:id="@+id/ll__TileSettings_timing_cdTime_editLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone">
-
-                    <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_TileSettings_timing_cdTime_timeInput"
                         android:layout_width="match_parent"
-                        android:layout_height="40sp">
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="30sp"
+                        android:background="@android:color/transparent"
+                        android:cursorVisible="false"
+                        android:inputType="number"
+                        android:textSize="0sp"
+                        android:text="@string/constStr_noTextChangedChar" />
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_cdTime_inputDisplay"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center"
-                            android:layout_margin="5sp"
-                            android:text="00:00"
-                            android:textAlignment="center"
-                            android:textSize="25sp" />
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_TileSettings_timing_cdTime_timeInput"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginHorizontal="30sp"
-                            android:background="@android:color/transparent"
-                            android:cursorVisible="false"
-                            android:inputType="number"
-                            android:text="@string/constStr_noTextChangedChar"
-                            android:textColor="@android:color/transparent" />
-
-                    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-                </LinearLayout>
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
             </LinearLayout>
 
-            <!--Reminds-->
+        </de.threateningcodecomments.views.TileSettingsMain>
+
+        <de.threateningcodecomments.views.TileSettingsMain
+            android:id="@+id/ml_TileSettings_timing_reminds_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hasSummary="false"
+            app:name="Reminds"
+            app:src="@drawable/ic_alarm">
+
             <LinearLayout
-                android:id="@+id/ll_TileSettings_timing_reminds_main"
+                android:id="@+id/ll_TileSettings_timing_reminds_editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:background="@drawable/border_bottom"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12sp">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_TileSettings_timing_reminds_on"
+                    android:layout_width="0sp"
+                    android:layout_height="50sp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="0sp"
+                    app:cardElevation="0sp">
 
-                    <ImageView
-                        android:id="@+id/iv_TileSettings_timing_reminds_icon"
-                        android:layout_width="50sp"
-                        android:layout_height="50sp"
-                        android:src="@drawable/ic_alarm" />
-
-                    <LinearLayout
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
-                        android:orientation="vertical">
+                        android:layout_gravity="center"
+                        android:text="On"
+                        android:textAlignment="center" />
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_reminds_info"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            tools:text="Reminds" />
+                </com.google.android.material.card.MaterialCardView>
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_reminds_summary"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            tools:text="currently does nothing lol" />
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_TileSettings_timing_reminds_off"
+                    android:layout_width="0sp"
+                    android:layout_height="50sp"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="0sp"
+                    app:cardElevation="0sp">
 
-                    </LinearLayout>
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Off"
+                        android:textAlignment="center" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_TileSettings_timing_reminds_editLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cv_TileSettings_timing_reminds_on"
-                        android:layout_width="0sp"
-                        android:layout_height="50sp"
-                        android:layout_weight="1"
-                        app:cardCornerRadius="0sp"
-                        app:cardElevation="0sp">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="On"
-                            android:textAlignment="center" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cv_TileSettings_timing_reminds_off"
-                        android:layout_width="0sp"
-                        android:layout_height="50sp"
-                        android:layout_weight="1"
-                        app:cardCornerRadius="0sp"
-                        app:cardElevation="0sp">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Off"
-                            android:textAlignment="center" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                </LinearLayout>
-
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 
-        </LinearLayout>
+        </de.threateningcodecomments.views.TileSettingsMain>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

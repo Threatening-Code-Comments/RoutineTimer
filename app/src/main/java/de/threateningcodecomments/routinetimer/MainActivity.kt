@@ -21,8 +21,12 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         setContentView(R.layout.activity_main)
 
         instance = this
-        RC.Anim.initAnimations(this)
+        /*Thread {
+            RC.Anim.initAnimations(this)
+            RC.updateContext(applicationContext)
+        }.start()*/
         RC.updateContext(applicationContext)
+        RC.Anim.initAnimations(this)
     }
 
     override fun onResume() {

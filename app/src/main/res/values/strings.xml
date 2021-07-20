@@ -105,4 +105,5 @@
     <string name="constStr_tileMode_tap">Tap mode</string>
     <string name="constStr_tileMode_data">Data mode</string>
     <string name="constStr_tileMode_alarm">Alarm mode</string>
+    <string name="str_TileSettingsMain_defaultName">Error</string>
 </resources>

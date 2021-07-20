@@ -1,4 +1,3 @@
-
 package de.threateningcodecomments.accessibility
 
 import android.annotation.SuppressLint
@@ -12,8 +11,10 @@ import android.graphics.drawable.Drawable
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.Transformation
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
@@ -41,6 +42,7 @@ import kotlin.math.roundToInt
 
 @SuppressLint("StaticFieldLeak")
 object RC {
+
     private lateinit var context: Context
 
     @JvmStatic
@@ -466,6 +468,21 @@ object RC {
                 number /= 2
             }
             return number.toInt()
+        }
+    }
+
+    class ResizeAnimation(var view: View, val targetHeight: Int) : Animation() {
+        val startWidth: Int = view.height
+
+        override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
+            val newHeight = (startWidth + (targetHeight - startWidth) * interpolatedTime).toInt()
+            view.layoutParams.height = newHeight
+            view.requestLayout()
+        }
+
+
+        override fun willChangeBounds(): Boolean {
+            return true
         }
     }
 

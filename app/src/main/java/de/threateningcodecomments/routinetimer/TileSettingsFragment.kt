@@ -19,9 +19,12 @@ import de.threateningcodecomments.accessibility.Routine
 import de.threateningcodecomments.accessibility.Tile
 import de.threateningcodecomments.accessibility.UIContainer
 import de.threateningcodecomments.adapters.TileSettingsViewpagerAdapter
-import kotlinx.android.synthetic.main.fragment_tile_settings.*
+import de.threateningcodecomments.routinetimer.databinding.FragmentTileSettingsBinding
 
 class TileSettingsFragment : Fragment(), UIContainer {
+
+    private var _binding: FragmentTileSettingsBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var tileCard: MaterialCardView
     private lateinit var tileIcon: ImageView
@@ -103,21 +106,27 @@ class TileSettingsFragment : Fragment(), UIContainer {
     }
 
     private fun initBuffers() {
-        tileCard = cv_TileSettings_tile_card
-        tileIcon = iv_TileSettings_tile_icon
-        tileName = tv_TileSettings_tile_name
+        tileCard = binding.cvTileSettingsTileCard
+        tileIcon = binding.ivTileSettingsTileIcon
+        tileName = binding.tvTileSettingsTileName
 
-        tabLayout = tl_TileSettings_settingsTabLayout
-        viewPager = vp_TileSettings_viewpager
+        tabLayout = binding.tlTileSettingsSettingsTabLayout
+        viewPager = binding.vpTileSettingsViewpager
     }
 
     companion object {
         lateinit var instance: TileSettingsFragment
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tile_settings, container, false)
+        _binding = FragmentTileSettingsBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 }
