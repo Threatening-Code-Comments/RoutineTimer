@@ -116,7 +116,7 @@ object RC {
 
         val sharedElementTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nhf_MainActivity_navHostFragment
-            duration = 300.toLong()
+            duration = 100.toLong()
             scrimColor = Color.TRANSPARENT
         }
 

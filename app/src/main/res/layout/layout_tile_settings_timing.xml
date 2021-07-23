@@ -20,11 +20,10 @@
             app:name="Mode"
             app:src="@drawable/ic_mode_icon">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ll_TileSettings_timing_mode_editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:paddingHorizontal="20sp"
                 android:paddingBottom="10sp">
 
@@ -35,6 +34,9 @@
                     android:hint="@string/str_dd_SelectRoutine_createRoutine_mode"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
                     app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearance="@style/dropdownsShape">
 
                     <AutoCompleteTextView
@@ -45,7 +47,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </de.threateningcodecomments.views.TileSettingsMain>
 
@@ -59,108 +61,105 @@
             app:src="@drawable/ic_reset_off">
 
             <!--EditLayout reset-->
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ll_TileSettings_timing_reset_editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
                 android:orientation="vertical">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cv_TileSettings_timing_resets_on"
-                        android:layout_width="0sp"
-                        android:layout_height="50sp"
-                        app:cardCornerRadius="0sp"
-                        app:cardElevation="0sp"
-                        app:layout_constraintEnd_toStartOf="@id/cv_TileSettings_timing_resets_off"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_resets_on"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="On" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cv_TileSettings_timing_resets_off"
-                        android:layout_width="0sp"
-                        android:layout_height="50sp"
-                        app:cardCornerRadius="0sp"
-                        app:cardElevation="0sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/cv_TileSettings_timing_resets_on"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_TileSettings_timing_resets_off"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_margin="10dp"
-                            android:text="Off"
-                            android:textAlignment="center" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_TileSettings_timing_reset_setReset"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"
-                    android:visibility="gone">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_TileSettings_timing_resets_on"
+                    android:layout_width="0sp"
+                    android:layout_height="50sp"
+                    app:cardCornerRadius="0sp"
+                    app:cardElevation="0sp"
+                    app:layout_constraintEnd_toStartOf="@id/cv_TileSettings_timing_resets_off"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tv_TileSettings_timing_reset_editInfo"
+                        android:id="@+id/tv_TileSettings_timing_resets_on"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Reset every "
-                        android:textSize="20sp" />
+                        android:text="On" />
 
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/atv_TileSettings_timing_reset_amount"
-                        android:layout_width="40sp"
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_TileSettings_timing_resets_off"
+                    android:layout_width="0sp"
+                    android:layout_height="50sp"
+                    app:cardCornerRadius="0sp"
+                    app:cardElevation="0sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/cv_TileSettings_timing_resets_on"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_TileSettings_timing_resets_off"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginEnd="10sp"
-                        android:imeOptions="actionDone"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:selectAllOnFocus="true"
+                        android:layout_margin="10dp"
+                        android:text="Off"
                         android:textAlignment="center" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/dropdownsStyle"
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_TileSettings_timing_reset_editInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:text="Reset every "
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/til_TileSettings_timing_reset_unitDropdown" />
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/atv_TileSettings_timing_reset_amount"
+                    android:layout_width="40sp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="5dp"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown"
+                    app:layout_constraintStart_toEndOf="@id/tv_TileSettings_timing_reset_editInfo"
+                    app:layout_constraintEnd_toStartOf="@id/til_TileSettings_timing_reset_unitDropdown"
+                    app:layout_constraintTop_toTopOf="@id/til_TileSettings_timing_reset_unitDropdown" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_TileSettings_timing_reset_unitDropdown"
+                    style="@style/dropdownsStyle"
+                    android:layout_width="0sp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="20dp"
+                    android:hint="unit"
+                    app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
+                    app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
+                    app:errorEnabled="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/atv_TileSettings_timing_reset_amount"
+                    app:layout_constraintTop_toBottomOf="@id/cv_TileSettings_timing_resets_off"
+                    app:shapeAppearance="@style/dropdownsShape">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dd_TileSettings_timing_reset_editDropDown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:hint="unit"
-                        app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
-                        app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
-                        app:errorEnabled="true"
-                        app:shapeAppearance="@style/dropdownsShape">
+                        android:inputType="none" />
 
-                        <AutoCompleteTextView
-                            android:id="@+id/dd_TileSettings_timing_reset_editDropDown"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_TileSettings_timing_datePicker_dateAndTime"
@@ -169,13 +168,15 @@
                     android:layout_marginHorizontal="50dp"
                     android:layout_marginBottom="10dp"
                     android:text="@string/str_TileSettings_timing_reset_datePicker_title"
-                    android:visibility="gone"
-                    app:cornerRadius="@dimen/dimen_btnCorners" />
+                    app:cornerRadius="@dimen/dimen_btnCorners"
+                    app:layout_constraintTop_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown" />
 
                 <de.threateningcodecomments.views.WeekdayPicker
                     android:id="@+id/wdp_TileSettings_timing_reset_my_weekdayPicker"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    app:layout_constraintTop_toBottomOf="@id/btn_TileSettings_timing_datePicker_dateAndTime" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_TileSettings_timing_reset_weekOfMonth_unitDropdown"
@@ -183,25 +184,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginHorizontal="20dp"
                     android:animateLayoutChanges="true"
                     android:hint="Reset"
-                    android:visibility="gone"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"
                     app:boxCornerRadiusTopStart="@dimen/dimen_textFieldCorners"
                     app:errorEnabled="true"
+                    app:layout_constraintTop_toBottomOf="@id/wdp_TileSettings_timing_reset_my_weekdayPicker"
                     app:shapeAppearance="@style/dropdownsShape">
 
                     <AutoCompleteTextView
                         android:id="@+id/dd_TileSettings_timing_reset_weekOfMonth_unitDropdown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:visibility="visible" />
+                        android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </de.threateningcodecomments.views.TileSettingsMain>
 
@@ -238,15 +237,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_timer"
-            app:editLayoutIsVisible="false"
             app:hasSummary="true"
             app:name="Countdown Time">
 
             <LinearLayout
                 android:id="@+id/ll__TileSettings_timing_cdTime_editLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
+                android:layout_height="wrap_content">
 
                 <androidx.coordinatorlayout.widget.CoordinatorLayout
                     android:layout_width="match_parent"
@@ -270,8 +267,8 @@
                         android:background="@android:color/transparent"
                         android:cursorVisible="false"
                         android:inputType="number"
-                        android:textSize="0sp"
-                        android:text="@string/constStr_noTextChangedChar" />
+                        android:text="@string/constStr_noTextChangedChar"
+                        android:textSize="0sp" />
 
                 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -291,8 +288,7 @@
                 android:id="@+id/ll_TileSettings_timing_reminds_editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:orientation="horizontal">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cv_TileSettings_timing_reminds_on"

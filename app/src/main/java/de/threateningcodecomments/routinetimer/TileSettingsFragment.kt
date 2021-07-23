@@ -38,6 +38,12 @@ class TileSettingsFragment : Fragment(), UIContainer {
 
     private val args: TileSettingsFragmentArgs by navArgs()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        sharedElementEnterTransition = RC.Resources.sharedElementTransition
+
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onStart() {
         super.onStart()
         instance = this
@@ -91,13 +97,14 @@ class TileSettingsFragment : Fragment(), UIContainer {
         adapter.currentTile = currentTile
 
         viewPager.adapter = adapter
+        viewPager.offscreenPageLimit = 2
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             val element: TileSettingsViewpagerAdapter.Element =
                     when (position) {
                         0 -> TileSettingsViewpagerAdapter.CommonElement(currentTile)
-                        1 -> TileSettingsViewpagerAdapter.AppearanceElement()
-                        2 -> TileSettingsViewpagerAdapter.ModeElement()
+                        1 -> TileSettingsViewpagerAdapter.AppearanceElement(currentTile)
+                        2 -> TileSettingsViewpagerAdapter.ModeElement(currentTile)
                         else -> TileSettingsViewpagerAdapter.CommonElement(currentTile)
                     }
 

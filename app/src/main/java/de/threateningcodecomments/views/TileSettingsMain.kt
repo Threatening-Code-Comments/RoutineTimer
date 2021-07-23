@@ -281,6 +281,17 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
             (child as ImageView).setColorFilter(cc)
     }
 
+    fun showEditLayout() {
+        if (!editLayout!!.isVisible)
+            toggleEditLayout()
+    }
+
+    fun hideEditLayout() {
+        if (editLayout!!.isVisible)
+            toggleEditLayout()
+    }
+
+
     private var animDuration: Long = 250L
 
     private fun toggleEditLayout() {
@@ -308,15 +319,9 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
                     )
                     .setDuration(animDuration)
                     .setInterpolator(AccelerateDecelerateInterpolator())
-                    .withEndAction {
-                        if (visible)
-                            isVisible = false
-                    }
+                    .start()
 
-            //toggle visibility
-            if (!visible) {
-                isVisible = true
-            }
+            isVisible = !isVisible
         }
     }
 
