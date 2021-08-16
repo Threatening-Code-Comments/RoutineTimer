@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View.OnClickListener
 import android.widget.LinearLayout
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.iterator
 import com.google.android.material.imageview.ShapeableImageView
 import de.threateningcodecomments.accessibility.CombinedDrawable
@@ -128,17 +130,26 @@ class WeekdayPicker @JvmOverloads constructor(
                 else
                     null
 
+        setImageDrawable(dayOfWeek, d1, view)
+
+        if (view.colorFilter == null)
+            view.setColorFilter(RC.Resources.Colors.primaryColor)
+        else
+            view.colorFilter = null
+    }
+
+    fun resizeDrawable(drawable: Drawable, width: Int, height: Int): Drawable {
+        val bitmap = drawable.toBitmap(width, height) //here width and height are in px
+        return bitmap.toDrawable(resources)
+    }
+
+    private fun setImageDrawable(dayOfWeek: Int, d1: Drawable?, view: ShapeableImageView) {
         val contrastColor = RC.Resources.Colors.extremeContrastColor
         val textDrawable = TextDrawable(contrastColor, getAbbreviation(dayOfWeek))
 
         val combinedDrawable = CombinedDrawable(d1, textDrawable)
 
         view.setImageDrawable(combinedDrawable)
-
-        if (view.colorFilter == null)
-            view.setColorFilter(RC.Resources.Colors.primaryColor)
-        else
-            view.colorFilter = null
     }
 
     private fun initListeners() {

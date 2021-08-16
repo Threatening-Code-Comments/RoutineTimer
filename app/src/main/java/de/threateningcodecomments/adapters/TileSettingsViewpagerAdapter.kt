@@ -37,6 +37,7 @@ import de.threateningcodecomments.routinetimer.databinding.LayoutTileSettingsCom
 import de.threateningcodecomments.routinetimer.databinding.LayoutTileSettingsTimingBinding
 import de.threateningcodecomments.views.TileSettingsMain
 import de.threateningcodecomments.views.WeekdayPicker
+import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -449,7 +450,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var resetEditAmount: AutoCompleteTextView
         private lateinit var resetUnitDropDown: AutoCompleteTextView
         private lateinit var resetDatePicker: MaterialDatePicker<Long>
-        private lateinit var timePicker: MaterialTimePicker
+        private lateinit var resetTimePicker: MaterialTimePicker
         private lateinit var resetWeekdayPicker: WeekdayPicker
         private lateinit var resetDateAndTimeButton: MaterialButton
         private lateinit var resetUnitDropDownLayout: TextInputLayout
@@ -540,69 +541,88 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                             null
                 resetUnitDropDown.setText(resetUnitText, false)
 
+                val unit = currentTile.resetSettings.resetUnit
+                val isHour = unit == ResetSettings.Unit.HOUR
+                val isMinute = unit == ResetSettings.Unit.MINUTE
+                val selectsOnlyTime = isHour or isMinute
+                resetDateAndTimeButton.text =
+                        getString(
+                                if (selectsOnlyTime)
+                                    R.string.str_TileSettings_timing_reset_datePicker_title_time
+                                else
+                                    R.string.str_TileSettings_timing_reset_datePicker_title_dateAndTime)
+
                 //reset amount
                 val resetStringVal = currentTile.resetSettings.amount.toString()
                 if (resetStringVal != resetEditAmount.text.toString())
                     resetEditAmount.setText(resetStringVal)
 
                 //reset weekday picker
-                resetWeekdayPicker.isVisible = false
-                if (resetUnit == ResetSettings.Unit.WEEK && currentTile.resetSettings.resets) {
-                    resetWeekdayPicker.isVisible = true
+                if (resetUnit == ResetSettings.Unit.WEEK && currentTile.resetSettings.resets)
                     if (currentTile.resetSettings.weekdays != null)
                         resetWeekdayPicker.selectedDays = currentTile.resetSettings.weekdays!!
-                }
-
-                val unitIsMonthOrYear =
-                        currentTile.resetSettings.resetUnit == ResetSettings.Unit.MONTH ||
-                                currentTile.resetSettings.resetUnit == ResetSettings.Unit.YEAR
-
-                (resetWeekOfMonthUnitDropdown.parent as View).isVisible =
-                        unitIsMonthOrYear
-
-                resetDateAndTimeButton.isVisible = currentTile.resetSettings.resets
 
                 if (currentTile.resetSettings.startDate != null)
                     setAdapterForWeekOfMonthDropdown()
 
                 setResetSummary()
             }
+
+            cdTimeLayout.doOnUIUpdate {
+                val cdTimeText = currentTile.countDownSettings.countDownTimeString
+                cdTimeLayout.summary = RC.Conversions.Time.shortenTimeString(cdTimeText)
+
+                if (cdTimeInputDisplay.text.toString() != cdTimeText)
+                    cdTimeInputDisplay.text = cdTimeText
+            }
+
+            remindsLayout.doOnUIUpdate {
+                val text =
+                        if (currentTile.countDownSettings.reminds)
+                            "On"
+                        else
+                            "Off"
+                remindsLayout.summary = text
+            }
         }
 
         private fun setResetAdjustLayoutsVisibility(visible: Boolean) {
-            for (view in resetAdjustViews)
-                view.isVisible = visible
+            val unit = currentTile.resetSettings.resetUnit
+
+            val isRoutine = (unit == ResetSettings.Unit.ROUTINE)
+            val isWeek = (unit == ResetSettings.Unit.WEEK)
+            val isMonth = (unit == ResetSettings.Unit.MONTH)
+            val isYear = (unit == ResetSettings.Unit.YEAR)
+
+            val hasDate = currentTile.resetSettings.startDate != null
+
+            for (view in resetAdjustViews) {
+                when (view) {
+                    resetDateAndTimeButton -> {
+                        view.isVisible = (!isWeek) and (unit != null) and (!isRoutine)
+                    }
+                    resetWeekdayPicker -> {
+                        view.isVisible = isWeek and visible
+                    }
+                    resetWeekOfMonthUnitDropdownLayout ->
+                        view.isVisible = (isMonth or isYear) and visible and hasDate
+                    else ->
+                        view.isVisible = visible
+                }
+            }
         }
 
         override fun updateUI() {
-            //region content
-            val selectColor = RC.Resources.Colors.primaryColor
-            val deselectColor = RC.Resources.Colors.onSurfaceColor
-
             //makes the layout visible only if the tile mode is cd
             setCDLayoutsVisibility(currentTile.mode == Tile.MODE_COUNT_DOWN)
 
-            //mode
             modeLayout.updateUI()
 
-            //resets
             resetLayout.updateUI()
 
-            //countdown time
-            val cdTimeText = currentTile.countDownSettings.countDownTimeString
-            cdTimeLayout.summary = RC.Conversions.Time.shortenTimeString(cdTimeText)
+            cdTimeLayout.updateUI()
 
-            if (cdTimeInputDisplay.text.toString() != cdTimeText)
-                cdTimeInputDisplay.text = cdTimeText
-
-            //reminds
-            val text =
-                    if (currentTile.countDownSettings.reminds)
-                        "On"
-                    else
-                        "Off"
-            remindsLayout.summary = text
-            //endregion
+            remindsLayout.updateUI()
         }
 
         private fun setCDLayoutsVisibility(isVisible: Boolean) {
@@ -619,11 +639,29 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                 return
             }
 
-            val localizedDate = settings.getLocalizedDate(Locale.getDefault())
-            val localizedTime = settings.getLocalizedTime(Locale.getDefault())
+            val set = currentTile.resetSettings
+            val getEnd = { number: Int ->
+                RC.Local.getEndingForNumber(number)
+            }
+            val date = set.getStartDateAsCalendar()
 
-            val together = "$localizedDate; $localizedTime"
-            resetLayout.summary = together
+            val dayOfMonth = date.get(Calendar.DAY_OF_MONTH)
+            val dayOfWeekOfMonth = date.get(Calendar.DAY_OF_WEEK_IN_MONTH)
+            val weekdayInt = date.get(Calendar.DAY_OF_WEEK)
+            val weekday = DateFormatSymbols.getInstance().weekdays[weekdayInt]
+
+            resetLayout.summary =
+                    when (set.resetUnit) {
+                        ResetSettings.Unit.MONTH -> {
+                            if (set.resetsPerDayOfMonth != false) {
+                                getString(R.string.str_TileSettings_resetPerDayOfMonth_true, dayOfMonth, getEnd(dayOfMonth))
+                            } else {
+                                getString(R.string.str_TileSettings_resetPerDayOfMonth_false, dayOfWeekOfMonth,
+                                        getEnd(dayOfWeekOfMonth), weekday)
+                            }
+                        }
+                        else -> "Error"
+                    }
         }
 
         override fun initListeners() {
@@ -632,7 +670,6 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
             //reset
             initResetListeners()
-
 
             //reminds
             val remindsListener =
@@ -759,7 +796,7 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
                     currentTile.resetSettings.resetUnit = unitInt
 
-                    updateUI()
+                    resetLayout.updateUI()
                 }
             }
 
@@ -788,9 +825,40 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                     }
 
 
-                    updateUI()
+                    resetLayout.updateUI()
                 }
+            }
 
+            ContextButtonHandler(this).apply {
+                val arr = /*resources.getStringArray(R.array.strarr_specialDateEndings)*/
+                        arrayOf("Tomorrow", "Today", "Yesterday", "Start of the week", "Custom")
+
+                val dateName = "date"
+
+                addButton(
+                        buttonName = dateName,
+                        clickable = binding.vTileSettingsTimingDatePickerBackground,
+                        contextOptions = arr
+                )
+
+                doOnClick { name, option, optionIndex ->
+                    if(name == dateName)
+                        MyLog.d("Pressed, $option; $optionIndex")
+                }
+            }
+
+            resetDateAndTimeButton.setOnClickListener {
+                val unit = currentTile.resetSettings.resetUnit
+                val isHour = unit == ResetSettings.Unit.HOUR
+                val isMinute = unit == ResetSettings.Unit.MINUTE
+                val selectsOnlyTime = isHour or isMinute
+
+                if (selectsOnlyTime)
+                    resetTimePicker.show(parentFragmentManager, MaterialTimePicker::class.java.canonicalName)
+                else
+                    resetDatePicker.show(parentFragmentManager, MaterialDatePicker::class.java.canonicalName)
+
+                resetLayout.updateUI()
             }
 
             resetWeekdayPicker.doOnDayChange {
@@ -814,22 +882,38 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
                 val settings = currentTile.resetSettings
 
-                settings.resetsPerDayOfMonth = (text == settings.getResetsPerDayOfMonthString(resources))
+                settings.resetsPerDayOfMonth =
+                        (text == settings.getResetsPerDayOfMonthString(resources))
+                /*resetLayout.updateUI()*/
+            }
+
+            val hasDate = currentTile.resetSettings.startDate != null
+
+            if (hasDate) {
+                val tileDate = currentTile.resetSettings.getStartDateAsDate().toInstant().toEpochMilli()
+                val selectionIsDifferent = resetDatePicker.selection != tileDate
+
+                if (selectionIsDifferent)
+                    resetDatePicker = MaterialDatePicker.Builder.datePicker().apply {
+                        setSelection(tileDate)
+                        setTitleText(getString(R.string.str_TileSettings_timing_reset_datePicker_title_dateAndTime))
+                        setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
+                    }.build()
             }
 
             resetDatePicker.apply {
                 addOnCancelListener { MyLog.d("Cancelled") }
                 addOnPositiveButtonClickListener {
                     val date = Date(it)
-                    val formatter = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+                    val formatter = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
                     currentTile.resetSettings.startDate = formatter.format(date)
 
-                    timePicker.show(parentFragmentManager, MaterialTimePicker::class.java.canonicalName)
+                    resetTimePicker.show(parentFragmentManager, MaterialTimePicker::class.java.canonicalName)
                 }
             }
 
-            resetDateAndTimeButton.setOnClickListener {
-                resetDatePicker.show(parentFragmentManager, MaterialDatePicker::class.java.canonicalName)
+            resetTimePicker.addOnPositiveButtonClickListener {
+                resetLayout.updateUI()
             }
         }
 
@@ -902,10 +986,10 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                 resetUnitDropDownLayout = tilTileSettingsTimingResetUnitDropdown
                 resetWeekOfMonthUnitDropdownLayout = tilTileSettingsTimingResetWeekOfMonthUnitDropdown
                 resetDatePicker = MaterialDatePicker.Builder.datePicker()
-                        .setTitleText(getString(R.string.str_TileSettings_timing_reset_datePicker_title))
+                        .setTitleText(getString(R.string.str_TileSettings_timing_reset_datePicker_title_dateAndTime))
                         .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
                         .build()
-                timePicker = MaterialTimePicker.Builder()
+                resetTimePicker = MaterialTimePicker.Builder()
                         .setTitleText("Set time")
                         .setTimeFormat(getTimeFormat())
                         .build()
@@ -937,10 +1021,10 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
 
         private fun getTimeFormat(): Int {
             val is24H = android.text.format.DateFormat.is24HourFormat(context)
-            return if (is24H)
-                TimeFormat.CLOCK_24H
-            else
+            return if (!is24H)
                 TimeFormat.CLOCK_12H
+            else
+                TimeFormat.CLOCK_24H
         }
 
         private var _binding: LayoutTileSettingsTimingBinding? = null

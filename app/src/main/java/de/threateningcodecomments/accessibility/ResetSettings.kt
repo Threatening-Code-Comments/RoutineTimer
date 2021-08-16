@@ -48,19 +48,21 @@ class ResetSettings(var resets: Boolean = false, var amount: Int? = 1, var reset
         val calendar = getStartDateAsCalendar()
 
         val month = calendar.get(Calendar.MONTH)
-        val monthStr = DateFormatSymbols().months[month]
+        val monthStr = DateFormatSymbols.getInstance().months[month]
 
         val unitIsMonth = resetUnit == ResetSettings.Unit.MONTH
 
-        val weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH)
-        val weekAbbreviation = RC.Local.getEndingForNumber(weekOfMonth)
+        val dayOfWeekInMonth = calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH)
+        val numberEnding = RC.Local.getEndingForNumber(dayOfWeekInMonth)
+        val dayOfWeekInt = calendar.get(Calendar.DAY_OF_WEEK)
+        val dayOfWeek = DateFormatSymbols.getInstance().weekdays[dayOfWeekInt]
 
         return if (unitIsMonth)
             res.getString(R.string.str_TileSettings_resetPerDayOfMonth_false,
-                    weekOfMonth, weekAbbreviation)
+                    dayOfWeekInMonth, numberEnding, dayOfWeek)
         else
             res.getString(R.string.str_TileSettings_resetPerDayOfMonth_year_false,
-                    weekOfMonth, weekAbbreviation, monthStr)
+                    dayOfWeekInMonth, numberEnding, dayOfWeek, monthStr)
     }
 
     @JvmName("_getResetsPerDayString")
@@ -104,9 +106,10 @@ class ResetSettings(var resets: Boolean = false, var amount: Int? = 1, var reset
         startDate ?: throw IllegalStateException("Date is not Initialized!")
 
         if (startDateArrBuffer == null) {
-            val split = startDate!!.split(".")
             startDateArrBuffer = listOf(
-                    split[0].toInt(), split[1].toInt(), split[2].toInt()
+                    startDate!!.substring(0..3).toInt(),
+                    startDate!!.substring(4..5).toInt(),
+                    startDate!!.substring(6..7).toInt()
             )
         }
 

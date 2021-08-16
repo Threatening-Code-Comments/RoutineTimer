@@ -106,4 +106,6 @@
     <string name="constStr_tileMode_data">Data mode</string>
     <string name="constStr_tileMode_alarm">Alarm mode</string>
     <string name="str_TileSettingsMain_defaultName">Error</string>
+    <string name="str_tv_TileSettings_timing_reset_datePicker_info">Set date</string>
+    <string name="str_tv_TileSettings_reset_timePicker_info">Set time</string>
 </resources>

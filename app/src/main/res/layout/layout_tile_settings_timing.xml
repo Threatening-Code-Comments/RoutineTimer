@@ -132,8 +132,8 @@
                     android:selectAllOnFocus="true"
                     android:textAlignment="center"
                     app:layout_constraintBottom_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown"
-                    app:layout_constraintStart_toEndOf="@id/tv_TileSettings_timing_reset_editInfo"
                     app:layout_constraintEnd_toStartOf="@id/til_TileSettings_timing_reset_unitDropdown"
+                    app:layout_constraintStart_toEndOf="@id/tv_TileSettings_timing_reset_editInfo"
                     app:layout_constraintTop_toTopOf="@id/til_TileSettings_timing_reset_unitDropdown" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -167,16 +167,76 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="50dp"
                     android:layout_marginBottom="10dp"
-                    android:text="@string/str_TileSettings_timing_reset_datePicker_title"
+                    android:text="@string/str_TileSettings_timing_reset_datePicker_title_dateAndTime"
                     app:cornerRadius="@dimen/dimen_btnCorners"
                     app:layout_constraintTop_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown" />
+
+                <View
+                    android:id="@+id/v_TileSettings_timing_datePicker_background"
+                    android:layout_width="0sp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="20dp"
+                    app:layout_constraintEnd_toStartOf="@id/v_TileSettings_timing_timePicker_background"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btn_TileSettings_timing_datePicker_dateAndTime" />
+
+                <View
+                    android:id="@+id/v_TileSettings_timing_timePicker_background"
+                    android:layout_width="0sp"
+                    android:layout_height="50dp"
+                    android:layout_marginEnd="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/v_TileSettings_timing_datePicker_background"
+                    app:layout_constraintTop_toBottomOf="@id/btn_TileSettings_timing_datePicker_dateAndTime" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_TileSettings_timing_reset_datePicker_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="10dp"
+                    android:src="@drawable/ic_calendar"
+                    app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_datePicker_background"
+                    app:layout_constraintStart_toStartOf="@+id/v_TileSettings_timing_datePicker_background"
+                    app:layout_constraintTop_toTopOf="@+id/v_TileSettings_timing_datePicker_background" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_TileSettings_timing_reset_timePicker_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/ic_alarm"
+                    app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_timePicker_background"
+                    app:layout_constraintEnd_toEndOf="@+id/v_TileSettings_timing_timePicker_background"
+                    app:layout_constraintTop_toTopOf="@+id/v_TileSettings_timing_timePicker_background" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_TileSettings_timing_reset_datePicker_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/str_tv_TileSettings_timing_reset_datePicker_info"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_datePicker_background"
+                    app:layout_constraintStart_toEndOf="@id/iv_TileSettings_timing_reset_datePicker_icon"
+                    app:layout_constraintTop_toTopOf="@id/v_TileSettings_timing_datePicker_background" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_TileSettings_reset_timePicker_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/str_tv_TileSettings_reset_timePicker_info"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_timePicker_background"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_TileSettings_timing_reset_timePicker_icon"
+                    app:layout_constraintTop_toTopOf="@+id/v_TileSettings_timing_timePicker_background" />
 
                 <de.threateningcodecomments.views.WeekdayPicker
                     android:id="@+id/wdp_TileSettings_timing_reset_my_weekdayPicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/btn_TileSettings_timing_datePicker_dateAndTime" />
+                    app:layout_constraintTop_toBottomOf="@id/v_TileSettings_timing_datePicker_background" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_TileSettings_timing_reset_weekOfMonth_unitDropdown"
@@ -184,6 +244,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="10dp"
                     android:animateLayoutChanges="true"
                     android:hint="Reset"
                     app:boxCornerRadiusTopEnd="@dimen/dimen_textFieldCorners"

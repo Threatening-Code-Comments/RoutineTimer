@@ -42,6 +42,7 @@ class TileSettingsMain @kotlin.jvm.JvmOverloads constructor(
     var summary: String
         set(value) {
             infoSummary.text = value
+            infoSummary.isVisible = value.isNotEmpty()
         }
         get() = infoSummary.text.toString()
 

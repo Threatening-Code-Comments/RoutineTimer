@@ -18,7 +18,6 @@ import android.view.animation.Transformation
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
-import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -114,11 +113,13 @@ object RC {
             }
         }
 
-        val sharedElementTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nhf_MainActivity_navHostFragment
-            duration = 100.toLong()
-            scrimColor = Color.TRANSPARENT
-        }
+        val sharedElementTransition =null
+        // TODO: 23.07.2021 reimplement transitions
+                /*MaterialContainerTransform().apply {
+                    drawingViewId = R.id.nhf_MainActivity_navHostFragment
+                    duration = 100.toLong()
+                    scrimColor = Color.TRANSPARENT
+                }*/
 
         @JvmStatic
         private val resources = context.resources
