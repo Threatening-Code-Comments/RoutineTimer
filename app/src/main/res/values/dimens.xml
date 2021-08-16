@@ -5,6 +5,8 @@
     <dimen name="dimen_cardViewCornerRadius">20dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+    <dimen name="popupMenu_iconSize">24dp</dimen>
+
     <dimen name="recyclerview_viewholder_iv_size">60dp</dimen>
     <dimen name="recyclerview_viewholder_smallIv_size">30dp</dimen>
     <dimen name="relatedElementsSpacing">12dp</dimen>

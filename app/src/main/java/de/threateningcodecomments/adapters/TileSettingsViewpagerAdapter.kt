@@ -830,20 +830,43 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             }
 
             ContextButtonHandler(this).apply {
-                val arr = /*resources.getStringArray(R.array.strarr_specialDateEndings)*/
+                val dateArr = /*resources.getStringArray(R.array.strarr_specialDateEndings)*/
                         arrayOf("Tomorrow", "Today", "Yesterday", "Start of the week", "Custom")
-
                 val dateName = "date"
+                val dateOptionIcons =
+                        arrayOf(
+                                RC.Resources.getDrawable(R.drawable.ic_arrow_right),
+                                RC.Resources.getDrawable(R.drawable.ic_mode_data),
+                                RC.Resources.getDrawable(R.drawable.ic_arrow_left),
+                                RC.Resources.getDrawable(R.drawable.ic_drag),
+                                RC.Resources.getDrawable(R.drawable.ic_calendar),
+                        )
+
+                val timeArr = arrayOf("12 AM", "09 AM", "Now", "Custom")
+                val timeOptionIcons =
+                        arrayOf(
+                                RC.Resources.getDrawable(R.drawable.ic_mode_count_down),
+                                RC.Resources.getDrawable(R.drawable.ic_mode_count_up),
+                                RC.Resources.getDrawable(R.drawable.ic_alarm),
+                        )
+                val timeName = "time"
 
                 addButton(
                         buttonName = dateName,
                         clickable = binding.vTileSettingsTimingDatePickerBackground,
-                        contextOptions = arr
+                        contextOptions = dateArr,
+                        contextOptionIcons = dateOptionIcons
+                )
+
+                addButton(
+                        buttonName = timeName,
+                        clickable = binding.vTileSettingsTimingTimePickerBackground,
+                        contextOptions = timeArr,
+                        contextOptionIcons = timeOptionIcons
                 )
 
                 doOnClick { name, option, optionIndex ->
-                    if(name == dateName)
-                        MyLog.d("Pressed, $option; $optionIndex")
+                        MyLog.d("Pressed $name, $option; $optionIndex")
                 }
             }
 
