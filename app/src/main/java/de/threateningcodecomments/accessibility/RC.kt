@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
@@ -20,27 +21,352 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.maltaisn.icondialog.pack.IconPack
 import com.maltaisn.icondialog.pack.IconPackLoader
 import com.maltaisn.iconpack.defaultpack.createDefaultIconPack
+import de.threateningcodecomments.data.CountdownSettings
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
+import de.threateningcodecomments.data.TileEvent
 import de.threateningcodecomments.routinetimer.MainActivity
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 import de.threateningcodecomments.routinetimer.SettingsFragment
+import de.threateningcodecomments.services_etc.TileEventService
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.function.BiFunction
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.math.roundToInt
 
 @SuppressLint("StaticFieldLeak")
 object RC {
+    val handler: Handler = Handler()
+
+    /**
+     * Adding or removing automatically launches / handles tile events.
+     */
+    var runningTiles = RunningTilesMap()
+        //removes all empty lists from map
+        get() = field.apply {
+            val nullValues = filterValues { it.size == 0 }
+            for (entry in nullValues)
+                field.remove(entry.key)
+        }
+
+    var tileEvents = TileEventList()
+
+    class TileEventList : HashMap<String, ObservableList<TileEvent>>() {
+        private val updateRunnable = { lb: Any, operation: UROperation, element: Any? ->
+            if (lb !is ObservableList<*>)
+                throw IllegalStateException(
+                    "Wrong list was passed.\n" +
+                            "Expected list type was ObservableList<TileEvent> and actual type was " +
+                            "${lb.javaClass.canonicalName}"
+                )
+            val listBefore = lb as ObservableList<*>
+
+            /*
+            * What needs to happen:
+            *
+            * When a tile event is:
+            *   added: save tile event to db
+            *   removed: remove tile event from db
+            *   replaced: remove old tile event from db and add new one
+            *
+            * Conversion: we get an element.
+            * The element should include a raw TileEvent to add to db or an indication of where to remove the old one.
+            *
+            * Then all elements to remove get removed and all to be added get added.*/
+
+            var eventsToAdd = setOf<TileEvent>()
+            var eventsToRemove = setOf<TileEvent>()
+
+            when (operation) {
+                in UROperation.ADDERS -> {
+                    //eventsToRemove doesn't get touched
+
+                    val events = mutableSetOf<TileEvent>()
+
+
+                    if (operation == UROperation.ADD)
+                        events.add(element as TileEvent)
+                    else
+                        events.addAll(element as Collection<TileEvent>)
+
+                    eventsToAdd = events
+                }
+                in UROperation.DIMINISHERS -> {
+                    //eventsToAdd doesn't get touched
+
+                    val events = mutableSetOf<TileEvent>()
+
+                    when (operation) {
+                        UROperation.REMOVE -> events.add(element as TileEvent)
+                        UROperation.REMOVE_AT -> {
+                            val event = (listBefore as List<*>)[element as Int]
+                            events.add(event as TileEvent)
+                        }
+                        UROperation.REMOVE_ALL -> events.addAll(element as Collection<TileEvent>)
+                        UROperation.CLEAR -> events.addAll(listBefore as List<TileEvent>)
+                        else -> throw IllegalStateException("Illegal operation passed: $operation")
+                    }
+
+                    eventsToRemove = events
+                }
+                in UROperation.MODIFIERS -> {
+                    val toAdd = mutableSetOf<TileEvent>()
+                    val toRemove = mutableSetOf<TileEvent>()
+
+                    when (operation) {
+                        //SET
+                        UROperation.SET -> {
+                            //element is Pair(index, element)
+                            element as Pair<*, *>
+
+                            val before = listBefore[element.first as Int]
+                            toRemove.add(before as TileEvent)
+
+                            val after = element.second
+                            toAdd.add(after as TileEvent)
+                        }
+                        //REPLACE_ALL
+                        UROperation.REMOVE_ALL -> TODO("Implement")
+                        else -> throw IllegalStateException("Illegal operation was passed: $operation")
+                    }
+                }
+                else -> {
+                    //the operation was GET
+                }
+            }
+
+            for (event in eventsToRemove) {
+                val tileUid = event.tileUID
+                val routineUid = RC.RoutinesAndTiles.getRoutineOfTileOrNull(tileUid)?.uid
+
+                //event gets removed by setting value to null
+                val path = "routineData/$routineUid/$tileUid"
+                val key = event.start.toString()
+                val value = null
+
+                RC.Db.saveToUserDb(path, key, value)
+            }
+
+            for (event in eventsToAdd) {
+                val tileUid = event.tileUID
+                val routineUid = RC.RoutinesAndTiles.getRoutineOfTileOrNull(tileUid)?.uid
+
+                val path = "routineData/$routineUid/$tileUid"
+                val key = event.start.toString()
+                val value = event.asDbObject()
+
+                RC.Db.saveToUserDb(path, key, value)
+            }
+        }
+
+        private fun getObList() =
+            ObservableList<TileEvent>().apply {
+                doOnUpdate(updateRunnable)
+            }
+
+        override fun get(key: String): ObservableList<TileEvent> {
+            if (super.get(key) == null)
+                put(key, getObList())
+
+            return super.get(key)!!
+        }
+
+        fun getEventsOfTile(tile: Tile): List<TileEvent> {
+            return flatMap { it.value }.filter { it.tileUID == tile.uid }
+        }
+    }
+
+    object Directions {
+        const val UP = 1
+        const val DOWN = 2
+        const val LEFT = 3
+        const val RIGHT = 4
+    }
+
+    class RunningTilesMap : HashMap<String, RunningTilesPerRoutine>() {
+        private fun update() = TileEventService.update()
+
+        val tiles: Int
+            get() = flatMap { it.value }.size
+
+        fun containsTile(tile: Tile): Boolean {
+            val list = flatMap { it.value }
+            return list.contains(tile)
+        }
+
+        fun removeTile(tile: Tile) {
+            for (routine in this.values)
+                routine.remove(tile)
+        }
+
+        fun containsTile(uid: String): Boolean {
+            val list = flatMap { it.value }.filter { it.uid == uid }
+            return list.isNotEmpty()
+        }
+
+        fun putTile(tile: Tile) {
+            val routine = RC.RoutinesAndTiles.getRoutineOfTileOrNull(tile)
+
+            routine ?: throw RoutineNullException(tile)
+
+            this[routine.uid].add(tile)
+        }
+
+        fun getTileByUid(uid: String): Tile {
+            val list = flatMap { it.value }
+            val candidates = list.filter { it.uid == uid }
+            return candidates.first()
+        }
+
+        override fun put(key: String, value: RunningTilesPerRoutine): RunningTilesPerRoutine? {
+            val put = super.put(key, value)
+            update()
+            return put
+        }
+
+        override fun putAll(from: Map<out String, RunningTilesPerRoutine>) {
+            super.putAll(from)
+            update()
+        }
+
+        override fun remove(key: String): RunningTilesPerRoutine? {
+            val remove = super.remove(key)
+            update()
+            return remove
+        }
+
+        override fun remove(key: String?, value: RunningTilesPerRoutine?): Boolean {
+            val remove = super.remove(key, value)
+            update()
+            return remove
+        }
+
+        override fun clear() {
+            super.clear()
+            update()
+        }
+
+        override fun replaceAll(
+            function: BiFunction<in String, in RunningTilesPerRoutine, out
+            RunningTilesPerRoutine>
+        ) {
+            super.replaceAll(function)
+            update()
+        }
+
+        override fun replace(
+            key: String,
+            oldValue: RunningTilesPerRoutine?,
+            newValue: RunningTilesPerRoutine
+        ): Boolean {
+            val replace = super.replace(key, oldValue, newValue)
+            update()
+            return replace
+        }
+
+        override fun replace(key: String, value: RunningTilesPerRoutine): RunningTilesPerRoutine? {
+            val replace = super.replace(key, value)
+            update()
+            return replace
+        }
+
+        override fun get(key: String): RunningTilesPerRoutine {
+            //add an empty list if entry is null
+            super.get(key) ?: super.put(key, RunningTilesPerRoutine())
+            return super.get(key)!!
+        }
+    }
+
+    class RunningTilesPerRoutine : ArrayList<Tile>() {
+        private fun update(
+            isPause: Boolean = false,
+            isRepeat: Boolean = false,
+            tile: Tile? = null
+        ) =
+            TileEventService.update(isPause, isRepeat, tile)
+
+        fun first() = firstOrNull()
+
+        fun contains(uid: String): Boolean {
+            val list = filter { it.uid == uid }
+            return list.isNotEmpty()
+        }
+
+        override fun add(element: Tile): Boolean {
+            val add = super.add(element)
+            update()
+            return add
+        }
+
+        fun add(element: Tile, isPause: Boolean = false, isRepeat: Boolean = false) {
+            super.add(element)
+
+            if (isPause || isRepeat)
+                update(isPause, isRepeat, element)
+            else
+                update()
+        }
+
+        override fun add(index: Int, element: Tile) {
+            super.add(index, element)
+            update()
+        }
+
+        override fun addAll(elements: Collection<Tile>): Boolean {
+            val addAll = super.addAll(elements)
+            update()
+            return addAll
+        }
+
+        override fun addAll(index: Int, elements: Collection<Tile>): Boolean {
+            val addAll = super.addAll(index, elements)
+            update()
+            return addAll
+        }
+
+        override fun clear() {
+            super.clear()
+            update()
+        }
+
+        override fun set(index: Int, element: Tile): Tile {
+            val set = super.set(index, element)
+            update()
+            return set
+        }
+
+        fun remove(element: Tile, isRepeat: Boolean = false, isPause: Boolean = false) {
+            super.remove(element)
+
+            if (isPause || isRepeat)
+                update(isPause, isRepeat, element)
+            else
+                update()
+        }
+
+        override fun remove(element: Tile): Boolean {
+            val remove = super.remove(element)
+            update()
+            return remove
+        }
+
+        override fun removeAll(elements: Collection<Tile>): Boolean {
+            val removeAll = super.removeAll(elements)
+            update()
+            return removeAll
+        }
+    }
 
     private lateinit var context: Context
 
@@ -60,7 +386,7 @@ object RC {
 
         @JvmStatic
         fun toast(message: String, duration: Int) =
-                Toast.makeText(context, message, duration).show()
+            Toast.makeText(context, message, duration).show()
     }
 
     object Date {
@@ -113,13 +439,13 @@ object RC {
             }
         }
 
-        val sharedElementTransition =null
+        val sharedElementTransition = null
         // TODO: 23.07.2021 reimplement transitions
-                /*MaterialContainerTransform().apply {
-                    drawingViewId = R.id.nhf_MainActivity_navHostFragment
-                    duration = 100.toLong()
-                    scrimColor = Color.TRANSPARENT
-                }*/
+        /*MaterialContainerTransform().apply {
+            drawingViewId = R.id.nhf_MainActivity_navHostFragment
+            duration = 100.toLong()
+            scrimColor = Color.TRANSPARENT
+        }*/
 
         @JvmStatic
         private val resources = context.resources
@@ -175,12 +501,12 @@ object RC {
             @JvmStatic
             private fun getColorWithNightMode(idLight: Int, idDark: Int): Int {
                 val colorId =
-                        if (isNightMode)
-                            idDark
-                        else
-                            idLight
+                    if (isNightMode)
+                        idDark
+                    else
+                        idLight
 
-                return Resources.getColor(colorId)
+                return getColor(colorId)
             }
         }
 
@@ -193,20 +519,20 @@ object RC {
             @JvmStatic
             fun getModeDrawable(tile: Tile): Drawable {
                 val id =
-                        when (tile.mode) {
-                            Tile.MODE_COUNT_UP -> R.drawable.ic_mode_count_up
-                            Tile.MODE_COUNT_DOWN -> R.drawable.ic_mode_count_down
-                            Tile.MODE_TAP -> R.drawable.ic_mode_tap
-                            Tile.MODE_DATA -> R.drawable.ic_mode_data
-                            Tile.MODE_ALARM -> R.drawable.ic_mode_alarm
-                            else -> throw IllegalStateException("Icon couldn't be loaded")
-                        }
+                    when (tile.mode) {
+                        Tile.MODE_COUNT_UP -> R.drawable.ic_mode_count_up
+                        Tile.MODE_COUNT_DOWN -> R.drawable.ic_mode_count_down
+                        Tile.MODE_TAP -> R.drawable.ic_mode_tap
+                        Tile.MODE_DATA -> R.drawable.ic_mode_data
+                        else -> throw IllegalStateException("Icon couldn't be loaded")
+                    }
                 return getDrawable(id)
             }
         }
 
         @JvmStatic
-        fun getDrawable(id: Int): Drawable = resources.getDrawable(id, context.theme)!!
+        fun getDrawable(id: Int): Drawable =
+            ResourcesCompat.getDrawable(resources, id, context.theme)!!
 
         @JvmStatic
         fun getColor(id: Int): Int {
@@ -215,14 +541,14 @@ object RC {
 
         @JvmStatic
         fun getString(id: Int): String =
-                context.resources.getString(id)
+            context.resources.getString(id)
     }
 
     object Conversions {
         object Time {
             @JvmStatic
-            fun millisToHHMMSSorMMSS(millis: Long): String {
-                val timeHHMMSSmm = millisToHHMMSSmmOrMMSSmm(millis)
+            fun millisToHHMMSSorMMSS(millis: Long?): String {
+                val timeHHMMSSmm = millisToHHMMSSmmOrMMSSmm(millis ?: 0L)
                 return timeHHMMSSmm.substringBefore('.')
             }
 
@@ -234,13 +560,15 @@ object RC {
                 val shortMillis = (millis - (hours * 3600 + minutes * 60 + secs) * 1000).toInt() / 10
 
                 return if (hours == 0) String.format(
-                        Locale.getDefault(),
-                        "%02d:%02d.%02d",
-                        minutes, secs, shortMillis)
+                    Locale.getDefault(),
+                    "%02d:%02d.%02d",
+                    minutes, secs, shortMillis
+                )
                 else String.format(
-                        Locale.getDefault(),
-                        "%02d:%02d:%02d.%02d",
-                        hours, minutes, secs, shortMillis)
+                    Locale.getDefault(),
+                    "%02d:%02d:%02d.%02d",
+                    hours, minutes, secs, shortMillis
+                )
             }
 
             @JvmStatic
@@ -373,8 +701,97 @@ object RC {
                 }
             }
 
+            fun millisToShortTimeString(time: Long): String {
+                val timeString = millisToHHMMSS(time)
+                return shortenTimeString(timeString)
+            }
+
 
             const val TIME_CHANGE_BACKSPACE_CHAR = 'b'
+        }
+
+        object Dates {
+            private fun getDateFromOffset(dayOfYear_p: Int = -1, offsetDays: Int): Calendar {
+                //init
+                val cal = Calendar.getInstance()
+
+                val dayOfYear =
+                    if (dayOfYear_p == -1)
+                        cal.get(Calendar.DAY_OF_YEAR)
+                    else
+                        dayOfYear_p
+
+                val getC = { key: Int ->
+                    cal.get(key)
+                }
+
+                val setC = { key: Int, value: Int ->
+                    cal.set(key, value)
+                }
+
+                setC(Calendar.DAY_OF_YEAR, dayOfYear)
+
+                //if no offset
+                if (offsetDays == 0)
+                    return cal
+
+                //if offset smaller 0
+                if (offsetDays < 0) {
+                    if (dayOfYear + offsetDays > 0)
+                        setC(Calendar.DAY_OF_YEAR, dayOfYear - 1)
+                    else {
+                        val year = getC(Calendar.YEAR)
+                        setC(Calendar.YEAR, year - 1)
+
+                        val maxDay = cal.getActualMaximum(Calendar.DAY_OF_YEAR)
+
+                        setC(Calendar.DAY_OF_YEAR, maxDay)
+                    }
+
+                    return cal
+                }
+
+                //if offset greater 0
+                val maxDay = cal.getActualMaximum(Calendar.DAY_OF_YEAR)
+                if (dayOfYear + offsetDays <= maxDay)
+                    setC(Calendar.DAY_OF_YEAR, dayOfYear + 1)
+                else {
+                    val year = getC(Calendar.YEAR)
+                    setC(Calendar.YEAR, year + 1)
+
+                    setC(Calendar.DAY_OF_YEAR, 0)
+                }
+
+                return cal
+            }
+
+            const val LENGTH_LONG = 2
+            const val LENGTH_SHORT = 0
+            const val LENGTH_MID = 1
+
+            fun getAbbreviation(
+                calendar: Calendar,
+                locale: Locale = Locale.getDefault(),
+                length: Int = LENGTH_SHORT
+            ): String {
+                return when (length) {
+                    LENGTH_SHORT -> SimpleDateFormat("EEEEE", locale).format(calendar.time)
+                    LENGTH_LONG -> SimpleDateFormat("EEEE", locale).format(calendar.time)
+                    else -> SimpleDateFormat("EEEEEE", locale).format(calendar.time)
+                }
+            }
+
+            fun getAbbreviation(
+                dayOfWeek: Int,
+                locale: Locale = Locale.getDefault(),
+                length: Int = LENGTH_SHORT
+            ): String {
+                val calendar = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_WEEK, dayOfWeek)
+                }
+
+                return getAbbreviation(calendar, locale, length)
+            }
         }
 
         object Colors {
@@ -424,8 +841,7 @@ object RC {
             fun calculateContrast(bgColor: Int): Int {
                 val bgColorCl = Color.valueOf(bgColor)
                 val average = (bgColorCl.red() + bgColorCl.blue() + bgColorCl.green()) / 3.toDouble()
-                val contrastColor: Int
-                contrastColor = if (average > 0.6) {
+                val contrastColor: Int = if (average > 0.6) {
                     ResourcesCompat.getColor(context.resources, R.color.contrastLightMode, null)
                 } else {
                     Color.WHITE
@@ -441,10 +857,11 @@ object RC {
             }
 
             fun dpToPx(dp: Int) =
-                    TypedValue.applyDimension(
-                            TypedValue.COMPLEX_UNIT_DIP,
-                            dp.toFloat(),
-                            android.content.res.Resources.getSystem().displayMetrics)
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    dp.toFloat(),
+                    android.content.res.Resources.getSystem().displayMetrics
+                )
 
         }
 
@@ -469,6 +886,17 @@ object RC {
                 number /= 2
             }
             return number.toInt()
+        }
+
+        fun intToUid(int: Int): String {
+            return int.toString(36)
+        }
+
+        fun uidToInt(uid: String) = uid.toInt(36)
+
+        fun incrementUid(uid: String, increment: Int = 1): String {
+            val int = uidToInt(uid)
+            return intToUid(int + increment)
         }
     }
 
@@ -536,8 +964,8 @@ object RC {
     val isNightMode: Boolean
         get() {
             val nightModeFlags =
-                    context.resources.configuration.uiMode and
-                            Configuration.UI_MODE_NIGHT_MASK
+                context.resources.configuration.uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK
 
             return when (nightModeFlags) {
                 Configuration.UI_MODE_NIGHT_YES -> {
@@ -557,9 +985,16 @@ object RC {
         return ((randomVal + start) * end).toInt()
     }
 
-    var routines: ArrayList<Routine> = ArrayList()
+    var routines: ObservableList<Routine> = ObservableList<Routine>().apply {
+        doOnUpdate { listBefore, operation, element ->
+            MyLog.d(
+                operation.toString() +
+                        element +
+                        listBefore
+            )
+        }
+    }
 
-    var currentTiles: Db.CurrentTileMap = Db.CurrentTileMap()
     var previousCurrentTiles = HashMap<String, Tile>()
 
     object Db {
@@ -575,10 +1010,48 @@ object RC {
             saveToDb(path, key, newValue)
         }
 
+        private var removeTileEventListener = {}
+
+        private fun setUpEventListener(user: FirebaseUser) {
+            val ref = database!!.getReference("").limitToFirst(5)
+
+            val tileEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    MyLog.d("new; count = ${snapshot.childrenCount}")
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            }
+
+            ref.addValueEventListener(tileEventListener)
+
+            removeTileEventListener = {
+                ref.removeEventListener(tileEventListener)
+            }
+        }
+
+        /**
+         * Gets called from [loadDatabaseRes], handles all updates concerning TileEvents
+         */
+        @JvmStatic
+        fun handleEventUpdate(snapshot: DataSnapshot) {
+            //todo implement
+
+            val byDateMap = HashMap<String, Any?>()
+
+            snapshot.children.forEach {
+                byDateMap[it.key ?: throw java.lang.IllegalStateException()] = it.value
+            }
+
+            MyLog.d(byDateMap)
+        }
+
         @JvmStatic
         fun handlePrefUpdate(snapshot: DataSnapshot) {
-            snapshot.child("general").value ?: initPreferenceValues(SettingsFragment.Preferences
-                    .General())
+            snapshot.child("general").value ?: initPreferenceValues(
+                SettingsFragment.Preferences
+                    .General()
+            )
 
             snapshot.child("dev").value ?: initPreferenceValues(SettingsFragment.Preferences.Dev())
 
@@ -610,7 +1083,7 @@ object RC {
             database = FirebaseDatabase.getInstance()
             val user = FirebaseAuth.getInstance().currentUser
             if (user == null) {
-                routines = ArrayList()
+                routines = ObservableList()
                 MyLog.d("FUCK FUCK FUCK ROUTINES IS NULL BECUASE OF NO USER HELP")
                 return
             }
@@ -618,10 +1091,12 @@ object RC {
                 lastUser = user
                 val routineRef = database!!.getReference("/users/" + user.uid + "/routines/")
                 val prefRef = database!!.getReference("/users/${user.uid}/preferences")
+                setUpEventListener(user)
 
                 if (valueEventListener != null) {
                     routineRef.removeEventListener(valueEventListener!!)
                     prefRef.removeEventListener(valueEventListener!!)
+                    removeTileEventListener()
                 }
 
                 valueEventListener = object : ValueEventListener {
@@ -643,12 +1118,23 @@ object RC {
         }
 
         @JvmStatic
-        fun saveToDb(path: String?, key: String?, value: Any?) {
-            val pathRef = database!!.getReference(path!!)
-            val child = pathRef.child(key!!)
+        fun saveToUserDb(path: String, key: String, value: Any?) {
+            val user = FirebaseAuth.getInstance().currentUser!!
+
+            val userPath = "/users/${user.uid}/"
+
+            val fullPath = "$userPath$path"
+
+            saveToDb(fullPath, key, value)
+        }
+
+        @JvmStatic
+        fun saveToDb(path: String, key: String, value: Any?) {
+            val pathRef = database!!.getReference(path)
+            val child = pathRef.child(key)
             child.setValue(value)
 
-            Log.d("database tag", "$key was set to $value in $path")
+            Log.d(MyLog.DATABASE_TAG, "$path$key \nwas set to $value")
         }
 
         @JvmStatic
@@ -656,9 +1142,9 @@ object RC {
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-                val parentRoutine = RoutinesAndTiles.getRoutineOfTile(tile)
+                val parentRoutine = RoutinesAndTiles.getRoutineOfTileOrNull(tile)
 
-                val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
+                val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine?.uid}/"
 
                 val eventStart = tile.countingStart
 
@@ -678,9 +1164,9 @@ object RC {
                 val eventStart = abs(tile.countingStart)
 
                 val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-                val parentRoutine = RoutinesAndTiles.getRoutineOfTile(tile)
+                val parentRoutine = RoutinesAndTiles.getRoutineOfTileOrNull(tile)
 
-                val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
+                val basePath = "/users/${user.uid}/routineData/$date/${parentRoutine?.uid}/"
 
                 //cancels event if countdownTile is stopped prematurely
                 if (tile.mode == Tile.MODE_COUNT_DOWN && System.currentTimeMillis() - eventStart <= tile.countDownSettings.countDownTime) {
@@ -710,9 +1196,9 @@ object RC {
 
             val user = FirebaseAuth.getInstance().currentUser!!
             val date = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-            val parentRoutine = RoutinesAndTiles.getRoutineOfTile(tile)
+            val parentRoutine = RoutinesAndTiles.getRoutineOfTileOrNull(tile)
 
-            val path = "/users/${user.uid}/routineData/$date/${parentRoutine.uid}/"
+            val path = "/users/${user.uid}/routineData/$date/${parentRoutine?.uid}/"
             val key = eventStart.toString()
             val value = null
 
@@ -726,7 +1212,9 @@ object RC {
          * @param tile currentTile to save
          * @param routine parent routine
          */
-        internal fun updateCurrentTileInDB(tile: Tile?, routine: Routine) {
+        internal fun updateCurrentTileInDB(tile: Tile?, routine: Routine?) {
+            routine ?: return
+
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 val path = "/users/${user.uid}/currentTiles/${routine.uid}"
@@ -738,10 +1226,16 @@ object RC {
             }
         }
 
+        //übergib doch einfach die dummme drecks routine
         @JvmStatic
         fun updateRoutineInDb(tile: Tile) {
-            val routine = RoutinesAndTiles.getRoutineOfTile(tile)
+            if (tile.uid == Tile.DEFAULT_TILE_UID)
+                return
+
+            val routine = RoutinesAndTiles.getRoutineOfTileOrNull(tile)
             var index = 0
+
+            routine ?: return
 
             for ((i, forTile) in routine.tiles.withIndex()) {
                 if (forTile.uid == tile.uid)
@@ -782,8 +1276,8 @@ object RC {
             routines.clear()
             //iterates through all routines
             for (routineDataSnapshot in routinesIterable) {
-                val routine = routineDataSnapshot.getValue(Routine::class.java)!!
-                routines.add(routine)
+                val routine = routineDataSnapshot.getValue(Routine.RoutineForDB::class.java)!!
+                routines.add(routine.asRoutine())
             }
             if (MainActivity.currentFragment is SelectRoutineFragment) {
                 MainActivity.currentFragment.updateUI()
@@ -798,7 +1292,7 @@ object RC {
             database = FirebaseDatabase.getInstance()
             val path = "/users/" + user!!.uid + "/routines/"
             val key = routine.uid
-            val value: Any = routine
+            val value: Any = routine.asDBObject()
             saveToDb(path, key, value)
         }
 
@@ -813,20 +1307,42 @@ object RC {
 
         @JvmStatic
         fun generateRandomRoutine(): Routine {
+            val routineUid = RC.Conversions.intToUid(routines.size)
+
             val tiles = ArrayList<Tile>()
             for (i in 0 until ((Math.random() + 1) * 8).toInt()) {
-                tiles.add(Tile("random nr." + random(0, 200) + "!",
+                tiles.add(
+                    Tile(
+                        name =
+                        "random nr." + random(0, 200) + "!",
+
+                        iconID =
                         random(0, 80),
+
+                        backgroundColor =
                         Color.rgb(Math.random().toFloat() - 0.2f, Math.random().toFloat(), Math.random().toFloat()),
+
+                        mode =
                         Tile.MODE_COUNT_UP,
-                        UUID.randomUUID().toString(),
+
+                        uid =
+                        "${routineUid}_${RC.Conversions.intToUid(tiles.size)}",
+
+                        countdownSettings =
                         CountdownSettings((Math.random() * 60000 + 10000).toLong())
-                ))
+                    )
+                )
                 if (Math.random() < 0.5) {
                     tiles[i].mode = Tile.MODE_COUNT_DOWN
                 }
             }
-            return Routine(round(Math.random()).toInt(), "Random routine " + random(0, 100), tiles, System.currentTimeMillis())
+            return Routine(
+                mode =
+                round(Math.random()).toInt(),
+                uid = routineUid,
+                name = "Random routine " + random(0, 100),
+                tiles = tiles
+            )
         }
 
         class CurrentTileMap : HashMap<String, Tile?>() {
@@ -844,7 +1360,7 @@ object RC {
                 }
 
                 val validTile = value ?: oldValue
-                Db.updateCurrentTileInDB(value, RoutinesAndTiles.getRoutineOfTile(validTile!!))
+                updateCurrentTileInDB(value, RoutinesAndTiles.getRoutineOfTileOrNull(validTile!!))
 
                 when {
                     value != null -> startEvent(value)
@@ -867,6 +1383,9 @@ object RC {
 
     object RoutinesAndTiles {
         @JvmStatic
+        fun generateRandomRoutine() = Db.generateRandomRoutine()
+
+        @JvmStatic
         fun getRoutineFromUid(oldUid: String?): Routine {
             var uid = oldUid
             if (oldUid == null || oldUid == "") {
@@ -885,7 +1404,7 @@ object RC {
 
         @JvmStatic
         fun sortRoutines(routines: ArrayList<Routine>): ArrayList<Routine> {
-            routines.sortWith({ a, b -> (b.lastUsed!! - a.lastUsed!!).toInt() })
+            routines.sortWith { a, b -> (b.lastUsed!! - a.lastUsed!!).toInt() }
             return routines
         }
 
@@ -906,21 +1425,35 @@ object RC {
         }
 
         @JvmStatic
-        fun getRoutineOfTile(tile: Tile): Routine {
-            for (routine in routines) {
-                if (routine.tiles.contains(tile)) {
-                    return routine
-                }
-            }
-            return Routine.ERROR_ROUTINE
+        fun getRoutineOfTileOrNull(tile: Tile): Routine? {
+            val routines = routines.filter { it.tiles.contains(tile) }.toMutableList()
+            routines.remove(Routine.ERROR_ROUTINE)
+
+            return routines.firstOrNull()
         }
 
-        fun updateCurrentTile(tile: Tile?, routineUid: String) {
-            if (currentTiles[routineUid] != tile) {
-                currentTiles[routineUid] = tile
+        fun getRoutineOfTile(tile: Tile): Routine {
+            val routines = routines.filter { it.tiles.contains(tile) }.toMutableList()
+            routines.remove(Routine.ERROR_ROUTINE)
+
+            return routines.first() ?: throw RoutineNullException(tile)
+        }
+
+        fun getRoutineOfTileOrNull(uid: String): Routine? {
+            return routines.firstOrNull { routine ->
+                routine.tiles.any { it.uid == uid }
             }
         }
     }
+
+    class RoutineNullException(tile: Tile?) : IllegalStateException(
+        "Routine is null!${
+            if (tile != null)
+                " Tile is $tile"
+            else
+                ""
+        }"
+    )
 
     //region Icon Pack
     private var iconPack: IconPack? = null

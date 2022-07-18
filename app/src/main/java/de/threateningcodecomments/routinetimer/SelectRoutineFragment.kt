@@ -31,8 +31,8 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import de.threateningcodecomments.accessibility.RC
-import de.threateningcodecomments.accessibility.Routine
-import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.accessibility.UIContainer
 import de.threateningcodecomments.adapters.SelectRoutineRVAdapter
 import java.util.*
@@ -113,7 +113,11 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
                 createRoutine()
                 minimizeForm()
             }
-            else -> Toast.makeText(context, "Wrong onClickListener ID. It seems you fucked up monumentally.", Toast.LENGTH_LONG).show()
+            else -> Toast.makeText(
+                context,
+                "Wrong onClickListener ID. It seems you fucked up monumentally.",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -160,9 +164,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
         val options = arrayOf(Routine.CONTINUOUS_MESSAGE, Routine.SEQUENTIAL_MESSAGE)
         val adapter: ArrayAdapter<String> = ArrayAdapter(
-                requireContext(),
-                R.layout.routine_popup_item,
-                options)
+            requireContext(),
+            R.layout.routine_popup_item,
+            options
+        )
         createModeDropdown.setAdapter(adapter)
 
         val textWatcher: TextWatcher = object : TextWatcher {
@@ -256,8 +261,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
         if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
             for (i in 1..7)
                 tiles.add(Tile.DEFAULT_TILE)
+        //set uids
+        for (tile in tiles) tile.uid
 
-        tmpRoutine.tiles = tiles
+        tmpRoutine.setTilesFromArrayList(tiles)
 
         tmpRoutine.uid
 
@@ -332,7 +339,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
         createFab.visibility = View.VISIBLE
         createForm.visibility = View.GONE
 
-        (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+        (SelectRoutineFragment.activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+            requireView().windowToken,
+            0
+        )
     }
 
     private fun maximizeForm() {
@@ -358,8 +368,10 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     //endregion
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_select_routine, container, false)
@@ -385,10 +397,18 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
             val directions: NavDirections
             val extras: FragmentNavigator.Extras
             if (tmpRoutine.mode == Routine.MODE_SEQUENTIAL) {
-                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(tmpRoutine.uid)
-                extras = FragmentNavigatorExtras(v to "editRoutineRoot", iv to "editRoutineIcon", routineNameView to "editRoutineRoutineName")
+                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditSequentialRoutineFragment(
+                    tmpRoutine.uid
+                )
+                extras = FragmentNavigatorExtras(
+                    v to "editRoutineRoot",
+                    iv to "editRoutineIcon",
+                    routineNameView to "editRoutineRoutineName"
+                )
             } else {
-                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(tmpRoutine.uid)
+                directions = SelectRoutineFragmentDirections.actionSelectRoutineFragmentToEditContinuousRoutineFragment(
+                    tmpRoutine.uid
+                )
                 extras = FragmentNavigatorExtras(v to "editCRoutineRoot", routineNameView to "editCRoutineName")
             }
 
@@ -398,16 +418,14 @@ class SelectRoutineFragment : Fragment(), View.OnClickListener, UIContainer {
 
     fun goToRunRoutine(layout: LinearLayout?, iv: ShapeableImageView?, nameView: TextView?, tmpRoutine: Routine) {
         val directions =
-                if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
-                    SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid)
-                else
-                    SelectRoutineFragmentDirections.actionSelectRoutineFragmentToRunSequentialRoutine(tmpRoutine.uid)
+            if (tmpRoutine.mode == Routine.MODE_CONTINUOUS)
+                SelectRoutineFragmentDirections.actionSelectEditRoutineFragmentToRunContinuousRoutine(tmpRoutine.uid)
+            else
+                SelectRoutineFragmentDirections.actionSelectRoutineFragmentToRunSequentialRoutine(tmpRoutine.uid)
 
 
         findNavController().navigate(directions)
     }
-
-    override fun updateCurrentTile() {}
 
     companion object {
         lateinit var activity: AppCompatActivity

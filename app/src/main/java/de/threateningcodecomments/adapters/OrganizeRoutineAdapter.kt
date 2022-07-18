@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import de.threateningcodecomments.accessibility.RC
-import de.threateningcodecomments.accessibility.Routine
-import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment
 import de.threateningcodecomments.routinetimer.R
 import java.util.*
@@ -36,7 +36,6 @@ class OrganizeRoutineAdapter(private val startDragListener: OnStartDragListener,
             Tile.MODE_COUNT_UP -> Tile.COUNT_UP_MESSAGE
             Tile.MODE_TAP -> Tile.TAP_MESSAGE
             Tile.MODE_DATA -> Tile.DATA_MESSAGE
-            Tile.MODE_ALARM -> Tile.ALARM_MESSAGE
             else -> throw IllegalStateException("Tile mode is wrong")
         }
         holder.modeView.text = mode

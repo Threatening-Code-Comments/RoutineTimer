@@ -1,4 +1,4 @@
-package de.threateningcodecomments.accessibility
+package de.threateningcodecomments.data
 
 class Day {
     companion object {

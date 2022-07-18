@@ -108,4 +108,43 @@
     <string name="str_TileSettingsMain_defaultName">Error</string>
     <string name="str_tv_TileSettings_timing_reset_datePicker_info">Set date</string>
     <string name="str_tv_TileSettings_reset_timePicker_info">Set time</string>
+    <string name="str_TileEventService_timeString_cd">Time remaining: %1$s</string>
+    <string name="str_TileEventService_timeString_cu">Counted %1$s</string>
+    <string name="str_TileEventService_runningTileString">Running %1$s\n</string>
+    <string name="str_TileEventService_runningTileGroupString">Running %1$i tiles</string>
+    <string name="str_View_ConTile_dataInfo">Data</string>
+    <string name="str_date_tomorrow">Tomorrow</string>
+    <string name="str_date_today">Today</string>
+    <string name="str_date_yesterday">Yesterday</string>
+    <string name="str_date_startOfWeek">Start of the week</string>
+    <string name="str_custom">Custom</string>
+    <string name="str_time_12am">12 AM</string>
+    <string name="str_time_9am">09 AM</string>
+    <string name="str_now">Now</string>
+    <string name="str_template_csv_2">%1$s, %2$s</string>
+    <string name="str_TileSettings_mode_resetSummary_routine">Every %1$d %2$s</string>
+    <string name="str_minute">minute</string>
+    <string name="str_TileSettings_mode_resetSummary_time">Every %1$s %2$s starting on %3$s</string>
+    <string name="str_TileSettings_resetSummary_week_base">Every %1$d %2$s on %3$s</string>
+    <string name="str_TileSettings_resetSummary_week_error">No weekdays selected!</string>
+    <plurals name="pl_minute">
+        <item quantity="one">minute</item>
+        <item quantity="other">minutes</item>
+    </plurals>
+    <plurals name="pl_hour">
+        <item quantity="one">hour</item>
+        <item quantity="other">hours</item>
+    </plurals>
+    <plurals name="pl_day">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="pl_routine">
+        <item quantity="one">routine</item>
+        <item quantity="other">routines</item>
+    </plurals>
+    <plurals name="pl_week">
+        <item quantity="one">week</item>
+        <item quantity="other">weeks</item>
+    </plurals>
 </resources>

@@ -19,9 +19,7 @@ class MyBroadcastReceiver : BroadcastReceiver() {
         }*/
         val routineUid = intent.getStringExtra(ROUTINE_UID_KEY)
 
-        if (routineUid != null) {
-            CountingService.Timers.stopCounting(routineUid)
-        }
+        //todo reimplement
     }
 
     companion object {

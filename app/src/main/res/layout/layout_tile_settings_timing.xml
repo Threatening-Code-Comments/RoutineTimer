@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -150,7 +151,7 @@
                     app:errorEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/atv_TileSettings_timing_reset_amount"
-                    app:layout_constraintTop_toBottomOf="@id/cv_TileSettings_timing_resets_off"
+                    app:layout_constraintTop_toBottomOf="@id/v_TileSettings_timing_timePicker_background"
                     app:shapeAppearance="@style/dropdownsShape">
 
                     <AutoCompleteTextView
@@ -161,24 +162,15 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_TileSettings_timing_datePicker_dateAndTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="50dp"
-                    android:layout_marginBottom="10dp"
-                    android:text="@string/str_TileSettings_timing_reset_datePicker_title_dateAndTime"
-                    app:cornerRadius="@dimen/dimen_btnCorners"
-                    app:layout_constraintTop_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown" />
-
                 <View
                     android:id="@+id/v_TileSettings_timing_datePicker_background"
                     android:layout_width="0sp"
                     android:layout_height="50dp"
                     android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
                     app:layout_constraintEnd_toStartOf="@id/v_TileSettings_timing_timePicker_background"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/btn_TileSettings_timing_datePicker_dateAndTime" />
+                    app:layout_constraintTop_toBottomOf="@+id/cv_TileSettings_timing_resets_on" />
 
                 <View
                     android:id="@+id/v_TileSettings_timing_timePicker_background"
@@ -187,12 +179,12 @@
                     android:layout_marginEnd="20dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/v_TileSettings_timing_datePicker_background"
-                    app:layout_constraintTop_toBottomOf="@id/btn_TileSettings_timing_datePicker_dateAndTime" />
+                    app:layout_constraintTop_toTopOf="@+id/v_TileSettings_timing_datePicker_background" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_TileSettings_timing_reset_datePicker_icon"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_marginStart="10dp"
                     android:src="@drawable/ic_calendar"
                     app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_datePicker_background"
@@ -201,8 +193,8 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_TileSettings_timing_reset_timePicker_icon"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_marginEnd="10dp"
                     android:src="@drawable/ic_alarm"
                     app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_timePicker_background"
@@ -216,27 +208,48 @@
                     android:layout_marginStart="10dp"
                     android:text="@string/str_tv_TileSettings_timing_reset_datePicker_info"
                     android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_datePicker_background"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_TileSettings_mode_reset_datePicker_summary"
                     app:layout_constraintStart_toEndOf="@id/iv_TileSettings_timing_reset_datePicker_icon"
                     app:layout_constraintTop_toTopOf="@id/v_TileSettings_timing_datePicker_background" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_TileSettings_reset_timePicker_info"
+                    android:id="@+id/tv_TileSettings_mode_reset_datePicker_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_TileSettings_timing_reset_datePicker_icon"
+                    app:layout_constraintStart_toEndOf="@+id/iv_TileSettings_timing_reset_datePicker_icon"
+                    app:layout_constraintTop_toBottomOf="@id/tv_TileSettings_timing_reset_datePicker_info"
+                    tools:text="Summary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_TileSettings_mode_reset_timePicker_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:text="@string/str_tv_TileSettings_reset_timePicker_info"
                     android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/v_TileSettings_timing_timePicker_background"
+                    app:layout_constraintBottom_toTopOf="@id/tv_TileSettings_mode_reset_timePicker_summary"
                     app:layout_constraintEnd_toStartOf="@+id/iv_TileSettings_timing_reset_timePicker_icon"
                     app:layout_constraintTop_toTopOf="@+id/v_TileSettings_timing_timePicker_background" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_TileSettings_mode_reset_timePicker_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:textAlignment="textEnd"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_TileSettings_timing_reset_timePicker_icon"
+                    app:layout_constraintEnd_toStartOf="@id/iv_TileSettings_timing_reset_timePicker_icon"
+                    app:layout_constraintTop_toBottomOf="@id/tv_TileSettings_mode_reset_timePicker_info"
+                    tools:text="Summary" />
 
                 <de.threateningcodecomments.views.WeekdayPicker
                     android:id="@+id/wdp_TileSettings_timing_reset_my_weekdayPicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/v_TileSettings_timing_datePicker_background" />
+                    app:layout_constraintTop_toBottomOf="@id/til_TileSettings_timing_reset_unitDropdown" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_TileSettings_timing_reset_weekOfMonth_unitDropdown"

@@ -3,6 +3,8 @@ package de.threateningcodecomments.routinetimer
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.LightingColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -29,6 +31,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.data.ResetSettings
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
+import java.lang.IllegalStateException
 
 class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -73,9 +79,9 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
 
         RC.initIconPack(activity)
         RC.Resources.errorDrawable =
-                ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
+            ResourcesCompat.getDrawable(resources, R.drawable.ic_defaultdrawable, activity.theme)!!
 
-        doTestButton()
+        //doTestButton()
     }
 
     override fun onClick(v: View) {
@@ -106,7 +112,7 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                         false)
                 Toast.makeText(context, "debug mode: $debugActivated", Toast.LENGTH_SHORT).show()*/
 
-        val routine = RC.Db.generateRandomRoutine()
+        /*val routine = RC.Db.generateRandomRoutine()
         val tile = routine.tiles[0]
 
         routine.mode = Routine.MODE_CONTINUOUS
@@ -118,7 +124,9 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
                 //StartFragmentDirections.actionStartFragmentToEditContinuousRoutineFragment(routine.uid)
                 StartFragmentDirections.actionStartFragmentToTileSettingsFragment(routine.uid, tile.uid)
 
-        findNavController().navigate(directions)
+        findNavController().navigate(directions)*/
+
+        TestButtonRun.run(this)
     }
 
     //region init
@@ -151,9 +159,9 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(activity, gso)
@@ -162,7 +170,8 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
 
     private fun updateButtonClickable() {
         if (!isLoggedIn) {
-            testButton.isEnabled = false
+            //TODO remove hardcode
+            //testButton.isEnabled = false
             routineButton.isEnabled = false
         } else {
             testButton.isEnabled = true
@@ -247,25 +256,25 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private fun firebaseAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(activity) { task ->
-                    if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        MyLog.f("signInWithCredential:success")
-                        val user = mAuth.currentUser
-                        MyLog.f("User UID is: " + user!!.uid)
-                        val path = "/users/" + user.uid
-                        val key = "displayname"
-                        val value: Any? = user.displayName
-                        RC.Db.saveToDb(path, key, value)
-                        RC.Db.loadDatabaseRes()
-                        isLoggedIn = true
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        isLoggedIn = false
-                        MyLog.fe("signInWithCredential:failure", task.exception)
-                    }
-                    updateUI()
+            .addOnCompleteListener(activity) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    MyLog.f("signInWithCredential:success")
+                    val user = mAuth.currentUser
+                    MyLog.f("User UID is: " + user!!.uid)
+                    val path = "/users/" + user.uid
+                    val key = "displayname"
+                    val value: Any? = user.displayName
+                    RC.Db.saveToDb(path, key, value)
+                    RC.Db.loadDatabaseRes()
+                    isLoggedIn = true
+                } else {
+                    // If sign in fails, display a message to the user.
+                    isLoggedIn = false
+                    MyLog.fe("signInWithCredential:failure", task.exception)
                 }
+                updateUI()
+            }
     }
 
     private fun toggleSignIn() {
@@ -288,20 +297,20 @@ class StartFragment : Fragment(), View.OnClickListener, UIContainer {
     private fun signOut() {
         FirebaseAuth.getInstance().signOut()
         mGoogleSignInClient.signOut()
-                .addOnCompleteListener(activity) { MyLog.f("Logged out of google account!") }
+            .addOnCompleteListener(activity) { MyLog.f("Logged out of google account!") }
         Toast.makeText(context, "Signed out!", Toast.LENGTH_SHORT).show()
         isLoggedIn = false
     }
 
     //endregion
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_start, container, false)
     }
-
-    override fun updateCurrentTile() {}
 
     companion object {
         private const val RC_SIGN_IN = 123

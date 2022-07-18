@@ -9,183 +9,96 @@
     android:transitionName="editCRoutineRoot"
     tools:context=".EditContinuousRoutineFragment">
 
-    <LinearLayout
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_RunRoutine_continuous_routine_name"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_margin="30sp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:transitionName="editCRoutineName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/str_tv_RunRoutine_continuous_routineName" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_RunRoutine_continuous_routine_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="30sp"
-            android:text="@string/str_tv_RunRoutine_continuous_routineName"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-            android:transitionName="editCRoutineName" />
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_0"
+        android:layout_marginVertical="20dp"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toTopOf="@id/tile_RunCon_2"
+        app:layout_constraintEnd_toStartOf="@id/tile_RunCon_1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_RunRoutine_continuous_routine_name" />
 
-        <LinearLayout
-            android:id="@+id/ll_RunRoutine_continuous_main"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/relatedElementsSpacing"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical">
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_1"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tile_RunCon_0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tile_RunCon_0"
+        app:layout_constraintTop_toTopOf="@id/tile_RunCon_0" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:animateLayoutChanges="true"
-                android:orientation="horizontal">
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_2"
+        android:layout_marginVertical="20dp"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toTopOf="@id/tile_RunCon_4"
+        app:layout_constraintEnd_toStartOf="@id/tile_RunCon_3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tile_RunCon_0" />
 
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_0"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/fl_RunRoutine_sequential_tileFrame_1">
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_3"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tile_RunCon_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tile_RunCon_2"
+        app:layout_constraintTop_toTopOf="@+id/tile_RunCon_2" />
 
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_0"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </FrameLayout>
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_4"
+        android:layout_marginVertical="20dp"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toTopOf="@id/tile_RunCon_6"
+        app:layout_constraintEnd_toStartOf="@id/tile_RunCon_5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tile_RunCon_2" />
 
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_1"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintLeft_toRightOf="@id/fl_RunRoutine_sequential_tileFrame_0"
-                    app:layout_constraintRight_toRightOf="parent">
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_5"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tile_RunCon_4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tile_RunCon_4"
+        app:layout_constraintTop_toTopOf="@+id/tile_RunCon_4" />
 
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_1"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </FrameLayout>
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_6"
+        android:layout_marginVertical="20dp"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tile_RunCon_7"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tile_RunCon_4" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunCon_7"
+        android:layout_width="180dp"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tile_RunCon_6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tile_RunCon_6"
+        app:layout_constraintTop_toTopOf="@+id/tile_RunCon_6" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:animateLayoutChanges="true">
-
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_2"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toStartOf="@id/fl_RunRoutine_sequential_tileFrame_3"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_2"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_3"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/fl_RunRoutine_sequential_tileFrame_2">
-
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_3"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </FrameLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:animateLayoutChanges="true">
-
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_4"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toStartOf="@id/fl_RunRoutine_sequential_tileFrame_5"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_4"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_5"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/fl_RunRoutine_sequential_tileFrame_4">
-
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_5"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </FrameLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:animateLayoutChanges="true">
-
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_6"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toStartOf="@id/fl_RunRoutine_sequential_tileFrame_7"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_6"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/fl_RunRoutine_sequential_tileFrame_7"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/fl_RunRoutine_sequential_tileFrame_6">
-
-                    <include
-                        android:id="@+id/tile_RunRoutine_continuous_7"
-                        layout="@layout/viewholder_run_tile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </FrameLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
-
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,6 @@
 package de.threateningcodecomments.routinetimer
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -10,10 +9,9 @@ import com.maltaisn.icondialog.IconDialogSettings
 import com.maltaisn.icondialog.data.Icon
 import com.maltaisn.icondialog.pack.IconPack
 import de.threateningcodecomments.accessibility.RC
-import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.accessibility.UIContainer
 import de.threateningcodecomments.routinetimer.EditSequentialRoutineFragment.Companion.ICON_DIALOG_TAG
-import de.threateningcodecomments.services_etc.CountingService
 
 class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,15 +50,7 @@ class MainActivity : AppCompatActivity(), IconDialog.Callback, UIContainer {
         tmpTile = tile
     }
 
-    fun startCountingService(routineUid: String) {
-        val intent = Intent(this, CountingService::class.java)
-        intent.putExtra(CountingService.ROUTINE_UID_KEY, routineUid)
-
-        startService(intent)
-    }
-
     override fun updateUI() {}
-    override fun updateCurrentTile() {}
 
     companion object {
         private var instance: MainActivity = MainActivity()

@@ -18,9 +18,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class WeekdayPicker @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     var locale: Locale = Locale.getDefault()
@@ -46,8 +46,9 @@ class WeekdayPicker @JvmOverloads constructor(
         }
 
     val allDays = listOf(
-            Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY,
-            Calendar.SATURDAY, Calendar.SUNDAY)
+        Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY,
+        Calendar.SATURDAY, Calendar.SUNDAY
+    )
 
     var orderedDays = getOrderedDaysOfWeek(firstDayOfWeek)
 
@@ -60,14 +61,15 @@ class WeekdayPicker @JvmOverloads constructor(
     private val toggles = ArrayList<ShapeableImageView>()
 
     private var circleDrawable: Drawable =
-            RC.Resources.getDrawable(
-                    R.drawable.outline_circle)
+        RC.Resources.getDrawable(
+            R.drawable.outline_circle
+        )
 
     init {
         inflateLayoutUsing(context)
         initListeners()
 
-        //updateUI get's called due to the implications of changing the locale
+        //updateUI gets called due to the implications of changing the locale
         locale = Locale.getDefault()
     }
 
@@ -78,39 +80,31 @@ class WeekdayPicker @JvmOverloads constructor(
             val dayOfWeek = orderedDays[i]
 
             this.addView(
-                    ShapeableImageView(context).apply {
-                        //set layout
-                        val ivHeight = RC.Conversions.Size.dpToPx(40)
-                        layoutParams =
-                                LinearLayout.LayoutParams(
-                                        0,
-                                        ivHeight.toInt(),
-                                        1f
-                                ).apply {
-                                    val margin =
-                                            RC.Conversions.Size.dpToPx(10).toInt()
+                ShapeableImageView(context).apply {
+                    //set layout
+                    val ivHeight = RC.Conversions.Size.dpToPx(40)
+                    layoutParams =
+                        LinearLayout.LayoutParams(
+                            0,
+                            ivHeight.toInt(),
+                            1f
+                        ).apply {
+                            val margin =
+                                RC.Conversions.Size.dpToPx(10).toInt()
 
-                                    setMargins(0, margin, 0, margin)
-                                }
+                            setMargins(0, margin, 0, margin)
+                        }
 
-                        //set text
-                        setImageDrawable(
-                                TextDrawable(Color.WHITE, getAbbreviation(dayOfWeek))
-                        )
+                    //set text
+                    setImageDrawable(
+                        TextDrawable(Color.WHITE, RC.Conversions.Dates.getAbbreviation(dayOfWeek, locale))
+                    )
 
-                        //add to list
-                        toggles.add(this)
-                    }
+                    //add to list
+                    toggles.add(this)
+                }
             )
         }
-    }
-
-    private fun getAbbreviation(dayOfWeek: Int): String {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.DAY_OF_WEEK, dayOfWeek)
-        }
-
-        return SimpleDateFormat("EEEEE", locale).format(calendar.time)
     }
 
     private fun toggleSelected(view: ShapeableImageView) {
@@ -125,10 +119,10 @@ class WeekdayPicker @JvmOverloads constructor(
 
         //visual
         val d1 =
-                if (view.colorFilter == null)
-                    circleDrawable
-                else
-                    null
+            if (view.colorFilter == null)
+                circleDrawable
+            else
+                null
 
         setImageDrawable(dayOfWeek, d1, view)
 
@@ -145,7 +139,7 @@ class WeekdayPicker @JvmOverloads constructor(
 
     private fun setImageDrawable(dayOfWeek: Int, d1: Drawable?, view: ShapeableImageView) {
         val contrastColor = RC.Resources.Colors.extremeContrastColor
-        val textDrawable = TextDrawable(contrastColor, getAbbreviation(dayOfWeek))
+        val textDrawable = TextDrawable(contrastColor, RC.Conversions.Dates.getAbbreviation(dayOfWeek, locale))
 
         val combinedDrawable = CombinedDrawable(d1, textDrawable)
 
@@ -172,12 +166,15 @@ class WeekdayPicker @JvmOverloads constructor(
 
             //drawable
             val d1 =
-                    if (isSelected)
-                        circleDrawable
-                    else
-                        null
+                if (isSelected)
+                    circleDrawable
+                else
+                    null
 
-            val text = TextDrawable(RC.Resources.Colors.extremeContrastColor, getAbbreviation(day))
+            val text = TextDrawable(
+                RC.Resources.Colors.extremeContrastColor, RC.Conversions.Dates.getAbbreviation
+                    (day, locale)
+            )
             val combiDrawable = CombinedDrawable(d1, text)
             toggle.setImageDrawable(combiDrawable)
 

@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import de.threateningcodecomments.accessibility.RC
-import de.threateningcodecomments.accessibility.Routine
-import de.threateningcodecomments.accessibility.Tile
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.routinetimer.R
 import de.threateningcodecomments.routinetimer.SelectRoutineFragment
 

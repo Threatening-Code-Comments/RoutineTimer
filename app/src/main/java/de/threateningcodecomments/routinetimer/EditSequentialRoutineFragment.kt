@@ -38,6 +38,8 @@ import de.threateningcodecomments.adapters.ItemMoveCallbackListener
 import de.threateningcodecomments.adapters.MyViewHolder
 import de.threateningcodecomments.adapters.OnStartDragListener
 import de.threateningcodecomments.adapters.OrganizeRoutineAdapter
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.routinetimer.databinding.FragmentEditSequentialRoutineBinding
 
 
@@ -359,9 +361,7 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
 
     //region handle routines
     private fun updateRoutineNameView() {
-        MyLog.d(currentRoutine.name + " is the name of routine")
         routineNameEditText.setText(currentRoutine.name)
-        MyLog.d("after name change")
     }
 
     private fun updateRoutine() {
@@ -446,8 +446,6 @@ class EditSequentialRoutineFragment : Fragment(), View.OnClickListener, OnStartD
         val view = binding.root
         return view
     }
-
-    override fun updateCurrentTile() {}
 
     companion object {
         const val ICON_DIALOG_TAG = "icon-dialog"

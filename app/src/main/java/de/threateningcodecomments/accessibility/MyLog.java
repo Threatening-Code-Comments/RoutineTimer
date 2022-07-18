@@ -9,6 +9,7 @@ import de.threateningcodecomments.routinetimer.SettingsFragment;
 public class MyLog {
     public static final String DEFAULT_TAG = "myLog";
     public static final String DEFAULT_FIREBASE_TAG = "myFirebase";
+    public static final String DATABASE_TAG = "database";
 
     public static void test() {        //kotlin
         //RC.Resources.Colors.contrastColor

@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_startFragment_to_tileSettingsFragment"
             app:destination="@id/tileSettingsFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_runSequentialRoutine"
+            app:destination="@id/runSequentialRoutine" />
     </fragment>
 
     <fragment

@@ -19,7 +19,11 @@ class TextDrawable(val color: Int, val message: String) : Drawable() {
             textAlign = Paint.Align.CENTER
             colorFilter = cf
         }
-        canvas.drawText(message, 73f, 75f, paint)
+        //canvas.drawText(message, 73f, 75f, paint)
+        val xPos = bounds.width() / 2
+        //val yPos = (bounds.height() / 2 - (paint.descent() + paint.ascent()) / 2)
+        val yPos = (bounds.height() / 2 - (paint.descent() + paint.ascent()) / 2)
+        canvas.drawText(message, xPos.toFloat(), yPos, paint)
     }
 
     override fun getOpacity(): Int = PixelFormat.OPAQUE
@@ -41,9 +45,16 @@ class CombinedDrawable(private val d1: Drawable?, private val d2: Drawable) : Dr
 
         val paint = Paint().apply { colorFilter = cf }
 
-        if (b1 != null)
-            canvas.drawBitmap(b1, 25f, 5f, paint)
-        canvas.drawBitmap(b2, 0f, 0f, paint)
+        if (b1 != null) {
+            val xPos = (bounds.width() / 2) - (b1.width / 2).toFloat()
+            val yPos = (bounds.height() / 2) - (b1.width / 2).toFloat()
+
+            canvas.drawBitmap(b1, xPos, yPos, paint)
+        }
+
+        val xPos = (bounds.width() / 2) - (b2.width / 2).toFloat()
+        val yPos = (bounds.height() / 2) - (b2.width / 2).toFloat()
+        canvas.drawBitmap(b2, xPos, yPos, paint)
     }
 
     override fun getOpacity(): Int = PixelFormat.OPAQUE

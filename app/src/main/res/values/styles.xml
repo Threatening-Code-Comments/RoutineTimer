@@ -40,5 +40,19 @@
         <item name="cornerSize">10sp</item>
     </style>
 
+    <style name="restartButtonShapeOverlay">
+        <item name="cornerSizeTopLeft">@dimen/dimen_cardViewCornerRadius</item>
+        <item name="cornerSizeBottomLeft">@dimen/dimen_cardViewCornerRadius</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="deleteButtonShapeOverlay">
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeTopRight">@dimen/dimen_cardViewCornerRadius</item>
+        <item name="cornerSizeBottomRight">@dimen/dimen_cardViewCornerRadius</item>
+    </style>
+
 
 </resources>

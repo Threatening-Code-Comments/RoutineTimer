@@ -4,142 +4,150 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingHorizontal="40sp"
     android:paddingVertical="12sp"
     tools:context=".RunSequentialRoutine">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_RunRoutine_sequential_tileMain"
+        android:id="@+id/cv_RunRoutine_sequential_restartButton"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cv_RunRoutine_sequential_pauseButton"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view"
+        app:shapeAppearanceOverlay="@style/restartButtonShapeOverlay" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_RunRoutine_sequential_pauseButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintBottom_toBottomOf="@id/cv_RunRoutine_sequential_restartButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/cv_RunRoutine_sequential_restartButton"
+        app:layout_constraintTop_toTopOf="@id/cv_RunRoutine_sequential_restartButton"
+        app:shapeAppearanceOverlay="@style/deleteButtonShapeOverlay" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_RunRoutine_sequential_resetIcon"
+        android:layout_width="0sp"
+        android:layout_height="0sp"
+        android:elevation="1dp"
+        android:outlineAmbientShadowColor="@android:color/transparent"
+        android:outlineSpotShadowColor="@android:color/transparent"
+        android:src="@drawable/ic_restart"
+        app:layout_constraintBottom_toBottomOf="@id/cv_RunRoutine_sequential_restartButton"
+        app:layout_constraintEnd_toEndOf="@id/cv_RunRoutine_sequential_restartButton"
+        app:layout_constraintStart_toStartOf="@id/cv_RunRoutine_sequential_restartButton"
+        app:layout_constraintTop_toTopOf="@id/cv_RunRoutine_sequential_restartButton" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_RunRoutine_sequential_pauseIcon"
+        android:layout_width="0sp"
+        android:layout_height="0sp"
+        android:elevation="1dp"
+        android:outlineAmbientShadowColor="@android:color/transparent"
+        android:outlineSpotShadowColor="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="@id/cv_RunRoutine_sequential_pauseButton"
+        app:layout_constraintEnd_toEndOf="@id/cv_RunRoutine_sequential_pauseButton"
+        app:layout_constraintStart_toStartOf="@id/cv_RunRoutine_sequential_pauseButton"
+        app:layout_constraintTop_toTopOf="@id/cv_RunRoutine_sequential_pauseButton"
+        tools:src="@drawable/ic_pause" />
+
+    <View
+        android:id="@+id/v_RunRoutine_sequential_touchTarget"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/fui_transparent"
+        android:clickable="true"
+        android:elevation="-2dp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_RunRoutine_sequential_info_routineName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="55sp"
-        app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
+        android:elevation="2dp"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="10dp"
+        android:textAlignment="center"
+        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="25sp">
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_RunRoutine_sequential_tileIcon"
-                android:layout_width="match_parent"
-                android:layout_height="100sp"
-                android:src="@drawable/fui_ic_twitter_bird_white_24dp" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="20sp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RunRoutine_sequential_tileName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_tv_RunRoutine_sequential_tileName"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Routine name" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/materialCardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30sp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="12dp"
         app:cardCornerRadius="@dimen/dimen_cardViewCornerRadius"
-        app:layout_constraintBottom_toTopOf="@id/btn_RunRoutine_sequential_pause"
-        app:layout_constraintTop_toBottomOf="@+id/cv_RunRoutine_sequential_tileMain"
-        tools:layout_editor_absoluteX="20dp">
+        app:layout_constraintBottom_toBottomOf="@id/tv_RunRoutine_sequential_info_routineName"
+        app:layout_constraintEnd_toEndOf="@id/tv_RunRoutine_sequential_info_routineName"
+        app:layout_constraintStart_toStartOf="@id/tv_RunRoutine_sequential_info_routineName"
+        app:layout_constraintTop_toTopOf="@id/tv_RunRoutine_sequential_info_routineName" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="15sp">
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#CC5C5C5C"
+        app:layout_constraintBottom_toBottomOf="@id/sp_RunRoutine_sequential_mainBottom"
+        app:layout_constraintTop_toTopOf="@id/sp_RunRoutine_sequential_mainTop" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RunRoutine_sequential_info_routineName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_tv_RunRoutine_sequential_info_routineName"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
+    <Space
+        android:id="@+id/sp_RunRoutine_sequential_mainTop"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/tile_RunRoutine_sequential_1" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="30sp" />
+    <Space
+        android:id="@+id/sp_RunRoutine_sequential_mainBottom"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        app:layout_constraintTop_toBottomOf="@+id/tile_RunRoutine_sequential_1" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RunRoutine_sequential_info_currentInfo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_tv_RunRoutine_sequential_info_currentInfo"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RunRoutine_sequential_info_currentValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_tv_RunRoutine_sequential_info_currentValue"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="12sp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RunRoutine_sequential_info_totalInfo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_tv_RunRoutine_sequential_info_totalInfo"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_RunRoutine_sequential_info_totalValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_tv_RunRoutine_sequential_info_totalValue"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_RunRoutine_sequential_pause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/str_btn_RunRoutine_sequential_pause"
-        app:cornerRadius="@dimen/dimen_btnCorners"
-        app:layout_constraintBottom_toTopOf="@+id/ll_RunRoutine_sequential_accessibilityButtons"
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunRoutine_sequential_0"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toTopOf="@id/tile_RunRoutine_sequential_1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/materialCardView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/ll_RunRoutine_sequential_accessibilityButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="47dp"
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunRoutine_sequential_1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/tile_RunRoutine_sequential_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tile_RunRoutine_sequential_0" />
+
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunRoutine_sequential_2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_RunRoutine_sequential_pause">
+        app:layout_constraintTop_toBottomOf="@id/tile_RunRoutine_sequential_1" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_RunRoutine_sequential_restart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/str_btn_RunRoutine_sequential_restartButton"
-            app:cornerRadius="@dimen/dimen_btnCorners" />
-
-    </LinearLayout>
+    <de.threateningcodecomments.views.ContinuousTile
+        android:id="@+id/tile_RunRoutine_sequential_temp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="40dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/tile_RunRoutine_sequential_2"
+        app:layout_constraintTop_toTopOf="@id/tile_RunRoutine_sequential_2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

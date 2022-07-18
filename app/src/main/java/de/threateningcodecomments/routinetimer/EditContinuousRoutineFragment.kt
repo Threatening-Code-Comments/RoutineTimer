@@ -25,6 +25,8 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.TextInputLayout
 import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.routinetimer.databinding.FragmentEditContinuousRoutineBinding
 
 class EditContinuousRoutineFragment : Fragment(), UIContainer {
@@ -63,11 +65,17 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     override fun onStart() {
         super.onStart()
 
+        //reset onStop
+        RC.routines.doOnUpdate { listBefore, operation, element ->
+            currentRoutine = RC.RoutinesAndTiles.getRoutineFromUid(args.routineUID)
+        }
+
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             currentRoutine.lastUsed = System.currentTimeMillis()
             RC.Db.updateRoutineInDb(currentRoutine)
 
-            val directions = EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
+            val directions =
+                EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
 
             findNavController().navigate(directions)
         }
@@ -90,8 +98,6 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         val dragListener = View.OnDragListener { v: View?, event: DragEvent? ->
             if (v is GridLayout && event?.action != DragEvent.ACTION_DROP)
                 return@OnDragListener true
-
-            MyLog.d("Dragevent -> ${v.toString().split("app:id/")[1]} |||  ${event?.action}")
 
             val end = gridLayout.children.indexOf(v)
             val start = gridLayout.children.indexOf(dragStartView)
@@ -122,16 +128,16 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
                         currentRoutine.tiles.remove(tileToMove)
 
                         val targetIsDelete =
-                                v is FrameLayout ||
-                                        v is TextView ||
-                                        v is ImageView
+                            v is FrameLayout ||
+                                    v is TextView ||
+                                    v is ImageView
 
                         //handle if this event was from the deleteView
                         val tileToAdd =
-                                if (targetIsDelete)
-                                    Tile.DEFAULT_TILE
-                                else
-                                    tileToMove
+                            if (targetIsDelete)
+                                Tile.DEFAULT_TILE
+                            else
+                                tileToMove
                         currentRoutine.tiles.add(updatedDragIndex, tileToAdd)
 
                         RC.Db.updateRoutineInDb(currentRoutine)
@@ -166,9 +172,10 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         val longClickListener = View.OnLongClickListener {
             val item = ClipData.Item(it.id.toString())
             val dragData = ClipData(
-                    it.id.toString(),
-                    arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
-                    item)
+                it.id.toString(),
+                arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
+                item
+            )
 
             myShadow = View.DragShadowBuilder(it)
 
@@ -191,8 +198,10 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
             val index = gridTiles.indexOf(it)
             val tile = currentRoutine.tiles[index]
 
+            tile.updateUid(currentRoutine)
+
             val directions = EditContinuousRoutineFragmentDirections
-                    .actionEditContinuousRoutineFragmentToTileSettingsFragment(currentRoutine.uid, tile.uid)
+                .actionEditContinuousRoutineFragmentToTileSettingsFragment(currentRoutine.uid, tile.uid)
 
             findNavController().navigate(directions)
         }
@@ -218,10 +227,10 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
 
         //cards need to move left -> -1; right -> 1
         val dir =
-                if (range.first < range.last)
-                    -1
-                else
-                    1
+            if (range.first < range.last)
+                -1
+            else
+                1
 
         val newGridTiles = ArrayList<MaterialCardView>()
         for ((index, card) in gridLayout.children.withIndex()) {
@@ -270,67 +279,68 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     }
 
     private fun getYValue(index: Int, dir: Int, card: View) =
-            if (dir < 0)
-                if (index % 2 == 0)
-                    -card.height - card.marginTop * 2
-                else
-                    0
+        if (dir < 0)
+            if (index % 2 == 0)
+                -card.height - card.marginTop * 2
             else
-                if (index % 2 == 0)
-                    0
-                else
-                    card.height + card.marginBottom * 2
+                0
+        else
+            if (index % 2 == 0)
+                0
+            else
+                card.height + card.marginBottom * 2
 
     private fun getXValue(index: Int, dir: Int, card: View) =
-            if (dir < 0)
-                if (index % 2 == 0)
-                    card.width + card.marginLeft * 2
-                else
-                    -card.width - card.marginLeft * 2
+        if (dir < 0)
+            if (index % 2 == 0)
+                card.width + card.marginLeft * 2
             else
-                if (index % 2 == 0)
-                    card.width + card.marginLeft * 2
-                else
-                    -card.width - card.marginLeft * 2
+                -card.width - card.marginLeft * 2
+        else
+            if (index % 2 == 0)
+                card.width + card.marginLeft * 2
+            else
+                -card.width - card.marginLeft * 2
 
     override fun updateUI() {
         //updating tiles
         for ((index, grTile) in gridTiles.withIndex()) {
             val tile = currentRoutine.tiles[index]
+            tile.uid
 
             grTile.cardElevation =
-                    if (tile != Tile.DEFAULT_TILE)
-                        5f
-                    else
-                        0f
+                if (tile != Tile.DEFAULT_TILE)
+                    5f
+                else
+                    0f
 
             val bgColor =
-                    if (tile != Tile.DEFAULT_TILE)
-                        tile.backgroundColor
-                    else
-                        Color.TRANSPARENT
+                if (tile != Tile.DEFAULT_TILE)
+                    tile.backgroundColor
+                else
+                    Color.TRANSPARENT
             val contrastColor =
-                    if (tile != Tile.DEFAULT_TILE)
-                        RC.Conversions.Colors.calculateContrast(bgColor)
-                    else
-                        RC.Resources.Colors.contrastColor
+                if (tile != Tile.DEFAULT_TILE)
+                    RC.Conversions.Colors.calculateContrast(bgColor)
+                else
+                    RC.Resources.Colors.contrastColor
 
             grTile.setCardBackgroundColor(bgColor)
 
             val nameView = grTile.findViewById<TextView>(R.id.tv_viewholder_smallTile_name)
             nameView.text =
-                    if (tile != Tile.DEFAULT_TILE)
-                        tile.name
-                    else
-                        "Add Tile"
+                if (tile != Tile.DEFAULT_TILE)
+                    tile.name
+                else
+                    "Add Tile"
             nameView.setTextColor(contrastColor)
 
             val iconView = grTile.findViewById<ShapeableImageView>(R.id.iv_viewholder_smallTile_icon)
             val drawable =
-                    if (tile != Tile.DEFAULT_TILE)
-                        RC.getIconDrawable(tile)
-                    else
-                        RC.Resources.getDrawable(R.drawable.ic_add)
+                if (tile != Tile.DEFAULT_TILE)
+                    RC.getIconDrawable(tile)
+                else
+                    RC.Resources.getDrawable(R.drawable.ic_add)
 
             iconView.setImageDrawable(drawable)
             iconView.setColorFilter(contrastColor)
@@ -348,18 +358,20 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         //animate view
         val currentHeightValue = RC.Conversions.Size.pxToDp(deleteView.height)
         val heightValue =
-                if (hovered)
-                    200f
-                else
-                    100f
+            if (hovered)
+                200f
+            else
+                100f
 
         ValueAnimator.ofFloat(currentHeightValue.toFloat(), heightValue).apply {
             duration = 500
 
             addUpdateListener {
                 deleteView.updateLayoutParams {
-                    val pixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, it.animatedValue as Float,
-                            context?.resources?.displayMetrics)
+                    val pixels = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, it.animatedValue as Float,
+                        context?.resources?.displayMetrics
+                    )
                     height = pixels.toInt()
                 }
             }
@@ -374,9 +386,11 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         val deleteColor = RC.Resources.Colors.cancelColor
 
         val gradientDrawable = GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(deleteColor,
-                        Color.TRANSPARENT)
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                deleteColor,
+                Color.TRANSPARENT
+            )
         )
         gradientDrawable.cornerRadius = 0f;
 
@@ -396,11 +410,12 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
         _binding = null
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentEditContinuousRoutineBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     private fun initBufferViews() {
@@ -425,12 +440,11 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     }
 
     private fun goToSelectRoutine() {
-        val directions: NavDirections = EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
+        val directions: NavDirections =
+            EditContinuousRoutineFragmentDirections.actionEditContinuousRoutineFragmentToSelectRoutineFragment()
 
         findNavController().navigate(directions)
     }
-
-    override fun updateCurrentTile() {}
 
     companion object {
         private const val REFLOW_DIR_DOWN = -1

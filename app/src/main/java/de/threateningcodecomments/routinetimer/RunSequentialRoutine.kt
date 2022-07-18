@@ -2,49 +2,63 @@ package de.threateningcodecomments.routinetimer
 
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
+import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.core.content.ContextCompat.getColor
+import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.textview.MaterialTextView
-import de.threateningcodecomments.accessibility.RC
-import de.threateningcodecomments.accessibility.Routine
-import de.threateningcodecomments.accessibility.Tile
-import de.threateningcodecomments.accessibility.UIContainer
+import de.threateningcodecomments.accessibility.*
+import de.threateningcodecomments.adapters.CVButtonHandler
+import de.threateningcodecomments.data.Routine
+import de.threateningcodecomments.data.Tile
 import de.threateningcodecomments.routinetimer.databinding.FragmentRunSequentialRoutineBinding
-import kotlin.math.abs
+import de.threateningcodecomments.services_etc.TileEventService
+import de.threateningcodecomments.views.ContinuousTile
+import kotlin.math.sign
 
-class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
+class RunSequentialRoutine : Fragment(), UIContainer, TileEventService.TileRunFragment {
 
     private val args: RunSequentialRoutineArgs by navArgs()
 
-    private lateinit var currentRoutine: Routine
+    private lateinit var routine: Routine
     private lateinit var routineUid: String
 
-    private lateinit var tileCardView: MaterialCardView
-    private lateinit var tileIconView: ShapeableImageView
-    private lateinit var tileNameView: MaterialTextView
+    private lateinit var routineNameView: TextView
 
-    private lateinit var routineNameView: MaterialTextView
-    private lateinit var currentTimeInfoView: MaterialTextView
-    private lateinit var currentTimeValueView: MaterialTextView
-    private lateinit var totalTimeInfoView: MaterialTextView
-    private lateinit var totalTimeValueView: MaterialTextView
+    private lateinit var tile0: ContinuousTile
+    private lateinit var tile1: ContinuousTile
+    private lateinit var tile2: ContinuousTile
+    private lateinit var tileTemp: ContinuousTile
 
-    private lateinit var pauseButton: MaterialButton
-    private lateinit var restartButton: MaterialButton
+    private lateinit var restartButtonCard: MaterialCardView
+    private lateinit var restartButtonIcon: ShapeableImageView
+    private lateinit var restartHandler: CVButtonHandler
+
+    private lateinit var pauseButtonCard: MaterialCardView
+    private lateinit var pauseButtonIcon: ShapeableImageView
+    private lateinit var pauseHandler: CVButtonHandler
+
+    private lateinit var touchTarget: View
+
+    private var currentIndex: Int = 0
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sharedElementEnterTransition = RC.Resources.sharedElementTransition
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        TileEventService.tileRunFragment = null
     }
 
     override fun onStart() {
@@ -55,250 +69,395 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         }
 
         routineUid = args.routineUid
-        currentRoutine = RC.RoutinesAndTiles.getRoutineFromUid(routineUid)
+        routine = RC.RoutinesAndTiles.getRoutineFromUid(routineUid)
+
+        routine.lastUsed = System.currentTimeMillis()
+
+        TileEventService.tileRunFragment = this
 
         initBufferViews()
         initListeners()
 
+        updateCurrentIndex()
+
         updateUI()
     }
 
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.cv_RunRoutine_sequential_tileMain -> {
-                App.instance.cycleForward(currentRoutine)
-                cycleForward()
-            }
-            R.id.btn_RunRoutine_sequential_pause -> {
-                val currentTile = RC.currentTiles[routineUid] ?: RC
-                        .previousCurrentTiles[routineUid] ?: currentRoutine.tiles[0]
-
-                if (!isRunning) {
-                    App.instance.startTile(currentTile)
-                    startTile(currentTile)
-                } else {
-                    App.instance.stopTile(currentRoutine)
-                    stopTile()
-                }
-            }
-            R.id.btn_RunRoutine_sequential_restart -> restartRoutine()
+    private fun updateCurrentIndex() {
+        val noTileRunning = RC.runningTiles[routine.uid].isEmpty()
+        if (noTileRunning) {
+            currentIndex = 0
+            return
         }
+
+        val tile = RC.runningTiles[routineUid].first()
+        currentIndex = routine.tiles.indexOf(tile)
     }
 
-    //region init
+
+    override fun updateRunningTile(tile: Tile, elapsedTime: Long, totalTime: Long) {
+        val isActiveTile =
+            routine.tiles.indexOf(tile) == currentIndex
+
+        if (!isActiveTile)
+            setActiveTile(tile)
+
+        val info1: String?
+        val info2: String?
+
+        when (tile.mode) {
+            Tile.MODE_COUNT_UP -> {
+                info1 = RC.Conversions.Time.millisToHHMMSSorMMSS(elapsedTime)
+                info2 = RC.Conversions.Time.millisToHHMMSSorMMSS(totalTime)
+            }
+
+            Tile.MODE_COUNT_DOWN -> {
+                val time = tile.countDownSettings.countDownTime - elapsedTime
+
+                info1 = RC.Conversions.Time.millisToHHMMSSorMMSS(time)
+
+                val times = (totalTime / tile.countDownSettings.countDownTime).toInt()
+
+                info2 = times.toString()
+            }
+
+            Tile.MODE_TAP -> {
+                info1 = tile.tapSettings.count.toString()
+                info2 = null
+            }
+
+            Tile.MODE_DATA -> {
+                info1 = null
+                info2 = null
+            }
+
+            else ->
+                throw Tile.TileModeException()
+        }
+
+        tile1.updateUI(tile, info1, info2)
+    }
+
+    private fun setActiveTile(tile: Tile) {
+        val newIndex = routine.tiles.indexOf(tile)
+
+        currentIndex =
+            if (newIndex < currentIndex)
+                newIndex + 1
+            else
+                newIndex - 1
+
+        if (newIndex < currentIndex)
+            cycleBack()
+        else
+            cycleForward()
+    }
+
     private fun initListeners() {
+        val swipeListener =
+            OnSwipeTouchListener(requireContext()) { direction ->
+                when (direction) {
+                    RC.Directions.UP -> cycleForward(animationOnly = false)
+                    RC.Directions.DOWN -> cycleBack(animationOnly = false)
+                    else -> {
+                    }
+                }
+            }
 
-        tileCardView.setOnClickListener(this)
+        tile0.setOnTouchListener(swipeListener)
+        tile1.setOnTouchListener(swipeListener)
+        tile2.setOnTouchListener(swipeListener)
+        touchTarget.setOnTouchListener(swipeListener)
 
-        pauseButton.setOnClickListener(this)
-        restartButton.setOnClickListener(this)
+        tile1.doOnClick {
+            toggleTileEvent(it, isPause = false, isRepeat = false)
+        }
+
+
+        //button handler
+        pauseHandler = CVButtonHandler(
+            card = pauseButtonCard,
+            icon = pauseButtonIcon,
+            deselectColor = RC.Resources.Colors.acceptColor,
+            selectColor = RC.Resources.Colors.cancelColor
+        ) {
+            toggleTileEvent(isPause = true)
+        }
+
+
+        restartHandler = CVButtonHandler(
+            card = restartButtonCard,
+            icon = restartButtonIcon,
+            mode = CVButtonHandler.MODE_TAP,
+            selectColor = RC.Resources.Colors.primaryColor
+        ) {
+            toggleTileEvent(isRepeat = true)
+        }
+
+    }
+
+    private val currentTile: Tile?
+        get() =
+            routine.tiles.getOrNull(currentIndex)
+
+    private fun toggleTileEvent(it: Tile? = currentTile, isPause: Boolean = false, isRepeat: Boolean = false) {
+        it ?: throw IllegalStateException("CurrentTile is null!!")
+
+        val isRunning = RC.runningTiles.containsTile(it)
+
+        if (isRunning)
+            RC.runningTiles[routineUid].remove(it, isPause, isRepeat)
+        else
+            RC.runningTiles[routineUid].add(it, isPause, isRepeat)
+
+        //inverted because tile gets toggled
+        setPlayButton(!isRunning)
+
+        tile1.updateUI(it)
+
+        updateUI()
+    }
+
+    private fun cycleBack(animationOnly: Boolean = true) {
+        val isPossible =
+            currentIndex - 1 >= 0
+
+        if (!isPossible)
+        //TODO animateCycleError
+            return
+
+        if (!animationOnly)
+            RC.runningTiles.removeTile(currentTile ?: throw IllegalStateException("No tile is running"))
+
+        currentIndex--
+
+        if (!animationOnly)
+            RC.runningTiles[routineUid].add(currentTile ?: throw IllegalStateException("No tile is running"))
+
+        animateDown()
+    }
+
+    private fun cycleForward(animationOnly: Boolean = true) {
+        val isPossible =
+            currentIndex + 1 < routine.tiles.size
+
+        if (!isPossible)
+        //TODO animateCycleError
+            return
+
+        if (!animationOnly)
+            RC.runningTiles.removeTile(currentTile ?: throw IllegalStateException("No tile is running"))
+
+        currentIndex++
+
+        if (!animationOnly)
+            RC.runningTiles[routineUid].add(currentTile ?: throw IllegalStateException("No tile is running"))
+
+        animateUp()
+    }
+
+    private fun resetTiles() {
+        animateY(
+            tile0,
+            tile0.top,
+            isInstant = true
+        )
+
+        animateY(
+            tile1,
+            tile1.top,
+            isInstant = true
+        )
+
+        animateY(
+            tile2,
+            tile2.top,
+            isInstant = true
+        )
+
+        animateY(
+            tileTemp,
+            -1000,
+            isInstant = true
+        )
+
+        updateUI()
+    }
+
+    private fun animateY(tile: ContinuousTile, y: Int, endAction: () -> Unit = {}, isInstant: Boolean = false) =
+        animateY(tile, y.toFloat(), endAction, isInstant)
+
+    private fun animateY(tile: ContinuousTile, y: Float, endAction: () -> Unit = {}, isInstant: Boolean = false) =
+        tile.animate()
+            .setDuration(
+                if (isInstant) 0
+                else 250L
+            )
+            .y(y)
+            .withEndAction(endAction)
+            .start()
+
+
+    private fun animateDown() {
+        initTempTile(false)
+
+        animateY(
+            tileTemp,
+            tile0.top
+        )
+
+        animateY(
+            tile0,
+            tile1.top
+        )
+
+        animateY(
+            tile1,
+            tile2.top
+        )
+
+        animateY(
+            tile2,
+            tile2.bottom + tile2.marginTop,
+            endAction = {
+                resetTiles()
+            }
+        )
+    }
+
+    private fun animateUp() {
+        initTempTile(true)
+
+        animateY(
+            tile0,
+            -tileTemp.height.toFloat() - tile0.marginTop
+        )
+
+        animateY(
+            tile1,
+            tile0.top
+        )
+
+        animateY(
+            tile2,
+            tile1.top
+        )
+
+        animateY(
+            tileTemp,
+            tile2.top,
+            endAction = {
+                resetTiles()
+            }
+        )
+
+    }
+
+    private fun initTempTile(isUp: Boolean) {
+        tileTemp.visibility = View.INVISIBLE
+
+        val tileIndex =
+            if (isUp)
+                currentIndex + 1
+            else
+                currentIndex - 1
+
+        //if tile is null, so if it doesn't exist
+        val tile = routine.tiles.getOrNull(tileIndex)
+        tile ?: return
+
+        tileTemp.visibility = View.VISIBLE
+
+        tileTemp.updateUI(tile)
+
+        tileTemp.deactivate(true)
+
+        val y =
+            if (isUp)
+                tile2.bottom + tile2.marginTop.toFloat()
+            else
+                -tile2.height - tile2.marginTop
+
+        tileTemp.animate()
+            .y(y.toFloat())
+            .setDuration(0L)
+            .start()
     }
 
     private fun initBufferViews() {
 
         binding.apply {
-            tileCardView = cvRunRoutineSequentialTileMain
-            tileIconView = ivRunRoutineSequentialTileIcon
-            tileNameView = tvRunRoutineSequentialTileName
-
             routineNameView = tvRunRoutineSequentialInfoRoutineName
 
-            currentTimeInfoView = tvRunRoutineSequentialInfoCurrentInfo
-            currentTimeValueView = tvRunRoutineSequentialInfoCurrentValue
-            totalTimeInfoView = tvRunRoutineSequentialInfoTotalInfo
-            totalTimeValueView = tvRunRoutineSequentialInfoTotalValue
+            tile0 = tileRunRoutineSequential0
+            tile1 = tileRunRoutineSequential1
+            tile2 = tileRunRoutineSequential2
+            tileTemp = tileRunRoutineSequentialTemp
 
-            pauseButton = btnRunRoutineSequentialPause
-            restartButton = btnRunRoutineSequentialRestart
+            restartButtonCard = cvRunRoutineSequentialRestartButton
+            restartButtonIcon = ivRunRoutineSequentialResetIcon
+
+            pauseButtonCard = cvRunRoutineSequentialPauseButton
+            pauseButtonIcon = ivRunRoutineSequentialPauseIcon
+
+            touchTarget = vRunRoutineSequentialTouchTarget
         }
     }
-    //endregion
 
     override fun updateUI() {
+        routineNameView.text = routine.name
 
-        routineNameView.text = currentRoutine.name
+        //current tile
+        val currentTile = routine.tiles[currentIndex]
+        tile1.updateUI(currentTile)
+        tile1.activate(true)
+        setPlayButton(isRunning = true)
 
-        val currentTile = RC.currentTiles[routineUid]
+        //previous tile
+        val hasPreviousTile = (currentIndex > 0)
+        if (hasPreviousTile) {
+            val previousTile = routine.tiles[currentIndex - 1]
 
-        //if the currentTile is null, set isRunning to false
-        isRunning = (currentTile != null)
-
-        val isNightMode = RC.isNightMode
-
-        //handle text and color of pause button, functionality is in onClick
-        //handle starting of tileUpdatingHandler with startTile
-        if (!isRunning) {
-            pauseButton.text = getString(R.string.str_RunRoutine_sequential_pauseButtonResume)
-            if (isNightMode)
-                pauseButton.setBackgroundColor(getColor(requireContext(), R.color.colorAcceptDark))
-            else
-                pauseButton.setBackgroundColor(getColor(requireContext(), R.color.colorAcceptLight))
+            tile0.updateUI(previousTile)
+            tile0.deactivate(true)
+            tile0.visibility = View.VISIBLE
         } else {
-            pauseButton.text = getString(R.string.str_RunRoutine_sequential_pauseButtonPause)
-            if (isNightMode)
-                pauseButton.setBackgroundColor(getColor(requireContext(), R.color.colorCancelDark))
-            else
-                pauseButton.setBackgroundColor(getColor(requireContext(), R.color.colorCancelLight))
-
-            startTile(currentTile!!)
+            tile0.visibility = View.INVISIBLE
         }
 
-        updateTileInUI(currentTile)
-    }
+        //next tile
+        val hasNextTile = (currentIndex < routine.tiles.size - 1)
+        if (hasNextTile) {
+            val nextTile = routine.tiles[currentIndex + 1]
 
-    private fun updateTileInUI(tile: Tile?) {
-        val previousTile = RC.previousCurrentTiles[routineUid]
-        //hardcode of tile position, might want to change that
-        val validTile = tile ?: previousTile ?: currentRoutine.tiles[0]
-
-        val bgColor =
-                tile?.backgroundColor ?: Color.GRAY
-        val contrastColor =
-                RC.Conversions.Colors.calculateContrast(bgColor)
-
-        tileCardView.setCardBackgroundColor(bgColor)
-
-        tileNameView.text =
-                if (SettingsFragment.preferences.dev.debug)
-                    RC.Debugging.shortenUid(validTile.uid)
-                else
-                    validTile.name
-        tileNameView.setTextColor(contrastColor)
-
-        tileIconView.setImageDrawable(RC.getIconDrawable(validTile))
-        tileIconView.setColorFilter(contrastColor)
-
-        if (validTile.mode == Tile.MODE_COUNT_DOWN) {
-            currentTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_currentTimeInfo_countdown)
-
-            totalTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_totalTimeInfo_countdown)
-            val timesPressed = validTile.totalCountedTime / validTile.countDownSettings.countDownTime
-            totalTimeValueView.text = "${timesPressed}x"
+            tile2.updateUI(nextTile)
+            tile2.deactivate(true)
+            tile2.visibility = View.VISIBLE
         } else {
-            currentTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_currentTimeInfo_countup)
-
-            totalTimeInfoView.text = getString(R.string.str_RunRoutine_sequential_totalTimeInfo_countup)
-            totalTimeValueView.text = RC.Conversions.Time.millisToHHMMSSorMMSS(validTile.totalCountedTime)
-        }
-
-        //if the tile isn't running, change the text on the time displays to "not running"
-        if (!isRunning) {
-            currentTimeValueView.text = getString(R.string.str_RunRoutine_sequential_currentTimeInfo_notRunning)
-        }
-
-    }
-
-    private var isRunning = false
-    private var isRunningInUI = false
-    private fun startTile(tile: Tile) {
-        if (!isRunningInUI) {
-            isRunningInUI = true
-
-            updateTileInUI(tile)
-
-            val updatingHandler = object : Runnable {
-                override fun run() {
-                    //buffers currentTime, prevent currentTime from being negative
-                    var currentTime = System.currentTimeMillis() - abs(tile.countingStart)
-                    currentTime =
-                            if (tile.mode == Tile.MODE_COUNT_DOWN)
-                                tile.countDownSettings.countDownTime - currentTime
-                            else
-                                currentTime
-
-                    if (currentTime <= 0L) {
-                        currentTime = 0L
-
-                        if (tile.mode == Tile.MODE_COUNT_DOWN) {
-                            cycleForward()
-                        }
-                    }
-
-                    //update currentTimeField, when tile is countUp this is the raw elapsed time, with countdownTile this
-                    // is the remaining time
-                    val currentTimeStr = RC.Conversions.Time.millisToHHMMSSmmOrMMSSmm(currentTime)
-                    currentTimeValueView.text = currentTimeStr
-
-                    //updates the totalTimeField, only needs to be done with countUpTiles
-                    if (tile.mode == Tile.MODE_COUNT_UP) {
-                        val totalTime = tile.totalCountedTime + currentTime
-                        val totalTimeStr = RC.Conversions.Time.millisToHHMMSSorMMSS(totalTime)
-                        totalTimeValueView.text = totalTimeStr
-                    }
-
-                    if (RC.currentTiles[routineUid] == tile) {
-                        Handler().postDelayed(this, 10)
-                    } else {
-                        isRunningInUI = false
-                        stopTile()
-                        updateUI()
-                        return
-                    }
-                }
-            }.run()
+            tile2.visibility = View.INVISIBLE
         }
     }
 
-    private fun stopTile() {
-        //if there is no started tile and there was none either, return (this doesn't happen, but kotlin doesn't like
-        // it otherwise)
-        val currentTile = RC.currentTiles[routineUid] ?: RC.previousCurrentTiles[routineUid]
-        ?: return
+    private fun setPlayButton(isRunning: Boolean) {
+        val drawID =
+            if (isRunning)
+                R.drawable.ic_pause
+            else
+                R.drawable.ic_play
+        val draw =
+            RC.Resources.getDrawable(drawID)
 
-        //buffers the actual elapsed time
-        val realElapsedTime = System.currentTimeMillis() - abs(currentTile.countingStart)
-        //sets the cap for elapsedTime for countdownTiles to their countdownTime
-        val elapsedTime = if (currentTile.mode == Tile.MODE_COUNT_DOWN)
-            currentTile.countDownSettings.countDownTime
+        pauseButtonIcon.setImageDrawable(draw)
+
+        if (isRunning)
+            pauseHandler.select(execOnClickRun = false)
         else
-            realElapsedTime
-
-        //adds the elapsed time to the tiles total runtime
-        if ((currentTile.mode == Tile.MODE_COUNT_UP) || (currentTile.countDownSettings.countDownTime <= realElapsedTime)) {
-            currentTile.totalCountedTime += elapsedTime
-        }
+            pauseHandler.deselect(execOnClickRun = false)
     }
 
     private fun restartRoutine() {
-        //stops old tile, whichever one that may be
-        App.instance.stopTile(currentRoutine)
 
-        //starts first tile of the list
-        val newTile = currentRoutine.tiles[0]
-        App.instance.startTile(newTile)
     }
-
-    fun cycleForward() {
-        val newTile = RC.currentTiles[routineUid]
-        val tempIndex = currentRoutine.tiles.indexOf(newTile)
-        //when the active tile is the first or last tile, cycle from / to the first tile
-        val oldIndex =
-                if (tempIndex - 1 < 0 || tempIndex == currentRoutine.tiles.size - 1)
-                    0
-                else
-                    tempIndex - 1
-        val oldTile = currentRoutine.tiles[oldIndex]
-
-        updateTileInUI(oldTile)
-        //sliding the card out of frame
-        tileCardView.startAnimation(RC.Anim.slideLeftOut)
-
-        //waiting for the animation to complete, so it doesn't get overridden
-        Handler().postDelayed({
-            //if the active tile is the last one in the list, begin from the start again
-            if (tempIndex == currentRoutine.tiles.size - 1)
-                restartRoutine()
-
-            //animate new entry
-            updateTileInUI(newTile)
-            tileCardView.startAnimation(RC.Anim.slideLeftIn)
-
-            /*//the currentTile is automatically correctly, look in the getter
-            startTile(currentTile)*/
-        }, RC.Anim.slideLeftIn.duration)
-    }
-
-    override fun updateCurrentTile() {}
 
     private fun navigateBack() {
         val directions = RunSequentialRoutineDirections.actionRunSequentialRoutineToSelectRoutineFragment()
@@ -314,8 +473,10 @@ class RunSequentialRoutine : Fragment(), UIContainer, View.OnClickListener {
         _binding = null
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentRunSequentialRoutineBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
