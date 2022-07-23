@@ -127,6 +127,7 @@
     <string name="str_TileSettings_mode_resetSummary_time">Every %1$s %2$s starting on %3$s</string>
     <string name="str_TileSettings_resetSummary_week_base">Every %1$d %2$s on %3$s</string>
     <string name="str_TileSettings_resetSummary_week_error">No weekdays selected!</string>
+    <string name="str_TileSettings_timing_tap_amountIsEmpty">Amount cannot be empty!</string>
     <plurals name="pl_minute">
         <item quantity="one">minute</item>
         <item quantity="other">minutes</item>

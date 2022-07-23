@@ -106,7 +106,8 @@ class Routine {
                 }
 
                 for (tile in tilesAdded) {
-                    tile.updateUid(this)
+                    if (tile != Tile.DEFAULT_TILE)
+                        tile.updateUid(this)
                     tile.setAccessibility(RC.isNightMode)
                 }
             }

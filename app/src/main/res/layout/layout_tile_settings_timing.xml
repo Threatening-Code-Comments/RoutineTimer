@@ -280,6 +280,74 @@
         </de.threateningcodecomments.views.TileSettingsMain>
 
         <de.threateningcodecomments.views.TileSettingsMain
+            android:id="@+id/ml_TileSettings_timing_tap_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:name="Tap Settings"
+            app:src="@drawable/ic_mode_tap">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_TileSettingsMain_timing_tap_editLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Tap Amount: "
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/atv_TileSettings_timing_tap_amount"
+                    app:layout_constraintEnd_toStartOf="@+id/atv_TileSettings_timing_tap_amount"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/atv_TileSettings_timing_tap_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="60dp"
+                    android:layout_marginEnd="5dp"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:maxWidth="120dp"
+                    android:minWidth="40dp"
+                    android:selectAllOnFocus="true"
+                    android:textAlignment="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_TileSettings_timing_tap_increase"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:clickable="true"
+                    android:src="@drawable/ic_add"
+                    app:layout_constraintBottom_toBottomOf="@id/atv_TileSettings_timing_tap_amount"
+                    app:layout_constraintStart_toEndOf="@id/atv_TileSettings_timing_tap_amount"
+                    app:layout_constraintTop_toTopOf="@id/atv_TileSettings_timing_tap_amount"
+                    app:shapeAppearanceOverlay="@style/circleImageView" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_TileSettings_timing_tap_decrease"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:clickable="true"
+                    android:src="@drawable/ic_minus"
+                    app:layout_constraintBottom_toBottomOf="@id/atv_TileSettings_timing_tap_amount"
+                    app:layout_constraintStart_toEndOf="@+id/iv_TileSettings_timing_tap_increase"
+                    app:layout_constraintTop_toTopOf="@id/atv_TileSettings_timing_tap_amount" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </de.threateningcodecomments.views.TileSettingsMain>
+
+        <de.threateningcodecomments.views.TileSettingsMain
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:hasSummary="true"

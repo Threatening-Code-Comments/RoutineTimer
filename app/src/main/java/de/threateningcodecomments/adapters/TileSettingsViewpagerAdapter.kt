@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputLayout
@@ -470,6 +472,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         private lateinit var remindsLayout: TileSettingsMain
         private lateinit var remindsOnButton: MaterialCardView
         private lateinit var remindsOffButton: MaterialCardView
+
+        private lateinit var tapLayout: TileSettingsMain
+        private lateinit var tapAmount: AutoCompleteTextView
+        private lateinit var tapIncrease: ShapeableImageView
+        private lateinit var tapDecrease: ShapeableImageView
         //endregion
 
         override fun onResume() {
@@ -504,6 +511,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                     cdTimeInputEdit
                 )
             cdTimeInputDisplay.setBackgroundColor(RC.Resources.Colors.onSurfaceColor)
+
+            tapLayout.visibilityTypesToIgnore =
+                setOf(
+                    AutoCompleteTextView::javaClass.name
+                )
         }
 
         private fun initUpdateUI() {
@@ -590,6 +602,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                         "Off"
                 remindsLayout.summary = text
             }
+
+            tapLayout.doOnUIUpdate {
+                val amount = currentTile.tapSettings.increment
+                tapAmount.setText(amount.toString(), null)
+            }
         }
 
         private fun setResetAdjustLayoutsVisibility(visible: Boolean) {
@@ -614,8 +631,10 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
         }
 
         override fun updateUI() {
-            //makes the layout visible only if the tile mode is cd
+            //makes layouts reflect the tile mode
             setCDLayoutsVisibility(currentTile.mode == Tile.MODE_COUNT_DOWN)
+            tapLayout.isVisible = (currentTile.mode == Tile.MODE_TAP)
+
 
             modeLayout.updateUI()
 
@@ -624,6 +643,8 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             cdTimeLayout.updateUI()
 
             remindsLayout.updateUI()
+
+            tapLayout.updateUI()
         }
 
         private fun setCDLayoutsVisibility(isVisible: Boolean) {
@@ -747,6 +768,49 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
             //cdTime
             initCdTimeListener()
 
+            initTapListeners()
+        }
+
+        private fun initTapListeners() {
+            tapIncrease.setOnClickListener {
+                if (tapAmount.text.toString() == "")
+                    return@setOnClickListener
+
+                val amount = tapAmount.text.toString().toInt()
+
+                val addedAmount = (amount + 1).toString()
+
+                tapAmount.setText("", null)
+                tapAmount.append(addedAmount)
+            }
+
+            tapDecrease.setOnClickListener {
+                if (tapAmount.text.toString() == "")
+                    return@setOnClickListener
+
+                val amount = tapAmount.text.toString().toInt()
+
+                val addedAmount = (amount - 1).toString()
+
+                tapAmount.setText("", null)
+                tapAmount.append(addedAmount)
+            }
+
+            tapAmount.doOnTextChanged { text, start, before, count ->
+                val error =
+                    if (text.toString() == "")
+                        getString(R.string.str_TileSettings_timing_tap_amountIsEmpty)
+                    else
+                        null
+
+                tapAmount.error = error
+
+                if (error != null)
+                    return@doOnTextChanged
+
+
+                currentTile.tapSettings.increment = text.toString().toInt()
+            }
         }
 
         private fun initCdTimeListener() =
@@ -1184,8 +1248,13 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                 Toast.makeText(context, "Reset Unit needs to be selected!", Toast.LENGTH_SHORT).show()
                 return false
             }
-            if(weekdayNotSelected){
+            if (weekdayNotSelected) {
                 Toast.makeText(context, "Reset weekdays need to be selected!", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (currentTile.mode == Tile.MODE_TAP && tapAmount.error != null) {
+                Toast.makeText(context, R.string.str_TileSettings_timing_tap_amountIsEmpty, Toast.LENGTH_SHORT).show()
                 return false
             }
 
@@ -1338,6 +1407,11 @@ class TileSettingsViewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fr
                 remindsOffButton = cvTileSettingsTimingRemindsOff
 
                 countdownSettingsLayouts = setOf(cdTimeLayout, remindsLayout)
+
+                tapLayout = mlTileSettingsTimingTapMain
+                tapAmount = atvTileSettingsTimingTapAmount
+                tapIncrease = ivTileSettingsTimingTapIncrease
+                tapDecrease = ivTileSettingsTimingTapDecrease
             }
         }
 

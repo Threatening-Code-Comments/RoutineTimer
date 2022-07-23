@@ -138,6 +138,8 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
                                 Tile.DEFAULT_TILE
                             else
                                 tileToMove
+
+                        MyLog.d("tile to add! id: ${tileToAdd.uid}")
                         currentRoutine.tiles.add(updatedDragIndex, tileToAdd)
 
                         RC.Db.updateRoutineInDb(currentRoutine)
@@ -416,6 +418,12 @@ class EditContinuousRoutineFragment : Fragment(), UIContainer {
     ): View {
         _binding = FragmentEditContinuousRoutineBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        RC.routines.doOnUpdate { _, _, _ ->  }
     }
 
     private fun initBufferViews() {

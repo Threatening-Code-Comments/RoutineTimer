@@ -987,11 +987,6 @@ object RC {
 
     var routines: ObservableList<Routine> = ObservableList<Routine>().apply {
         doOnUpdate { listBefore, operation, element ->
-            MyLog.d(
-                operation.toString() +
-                        element +
-                        listBefore
-            )
         }
     }
 
